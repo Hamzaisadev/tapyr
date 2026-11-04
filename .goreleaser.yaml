@@ -95,9 +95,9 @@ docker_signs:
     args: ["sign", "--yes", "${artifact}@${digest}"]
 
 # The release notes are the section of the version in CHANGELOG.md, passed by
-# the release workflow with --release-notes.
-changelog:
-  disable: true
+# the release workflow with --release-notes. The changelog stays enabled: when
+# disabled, GoReleaser skips the step that loads --release-notes too, and the
+# release comes out without notes.
 
 release:
   github:
