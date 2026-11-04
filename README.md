@@ -13,6 +13,7 @@
   <a href="https://github.com/kentrow/tapyr/actions/workflows/ci.yml"><img src="https://github.com/kentrow/tapyr/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/kentrow/tapyr/releases/latest"><img src="https://img.shields.io/github/v/release/kentrow/tapyr?sort=semver" alt="Latest release"></a>
   <a href="https://scorecard.dev/viewer/?uri=github.com/Kentrow/tapyr"><img src="https://api.scorecard.dev/projects/github.com/Kentrow/tapyr/badge" alt="OpenSSF Scorecard"></a>
+  <a href="https://www.bestpractices.dev/projects/16342"><img src="https://www.bestpractices.dev/projects/16342/badge" alt="OpenSSF Best Practices"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0"></a>
   <img src="https://img.shields.io/badge/go-1.27-00add8" alt="Go 1.27">
 </p>

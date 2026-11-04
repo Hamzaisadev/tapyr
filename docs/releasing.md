@@ -12,7 +12,7 @@ How a maintainer publishes a version. The release workflow ([`.github/workflows/
 - **Dependabot**: Settings > Code security, Dependabot alerts and security updates enabled; the version updates come from [`.github/dependabot.yml`](../.github/dependabot.yml).
 - **Workflow permissions**: Settings > Actions > General, "Read repository contents and packages permissions" as the default token permissions (every workflow asks for what it needs), GitHub Actions not allowed to create or approve pull requests, and approval required to run the workflows of first-time contributors.
 - **Labels**: `scripts/sync-labels.sh` creates the labels of [`.github/labels.yml`](../.github/labels.yml).
-- **OpenSSF**: the Scorecard workflow publishes its results once the repository is public (badge in the README). Register the project on [bestpractices.dev](https://www.bestpractices.dev/), answer the questionnaire, and add its badge next to the Scorecard one.
+- **OpenSSF**: the Scorecard workflow publishes its results once the repository is public (badge in the README). The project is registered on [bestpractices.dev](https://www.bestpractices.dev/projects/16342) (passing level, badge in the README): keep its answers true when the project changes (security policy, tests, CI, release signing).
 - **Image visibility**: after the first release, the package `ghcr.io/kentrow/tapyr` is private by default: Packages > tapyr > Package settings > Change visibility to public, and link it to the repository.
 
 ## A release
