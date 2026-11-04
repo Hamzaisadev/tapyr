@@ -1,0 +1,63 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: rutos-interfaces
+spec:
+  provider: teltonika-rutos
+  defaultInterval: 1m
+  defaultPriority: normal
+  request:
+    path: /interfaces/status
+  pagination:
+    type: none
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: response.body.data
+    metrics:
+      - name: rutos_interface_up
+        help: Logical interface up (1 up)
+        value: "default(item.is_up, default(item.up, false))"
+        labels: { router: target.name, interface: item.id }
+      - name: rutos_interface_uptime_seconds
+        help: Time since the interface came up
+        unit: seconds
+        value: toFloat(item.uptime)
+        labels: { router: target.name, interface: item.id }
+        skipIf: "!has(item.uptime)"
+      - name: rutos_interface_received_bytes_total
+        type: counter
+        help: Bytes received on the interface
+        unit: bytes
+        value: toFloat(item.rx_bytes)
+        labels: { router: target.name, interface: item.id }
+        skipIf: "!has(item.rx_bytes)"
+      - name: rutos_interface_transmitted_bytes_total
+        type: counter
+        help: Bytes transmitted on the interface
+        unit: bytes
+        value: toFloat(item.tx_bytes)
+        labels: { router: target.name, interface: item.id }
+        skipIf: "!has(item.tx_bytes)"
+      - name: rutos_interface_received_packets_total
+        type: counter
+        help: Packets received on the interface
+        value: toFloat(item.rx_packets)
+        labels: { router: target.name, interface: item.id }
+        skipIf: "!has(item.rx_packets)"
+      - name: rutos_interface_transmitted_packets_total
+        type: counter
+        help: Packets transmitted on the interface
+        value: toFloat(item.tx_packets)
+        labels: { router: target.name, interface: item.id }
+        skipIf: "!has(item.tx_packets)"
+    info:
+      - name: rutos_interface_info
+        help: Descriptive attributes of a logical interface
+        labels:
+          router: target.name
+          interface: item.id
+          device: "default(item.l3_device, default(item.device, ''))"
+          protocol: "default(item.proto, '')"
+          area: "default(item.area_type, '')"
+          network_type: "default(item.network_type, '')"

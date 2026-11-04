@@ -1,0 +1,11 @@
+# The state store: what was already spent of the daily and monthly quotas,
+# rotated tokens, inventories. Without it, a restart forgets them.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tapyr-data
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi

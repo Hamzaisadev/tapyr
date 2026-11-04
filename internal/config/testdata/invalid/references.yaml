@@ -1,0 +1,53 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata: { name: alpha, version: 0.1.0 }
+spec:
+  baseURL: https://alpha.example.invalid
+---
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata: { name: beta, version: 0.1.0 }
+spec:
+  baseURL: https://beta.example.invalid
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: beta-devices }
+spec:
+  provider: beta
+  defaultInterval: 5m
+  request: { path: /devices }
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: orphan }
+spec:
+  provider: gamma
+  defaultInterval: 5m
+  request: { path: /x }
+---
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: alpha-account }
+spec: { provider: alpha }
+---
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: ghost-account }
+spec: { provider: ghost }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: wrong-provider }
+spec: { account: alpha-account, template: beta-devices, outputs: [missing-output] }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: unknown-refs }
+spec: { account: nobody, template: nothing }
+---
+apiVersion: tapyr/v1alpha1
+kind: Settings
+metadata: { name: default }
+spec:
+  selfMetrics: { outputs: [missing-output] }

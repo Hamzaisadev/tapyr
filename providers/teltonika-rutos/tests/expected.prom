@@ -1,0 +1,86 @@
+# TYPE rutos_device_info gauge
+rutos_device_info{firmware="RUTX_R_00.07.24.5",hardware_revision="0101",hostname="rutx50-sim",model="RUTX50",product_code="RUTX5000XXXX",router="north-01",serial="6240722361"} 1
+# TYPE rutos_failover_interface_enabled gauge
+rutos_failover_interface_enabled{interface="mob1s1a1",router="north-01"} 1
+rutos_failover_interface_enabled{interface="wan",router="north-01"} 1
+# TYPE rutos_failover_interface_lost_probes gauge
+rutos_failover_interface_lost_probes{interface="mob1s1a1",router="north-01"} 0
+rutos_failover_interface_lost_probes{interface="wan",router="north-01"} 0
+# TYPE rutos_failover_interface_online gauge
+rutos_failover_interface_online{interface="mob1s1a1",router="north-01"} 1
+rutos_failover_interface_online{interface="wan",router="north-01"} 1
+# TYPE rutos_failover_interface_score gauge
+rutos_failover_interface_score{interface="mob1s1a1",router="north-01"} 5
+rutos_failover_interface_score{interface="wan",router="north-01"} 5
+# TYPE rutos_flash_free_bytes gauge
+rutos_flash_free_bytes{router="north-01"} 4.5559578624e+08
+# TYPE rutos_flash_total_bytes gauge
+rutos_flash_total_bytes{router="north-01"} 4.5705330688e+08
+# TYPE rutos_interface_info gauge
+rutos_interface_info{area="lan",device="br-lan",interface="lan",network_type="lan",protocol="static",router="north-01"} 1
+rutos_interface_info{area="wan",device="eth1",interface="wan",network_type="wan",protocol="dhcp",router="north-01"} 1
+rutos_interface_info{area="wan",device="qmimux0",interface="mob1s1a1",network_type="mobile",protocol="wwan",router="north-01"} 1
+# TYPE rutos_interface_received_bytes_total counter
+rutos_interface_received_bytes_total{interface="lan",router="north-01"} 82814
+rutos_interface_received_bytes_total{interface="mob1s1a1",router="north-01"} 37012
+rutos_interface_received_bytes_total{interface="wan",router="north-01"} 326038
+# TYPE rutos_interface_received_packets_total counter
+rutos_interface_received_packets_total{interface="lan",router="north-01"} 181
+rutos_interface_received_packets_total{interface="mob1s1a1",router="north-01"} 34
+rutos_interface_received_packets_total{interface="wan",router="north-01"} 489
+# TYPE rutos_interface_transmitted_bytes_total counter
+rutos_interface_transmitted_bytes_total{interface="lan",router="north-01"} 598383
+rutos_interface_transmitted_bytes_total{interface="mob1s1a1",router="north-01"} 17784
+rutos_interface_transmitted_bytes_total{interface="wan",router="north-01"} 100767
+# TYPE rutos_interface_transmitted_packets_total counter
+rutos_interface_transmitted_packets_total{interface="lan",router="north-01"} 672
+rutos_interface_transmitted_packets_total{interface="mob1s1a1",router="north-01"} 26
+rutos_interface_transmitted_packets_total{interface="wan",router="north-01"} 163
+# TYPE rutos_interface_up gauge
+rutos_interface_up{interface="lan",router="north-01"} 1
+rutos_interface_up{interface="mob1s1a1",router="north-01"} 1
+rutos_interface_up{interface="wan",router="north-01"} 1
+# TYPE rutos_interface_uptime_seconds gauge
+rutos_interface_uptime_seconds{interface="lan",router="north-01"} 2.073601e+06
+rutos_interface_uptime_seconds{interface="mob1s1a1",router="north-01"} 1
+rutos_interface_uptime_seconds{interface="wan",router="north-01"} 1
+# TYPE rutos_memory_free_bytes gauge
+rutos_memory_free_bytes{router="north-01"} 2.42639437824e+08
+# TYPE rutos_memory_total_bytes gauge
+rutos_memory_total_bytes{router="north-01"} 6.7080552448e+08
+# TYPE rutos_modem_active_sim gauge
+rutos_modem_active_sim{modem="3-1",router="north-01"} 1
+# TYPE rutos_modem_connected gauge
+rutos_modem_connected{modem="3-1",router="north-01"} 1
+# TYPE rutos_modem_info gauge
+rutos_modem_info{band="B3 / N78",model="RG501Q-EU",modem="3-1",network_type="5G-NSA",operator="Operator-A",router="north-01"} 1
+# TYPE rutos_modem_received_bytes_total counter
+rutos_modem_received_bytes_total{modem="3-1",router="north-01"} 105947
+# TYPE rutos_modem_registered gauge
+rutos_modem_registered{modem="3-1",router="north-01"} 1
+# TYPE rutos_modem_roaming gauge
+rutos_modem_roaming{modem="3-1",router="north-01"} 0
+# TYPE rutos_modem_rsrp_dbm gauge
+rutos_modem_rsrp_dbm{modem="3-1",router="north-01"} -111.422
+# TYPE rutos_modem_rsrq_db gauge
+rutos_modem_rsrq_db{modem="3-1",router="north-01"} -15.066
+# TYPE rutos_modem_rssi_dbm gauge
+rutos_modem_rssi_dbm{modem="3-1",router="north-01"} -62.683
+# TYPE rutos_modem_signal_quality_ratio gauge
+rutos_modem_signal_quality_ratio{modem="3-1",router="north-01"} 0.67367
+# TYPE rutos_modem_sim_inserted gauge
+rutos_modem_sim_inserted{modem="3-1",router="north-01"} 1
+# TYPE rutos_modem_sinr_db gauge
+rutos_modem_sinr_db{modem="3-1",router="north-01"} 8.28
+# TYPE rutos_modem_temperature_celsius gauge
+rutos_modem_temperature_celsius{modem="3-1",router="north-01"} 50.418
+# TYPE rutos_modem_transmitted_bytes_total counter
+rutos_modem_transmitted_bytes_total{modem="3-1",router="north-01"} 20181
+# TYPE rutos_system_load1 gauge
+rutos_system_load1{router="north-01"} 1.274
+# TYPE rutos_system_load15 gauge
+rutos_system_load15{router="north-01"} 0.273
+# TYPE rutos_system_load5 gauge
+rutos_system_load5{router="north-01"} 0.586
+# TYPE rutos_system_uptime_seconds gauge
+rutos_system_uptime_seconds{router="north-01"} 2.073602e+06

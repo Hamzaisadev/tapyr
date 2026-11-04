@@ -1,0 +1,29 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: meraki-appliance-uplink-statuses
+spec:
+  provider: meraki-dashboard
+  defaultInterval: 5m
+  defaultPriority: normal
+  forEach:
+    template: meraki-organizations
+    vars:
+      organizationId: parent.organizationId
+  request:
+    path: /organizations/{organizationId}/appliance/uplink/statuses
+  estimate:
+    pagesPerRun: 1
+  extract:
+    # One item per appliance and uplink.
+    items: >-
+      response.body.map(a, default(a.uplinks, []).map(u, {'serial': a.serial, 'networkId': default(a.networkId, ''), 'interface': u.interface, 'status': default(u.status, '')})).flatten()
+    metrics:
+      - name: meraki_appliance_uplink_active
+        help: Uplink carrying traffic (1 active)
+        value: "item.status == 'active'"
+        labels: { organization_id: vars.organizationId, network_id: item.networkId, serial: item.serial, interface: item.interface }
+      - name: meraki_appliance_uplink_up
+        help: Uplink up (1 active or ready as a standby)
+        value: "item.status == 'active' || item.status == 'ready'"
+        labels: { organization_id: vars.organizationId, network_id: item.networkId, serial: item.serial, interface: item.interface }

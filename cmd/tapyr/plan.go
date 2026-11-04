@@ -1,0 +1,354 @@
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io/fs"
+	"slices"
+	"strconv"
+	"strings"
+	"text/tabwriter"
+	"time"
+
+	"github.com/spf13/cobra"
+
+	"github.com/kentrow/tapyr/internal/budget"
+	"github.com/kentrow/tapyr/internal/budget/planner"
+	"github.com/kentrow/tapyr/internal/config"
+	"github.com/kentrow/tapyr/internal/runtime"
+	"github.com/kentrow/tapyr/internal/scheduler"
+	"github.com/kentrow/tapyr/internal/state"
+)
+
+// historyRuns is the number of recent runs the estimates are based on.
+const historyRuns = 20
+
+func newPlanCmd(e *env, flags *globalFlags) *cobra.Command {
+	var fanouts []string
+	var format string
+	cmd := &cobra.Command{
+		Use:   "plan",
+		Short: "Estimate quota consumption and effective intervals",
+		Long: "Compute, offline, the effective interval of every job and the projected\n" +
+			"consumption of every quota scope over a full window. Estimates use the run\n" +
+			"history of the state store when it exists, else estimate.pagesPerRun.\n" +
+			"Exit code 3 when the plan is infeasible.",
+		Args: cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			if format != "table" && format != "json" {
+				return &exitError{code: exitFailure, err: fmt.Errorf("invalid --output %q (want table or json)", format)}
+			}
+			hints, err := parseFanouts(fanouts)
+			if err != nil {
+				return &exitError{code: exitFailure, err: err}
+			}
+			cfg, err := loadConfig(e, flags)
+			if err != nil {
+				return err
+			}
+			tokens, err := offlineAuth(e.clock)
+			if err != nil {
+				return &exitError{code: exitFailure, err: err}
+			}
+			graph, err := compileGraph(e, cfg, runtime.Options{Auth: tokens})
+			if err != nil {
+				return err
+			}
+			engine, err := newEngine(e, cfg, graph)
+			if err != nil {
+				return &exitError{code: exitFailure, err: err}
+			}
+			ctx := cmd.Context()
+			var store state.Store
+			if s, err := state.OpenSQLite(ctx, cfg.Settings.Spec.State.Path, true); err == nil {
+				defer s.Close()
+				store = s
+				if entries, err := s.LoadLedger(ctx); err == nil {
+					engine.Restore(entries)
+				}
+			} else if !errors.Is(err, fs.ErrNotExist) {
+				return &exitError{code: exitFailure, err: err}
+			}
+			var entries []planEntry
+			for _, j := range graph.Jobs {
+				fanout := 1
+				if j.ForEach != nil {
+					if n, ok := hints[j.ForEach.Parent]; ok {
+						fanout = n
+					}
+				}
+				entries = append(entries, planEntry{job: j, fanout: fanout})
+			}
+			jobs, err := planInputs(ctx, entries, engine, store)
+			if err != nil {
+				return &exitError{code: exitFailure, err: err}
+			}
+			for name := range hints {
+				if !slices.ContainsFunc(graph.Jobs, func(j *runtime.Job) bool { return j.ForEach != nil && j.ForEach.Parent == name }) {
+					fmt.Fprintf(e.stderr, "warning: --fanout %s matches no fan-out job\n", name)
+				}
+			}
+			res := planner.Plan(jobs, planner.Options{MaxStretch: graph.Settings.Budget.MaxStretch, Now: e.clock.Now()})
+			if format == "json" {
+				err = printPlanJSON(e, res)
+			} else {
+				err = printPlanTable(e, res)
+			}
+			if err != nil {
+				return err
+			}
+			if !res.Feasible {
+				return &exitError{code: exitInfeasible, silent: true, err: errors.New("plan infeasible")}
+			}
+			return nil
+		},
+	}
+	cmd.Flags().StringArrayVar(&fanouts, "fanout", nil, "fan-out hint: <parent>=<instances>, the parent as named in forEach (its template, or its job with forEach.job), repeatable")
+	cmd.Flags().StringVar(&format, "output", "table", "output format: table or json")
+	addProviderPathFlag(cmd, flags)
+	return cmd
+}
+
+func parseFanouts(values []string) (map[string]int, error) {
+	out := map[string]int{}
+	for _, v := range values {
+		name, n, ok := strings.Cut(v, "=")
+		count, err := strconv.Atoi(n)
+		if !ok || name == "" || err != nil || count < 1 {
+			return nil, fmt.Errorf("invalid --fanout %q (want <parent>=<instances>)", v)
+		}
+		out[name] = count
+	}
+	return out, nil
+}
+
+// newEngine builds the budget engine of a configuration.
+func newEngine(e *env, cfg *config.Config, graph *runtime.Graph) (*budget.Engine, error) {
+	return budget.NewEngine(budget.Config{
+		Providers: cfg.Providers, Accounts: cfg.Accounts,
+		RetryReserve: graph.Settings.Budget.RetryReserve.Fraction(),
+		Breaker:      graph.Settings.CircuitBreaker,
+	}, e.clock, e.logger)
+}
+
+// planEntry is a job to plan: a configured instance, or the model of a
+// fan-out with its number of instances.
+type planEntry struct {
+	job    *runtime.Job
+	fanout int
+}
+
+// planInputs builds the planner inputs, one per scheduling group: scopes
+// from the engine, estimates from the run history (median pages of the last
+// runs, retry ratio), else from estimate.pagesPerRun.
+func planInputs(ctx context.Context, entries []planEntry, engine *budget.Engine, store state.Store) ([]planner.Job, error) {
+	jobs := make([]planner.Job, 0, len(entries))
+	for _, e := range entries {
+		j := e.job
+		pj := planner.Job{
+			Name: scheduler.Group(j), Provider: j.Provider, Account: j.Account, Priority: j.Priority, Desired: j.Interval,
+			PagesPerRun: 1, RetryOverhead: planner.DefaultRetryOverhead, Fanout: max(1, e.fanout),
+		}
+		if j.PagesEstimate > 0 {
+			pj.PagesPerRun = float64(j.PagesEstimate)
+		}
+		var fanoutVars []string
+		if j.ForEach != nil {
+			// Variables of the fan-out and of its parents are per instance:
+			// every path variable not set by a param.
+			for _, v := range config.PathVars(j.Request.Path) {
+				if _, isParam := j.Vars[v]; !isParam {
+					fanoutVars = append(fanoutVars, v)
+				}
+			}
+			fanoutVars = append(fanoutVars, j.ForEach.Vars...)
+		}
+		if store != nil {
+			var runs []state.RunRecord
+			var err error
+			if j.ForEach != nil {
+				runs, err = store.RunsOfJob(ctx, j.Name, historyRuns)
+			} else {
+				runs, err = store.Runs(ctx, j.Name, j.Instance, historyRuns)
+			}
+			if err != nil {
+				return nil, err
+			}
+			if pages, overhead, ok := estimates(runs); ok {
+				pj.PagesPerRun, pj.RetryOverhead = pages, overhead
+			}
+		}
+		pj.Scopes = engine.PlanScopes(budget.Descriptor{
+			Provider: j.Provider, Account: j.Account, Target: j.Target, Credential: j.Credential, Endpoint: j.Request.Path,
+			Method: j.Request.Method, Vars: j.Vars, Job: j.Name, Priority: j.Priority,
+		}, fanoutVars)
+		jobs = append(jobs, pj)
+	}
+	return jobs, nil
+}
+
+// estimates returns the median pages of successful runs and the retry
+// ratio of the history.
+func estimates(runs []state.RunRecord) (pages, overhead float64, ok bool) {
+	var counts []int
+	var requests, retries int
+	for _, r := range runs {
+		if r.Result != "success" {
+			continue
+		}
+		counts = append(counts, r.Pages)
+		requests += r.Requests
+		retries += r.Retries
+	}
+	if len(counts) == 0 {
+		return 0, 0, false
+	}
+	slices.Sort(counts)
+	mid := len(counts) / 2
+	median := float64(counts[mid])
+	if len(counts)%2 == 0 {
+		median = float64(counts[mid-1]+counts[mid]) / 2
+	}
+	overhead = planner.DefaultRetryOverhead
+	if requests > retries {
+		overhead = float64(retries) / float64(requests-retries)
+	}
+	return median, overhead, true
+}
+
+func printPlanTable(e *env, res *planner.Result) error {
+	w := tabwriter.NewWriter(e.stdout, 0, 4, 2, ' ', 0)
+	fmt.Fprintln(w, "QUOTA SCOPE\tWINDOW\tBUDGET\tPROJECTED\tRESERVE\tSTATUS")
+	planned := map[string]bool{}
+	for _, s := range res.Scopes {
+		status := "ok"
+		if !s.Feasible {
+			status = "INFEASIBLE"
+		}
+		if s.Budget > 0 {
+			status += fmt.Sprintf(" (%.1f%%)", 100*s.Projected/s.Budget)
+		}
+		fmt.Fprintf(w, "%s\t%s\t%.0f\t%.0f\t%.0f\t%s\n", s.Limit, shortDuration(s.Period), s.Budget, s.Projected, s.Reserve, status)
+		fmt.Fprintf(w, "  %s\t\t\t\t\t\n", s.Key)
+		for _, j := range res.Jobs {
+			calls, ok := j.Calls[s.ID]
+			if !ok {
+				continue
+			}
+			planned[j.Name] = true
+			runs := s.Period.Seconds() / j.Effective.Seconds()
+			line := fmt.Sprintf("  job %s\tdesired %s\teffective %s\t%.0f runs x %s = %.0f",
+				j.Name, shortDuration(j.Desired), shortDuration(j.Effective), runs, pagesLabel(j), calls)
+			if j.Effective != j.Desired {
+				line += fmt.Sprintf("\t(stretched x%.2f, priority %s, %s)", j.Stretch, j.Priority, j.Describe())
+			}
+			fmt.Fprintln(w, line+"\t")
+		}
+	}
+	var others []planner.JobPlan
+	for _, j := range res.Jobs {
+		if !planned[j.Name] {
+			others = append(others, j)
+		}
+	}
+	if len(others) > 0 {
+		fmt.Fprintln(w, "\nJOBS WITHOUT QUOTA\t\t\t\t\t")
+		for _, j := range others {
+			line := fmt.Sprintf("  job %s\tdesired %s\teffective %s", j.Name, shortDuration(j.Desired), shortDuration(j.Effective))
+			if j.Effective != j.Desired {
+				line += "\t(" + j.Describe() + ")"
+			}
+			fmt.Fprintln(w, line+"\t")
+		}
+	}
+	if err := w.Flush(); err != nil {
+		return err
+	}
+	if !res.Feasible {
+		fmt.Fprintln(e.stdout, "\nThe plan is infeasible: critical jobs alone exceed a quota, or stretching every other job to the maximum is not enough.")
+	}
+	return nil
+}
+
+func pagesLabel(j planner.JobPlan) string {
+	label := strconv.FormatFloat(j.PagesPerRun, 'f', -1, 64) + " pages"
+	if j.PagesPerRun == 1 {
+		label = "1 page"
+	}
+	if j.Fanout > 1 {
+		label = fmt.Sprintf("%d x %s", j.Fanout, label)
+	}
+	return label
+}
+
+// shortDuration drops the zero trailing units of a duration: 10m, 1h,
+// 1h30m, 45s.
+func shortDuration(d time.Duration) string {
+	s := d.String()
+	if strings.HasSuffix(s, "m0s") {
+		s = strings.TrimSuffix(s, "0s")
+	}
+	if strings.HasSuffix(s, "h0m") {
+		s = strings.TrimSuffix(s, "0m")
+	}
+	return s
+}
+
+type planJSON struct {
+	Feasible bool            `json:"feasible"`
+	Jobs     []planJobJSON   `json:"jobs"`
+	Scopes   []planScopeJSON `json:"scopes"`
+}
+
+type planJobJSON struct {
+	Name             string             `json:"name"`
+	Provider         string             `json:"provider"`
+	Account          string             `json:"account"`
+	Priority         string             `json:"priority"`
+	DesiredSeconds   float64            `json:"desired_seconds"`
+	EffectiveSeconds float64            `json:"effective_seconds"`
+	Stretch          float64            `json:"stretch"`
+	Reason           string             `json:"reason,omitempty"`
+	CallsPerRun      float64            `json:"calls_per_run"`
+	Fanout           int                `json:"fanout"`
+	Calls            map[string]float64 `json:"projected_calls"`
+}
+
+type planScopeJSON struct {
+	ID            string   `json:"id"`
+	Limit         string   `json:"limit"`
+	Scope         string   `json:"scope"`
+	PeriodSeconds float64  `json:"period_seconds"`
+	Budget        float64  `json:"budget"`
+	Reserve       float64  `json:"reserve"`
+	Projected     float64  `json:"projected"`
+	Feasible      bool     `json:"feasible"`
+	ExhaustionAt  string   `json:"exhaustion_at,omitempty"`
+	Jobs          []string `json:"jobs"`
+}
+
+func printPlanJSON(e *env, res *planner.Result) error {
+	out := planJSON{Feasible: res.Feasible, Jobs: []planJobJSON{}, Scopes: []planScopeJSON{}}
+	for _, j := range res.Jobs {
+		out.Jobs = append(out.Jobs, planJobJSON{
+			Name: j.Name, Provider: j.Provider, Account: j.Account, Priority: string(j.Priority),
+			DesiredSeconds: j.Desired.Seconds(), EffectiveSeconds: j.Effective.Seconds(), Stretch: j.Stretch,
+			Reason: j.Describe(), CallsPerRun: j.CallsPerRun, Fanout: j.Fanout, Calls: j.Calls,
+		})
+	}
+	for _, s := range res.Scopes {
+		js := planScopeJSON{
+			ID: s.ID, Limit: s.Limit, Scope: s.Key, PeriodSeconds: s.Period.Seconds(), Budget: s.Budget,
+			Reserve: s.Reserve, Projected: s.Projected, Feasible: s.Feasible, Jobs: s.Jobs,
+		}
+		if !s.ExhaustionAt.IsZero() {
+			js.ExhaustionAt = s.ExhaustionAt.UTC().Format(time.RFC3339)
+		}
+		out.Scopes = append(out.Scopes, js)
+	}
+	enc := json.NewEncoder(e.stdout)
+	enc.SetIndent("", "  ")
+	return enc.Encode(out)
+}

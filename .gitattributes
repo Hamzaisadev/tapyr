@@ -1,0 +1,15 @@
+# Line endings stay LF everywhere: golden files, expected samples and
+# fixtures are compared byte for byte, and the scripts run on Linux.
+* text=auto eol=lf
+
+*.png  binary
+*.jpg  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+
+# Generated files, collapsed in diffs.
+schemas/** linguist-generated=true
+ui/package-lock.json linguist-generated=true
+docs/assets/how-it-works-*.svg linguist-generated=true
+docs/assets/overview-*.svg linguist-generated=true

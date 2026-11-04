@@ -1,0 +1,10 @@
+Tapyr
+Copyright 2026 The Tapyr Authors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+The binaries and images of the releases include third-party software: the
+Go modules linked into tapyr, the Go standard library, and the packages and
+fonts bundled in the web UI. Their licenses and notices are in the
+THIRD_PARTY_LICENSES file shipped with every release (make licenses writes
+it from a build tree).

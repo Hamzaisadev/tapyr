@@ -1,0 +1,9 @@
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata:
+  name: too-often
+spec:
+  account: demo
+  template: example-sim-devices
+  interval: 10s
+  priority: critical

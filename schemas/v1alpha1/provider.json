@@ -1,0 +1,1213 @@
+{
+  "$defs": {
+    "AppliesTo": {
+      "additionalProperties": false,
+      "description": "AppliesTo restricts the requests a limit counts.",
+      "properties": {
+        "authRequests": {
+          "default": "include",
+          "description": "AuthRequests selects regular requests and token requests: include\n(both), only (token requests only) or exclude (regular requests only).",
+          "enum": [
+            "include",
+            "only",
+            "exclude"
+          ],
+          "type": "string"
+        },
+        "endpoints": {
+          "description": "Endpoints are globs on the templated path: * matches within one\nsegment, ** matches any number of segments.",
+          "items": {
+            "pattern": "^/",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "methods": {
+          "description": "Methods the limit counts.",
+          "items": {
+            "enum": [
+              "GET",
+              "HEAD",
+              "POST"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "requestsWithVar": {
+          "$ref": "#/$defs/Identifier",
+          "description": "RequestsWithVar counts only requests where this variable is set."
+        }
+      },
+      "type": "object"
+    },
+    "Auth": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "basic"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "basic"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "bearer"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "bearer"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "header"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "header"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "oauth2_client_credentials"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "oauth2ClientCredentials"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "plugin"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "plugin"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "session_login"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "sessionLogin"
+            ]
+          }
+        }
+      ],
+      "description": "Auth configures authentication.",
+      "properties": {
+        "basic": {
+          "$ref": "#/$defs/BasicAuth",
+          "description": "Basic sends HTTP basic credentials (type basic)."
+        },
+        "bearer": {
+          "$ref": "#/$defs/BearerAuth",
+          "description": "Bearer sends Authorization: Bearer <token> (type bearer)."
+        },
+        "header": {
+          "$ref": "#/$defs/HeaderAuth",
+          "description": "Header sends a static value in a header (type header)."
+        },
+        "oauth2ClientCredentials": {
+          "$ref": "#/$defs/OAuth2ClientCredentials",
+          "description": "OAuth2ClientCredentials obtains tokens with the OAuth 2.0 client\ncredentials grant (type oauth2_client_credentials)."
+        },
+        "plugin": {
+          "$ref": "#/$defs/PluginAuth",
+          "description": "Plugin delegates to a Go auth plugin (type plugin)."
+        },
+        "sessionLogin": {
+          "$ref": "#/$defs/SessionLogin",
+          "description": "SessionLogin posts credentials to obtain a session token (type session_login)."
+        },
+        "type": {
+          "description": "Type of authentication.",
+          "enum": [
+            "none",
+            "header",
+            "bearer",
+            "basic",
+            "oauth2_client_credentials",
+            "session_login",
+            "plugin"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "BasicAuth": {
+      "additionalProperties": false,
+      "description": "BasicAuth sends HTTP basic credentials.",
+      "properties": {
+        "password": {
+          "$ref": "#/$defs/Value",
+          "description": "Password, usually {secret: name}."
+        },
+        "username": {
+          "$ref": "#/$defs/Value",
+          "description": "Username, a literal or {secret: name}."
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ],
+      "type": "object"
+    },
+    "BearerAuth": {
+      "additionalProperties": false,
+      "description": "BearerAuth sends Authorization: Bearer <token>.",
+      "properties": {
+        "token": {
+          "$ref": "#/$defs/Value",
+          "description": "Token, usually {secret: name}."
+        }
+      },
+      "required": [
+        "token"
+      ],
+      "type": "object"
+    },
+    "CursorPagination": {
+      "additionalProperties": false,
+      "description": "CursorPagination passes a cursor extracted from each response.",
+      "properties": {
+        "cursor": {
+          "$ref": "#/$defs/Expr",
+          "description": "Cursor is a CEL expression extracting the next cursor; empty or null stops."
+        },
+        "header": {
+          "description": "Header carrying the cursor, instead of a query parameter.",
+          "type": "string"
+        },
+        "pageSize": {
+          "description": "PageSize is the number of items per page.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "pageSizeParam": {
+          "description": "PageSizeParam is the query parameter carrying the page size.",
+          "type": "string"
+        },
+        "param": {
+          "description": "Param is the query parameter carrying the cursor.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "cursor"
+      ],
+      "type": "object"
+    },
+    "Duration": {
+      "examples": [
+        "30s",
+        "5m",
+        "1h30m"
+      ],
+      "pattern": "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$",
+      "type": "string"
+    },
+    "ErrorSemantics": {
+      "additionalProperties": false,
+      "description": "ErrorSemantics declares how the provider signals errors.",
+      "properties": {
+        "authFailed": {
+          "$ref": "#/$defs/StatusMatcher",
+          "description": "AuthFailed matches authentication failures (default 401)."
+        },
+        "rateLimited": {
+          "$ref": "#/$defs/RateLimitedErrors",
+          "description": "RateLimited matches rate-limited responses."
+        },
+        "retryable": {
+          "$ref": "#/$defs/StatusMatcher",
+          "description": "Retryable matches transient errors (default 500, 502, 503, 504)."
+        }
+      },
+      "type": "object"
+    },
+    "Expr": {
+      "description": "CEL expression.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "ExpressionPagination": {
+      "additionalProperties": false,
+      "description": "ExpressionPagination computes the next request with CEL.",
+      "properties": {
+        "next": {
+          "$ref": "#/$defs/Expr",
+          "description": "Next is a CEL expression returning {query: {...}} for the next page, or null."
+        }
+      },
+      "required": [
+        "next"
+      ],
+      "type": "object"
+    },
+    "HeaderAuth": {
+      "additionalProperties": false,
+      "description": "HeaderAuth sends a static credential in a request header.",
+      "properties": {
+        "name": {
+          "description": "Name of the header, for example X-API-Key.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/Value",
+          "description": "Value of the header, usually {secret: name}."
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "type": "object"
+    },
+    "Identifier": {
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+      "type": "string"
+    },
+    "IntOrAuto": {
+      "minimum": 1,
+      "pattern": "^auto$",
+      "type": [
+        "integer",
+        "string"
+      ]
+    },
+    "Limit": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "rate"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "rate"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "concurrency"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "max"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "quota"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "max",
+              "window"
+            ]
+          }
+        }
+      ],
+      "description": "Limit is a constraint of the provider API, enforced by the budget engine for every request (see docs/spec/04-budget-engine.md).",
+      "properties": {
+        "appliesTo": {
+          "$ref": "#/$defs/AppliesTo",
+          "description": "AppliesTo restricts the requests the limit counts."
+        },
+        "burst": {
+          "description": "Burst is the bucket capacity of a rate limit. Defaults to the rate per\nsecond, minimum 1.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "description": {
+          "description": "Description is free text for humans, ideally with the source of the limit.",
+          "type": "string"
+        },
+        "initialMax": {
+          "description": "InitialMax is the conservative quota maximum used with max: auto\nuntil the first limit header is observed.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "kind": {
+          "description": "Kind of limit: rate (token bucket), concurrency or quota (window).",
+          "enum": [
+            "rate",
+            "concurrency",
+            "quota"
+          ],
+          "type": "string"
+        },
+        "max": {
+          "$ref": "#/$defs/IntOrAuto",
+          "description": "Max is the maximum of a concurrency limit, or of a quota per window.\nA quota may use \"auto\" to learn it from response headers."
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the limit, unique within the provider."
+        },
+        "rate": {
+          "$ref": "#/$defs/Rate",
+          "description": "Rate is the refill rate of a rate limit, for example 10/s."
+        },
+        "scope": {
+          "$ref": "#/$defs/Scope",
+          "description": "Scope partitions the limit (one counter per scope key)."
+        },
+        "sync": {
+          "$ref": "#/$defs/QuotaSync",
+          "description": "Sync reads quota state from response headers."
+        },
+        "window": {
+          "$ref": "#/$defs/Window",
+          "description": "Window of a quota: a calendar period or a rolling duration."
+        }
+      },
+      "required": [
+        "name",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "LinkHeaderPagination": {
+      "additionalProperties": false,
+      "description": "LinkHeaderPagination follows RFC 8288 Link headers.",
+      "properties": {
+        "pageSize": {
+          "description": "PageSize is the number of items per page.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "pageSizeParam": {
+          "description": "PageSizeParam is the query parameter carrying the page size.",
+          "type": "string"
+        },
+        "rel": {
+          "default": "next",
+          "description": "Rel is the link relation of the next page.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "LoginRequest": {
+      "additionalProperties": false,
+      "description": "LoginRequest is the request that opens a session.",
+      "properties": {
+        "body": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Value"
+          },
+          "description": "Body is a JSON object; values are literals, secrets or CEL expressions.",
+          "type": "object"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Headers added to the login request.",
+          "type": "object"
+        },
+        "method": {
+          "default": "POST",
+          "description": "Method of the login request.",
+          "enum": [
+            "POST",
+            "GET"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "description": "Path of the login endpoint, relative to the base URL.",
+          "pattern": "^/",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "LogoutRequest": {
+      "additionalProperties": false,
+      "description": "LogoutRequest is the request that closes a session, sent with the token applied.",
+      "properties": {
+        "method": {
+          "default": "POST",
+          "description": "Method of the logout request.",
+          "enum": [
+            "POST",
+            "GET",
+            "DELETE"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "description": "Path of the logout endpoint, relative to the base URL.",
+          "pattern": "^/",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "Name": {
+      "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$",
+      "type": "string"
+    },
+    "OAuth2ClientCredentials": {
+      "additionalProperties": false,
+      "description": "OAuth2ClientCredentials configures the OAuth 2.0 client credentials grant.",
+      "properties": {
+        "audience": {
+          "description": "Audience requested, when the server requires one.",
+          "type": "string"
+        },
+        "authStyle": {
+          "default": "header",
+          "description": "AuthStyle sends the client credentials in the Authorization header or\nin the request body.",
+          "enum": [
+            "header",
+            "body"
+          ],
+          "type": "string"
+        },
+        "clientId": {
+          "$ref": "#/$defs/Value",
+          "description": "ClientID, a literal or {secret: name}."
+        },
+        "clientSecret": {
+          "$ref": "#/$defs/Value",
+          "description": "ClientSecret, usually {secret: name}."
+        },
+        "extraParams": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "ExtraParams added to the token request.",
+          "type": "object"
+        },
+        "scopes": {
+          "description": "Scopes requested.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "tokenURL": {
+          "$ref": "#/$defs/Template",
+          "description": "TokenURL of the authorization server. Template."
+        }
+      },
+      "required": [
+        "tokenURL",
+        "clientId",
+        "clientSecret"
+      ],
+      "type": "object"
+    },
+    "OffsetPagination": {
+      "additionalProperties": false,
+      "description": "OffsetPagination requests pages by item offset.",
+      "properties": {
+        "limitParam": {
+          "description": "LimitParam is the query parameter carrying the page size.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "offsetParam": {
+          "description": "OffsetParam is the query parameter carrying the offset.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "pageSize": {
+          "description": "PageSize is the number of items per page.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "start": {
+          "default": 0,
+          "description": "Start is the first offset.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stop": {
+          "$ref": "#/$defs/Expr",
+          "description": "Stop is a CEL expression; pagination stops when it returns true."
+        },
+        "total": {
+          "$ref": "#/$defs/Expr",
+          "description": "Total is a CEL expression returning the total number of items."
+        }
+      },
+      "required": [
+        "offsetParam",
+        "limitParam",
+        "pageSize"
+      ],
+      "type": "object"
+    },
+    "PagePagination": {
+      "additionalProperties": false,
+      "description": "PagePagination requests pages by page number.",
+      "properties": {
+        "pageParam": {
+          "description": "PageParam is the query parameter carrying the page number.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "pageSize": {
+          "description": "PageSize is the number of items per page.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "sizeParam": {
+          "description": "SizeParam is the query parameter carrying the page size.",
+          "type": "string"
+        },
+        "start": {
+          "default": 1,
+          "description": "Start is the first page number.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stop": {
+          "$ref": "#/$defs/Expr",
+          "description": "Stop is a CEL expression; pagination stops when it returns true."
+        },
+        "total": {
+          "$ref": "#/$defs/Expr",
+          "description": "Total is a CEL expression returning the total number of items."
+        }
+      },
+      "required": [
+        "pageParam"
+      ],
+      "type": "object"
+    },
+    "Pagination": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "offset"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "offset"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "page"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "page"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "cursor"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "cursor"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "expression"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "expression"
+            ]
+          }
+        }
+      ],
+      "description": "Pagination configures how successive pages are requested.",
+      "properties": {
+        "cursor": {
+          "$ref": "#/$defs/CursorPagination",
+          "description": "Cursor pagination (type cursor)."
+        },
+        "expression": {
+          "$ref": "#/$defs/ExpressionPagination",
+          "description": "Expression pagination computed by CEL (type expression)."
+        },
+        "linkHeader": {
+          "$ref": "#/$defs/LinkHeaderPagination",
+          "description": "LinkHeader pagination following RFC 8288 Link headers (type link_header)."
+        },
+        "maxPages": {
+          "default": 100,
+          "description": "MaxPages is a hard safety cap on pages per run.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "$ref": "#/$defs/OffsetPagination",
+          "description": "Offset pagination (type offset)."
+        },
+        "page": {
+          "$ref": "#/$defs/PagePagination",
+          "description": "Page pagination (type page)."
+        },
+        "type": {
+          "description": "Type of pagination.",
+          "enum": [
+            "none",
+            "offset",
+            "page",
+            "link_header",
+            "cursor",
+            "expression"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "ParamSpec": {
+      "additionalProperties": false,
+      "description": "ParamSpec declares a param or a secret that accounts provide.",
+      "properties": {
+        "description": {
+          "description": "Description is free text for humans.",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Identifier",
+          "description": "Name of the param or secret."
+        },
+        "required": {
+          "description": "Required makes the param or secret mandatory for every account (or\nevery target of a multi-target account).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "PluginAuth": {
+      "additionalProperties": false,
+      "description": "PluginAuth selects a Go auth plugin, for flows that cannot be expressed declaratively.",
+      "properties": {
+        "config": {
+          "description": "Config is passed to the plugin, which validates it.",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the plugin, as registered in internal/auth/plugins.",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "ProviderMeta": {
+      "additionalProperties": false,
+      "description": "ProviderMeta identifies a provider package.",
+      "properties": {
+        "description": {
+          "description": "Description is free text for humans.",
+          "type": "string"
+        },
+        "docs": {
+          "description": "Docs links to the vendor API documentation.",
+          "format": "uri",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the provider, unique across built-in and user packages."
+        },
+        "version": {
+          "description": "Version of the provider package (semver). Breaking changes to metric\nnames or labels bump the major version.",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "type": "object"
+    },
+    "ProviderSpec": {
+      "additionalProperties": false,
+      "description": "ProviderSpec is the specification of a Provider.",
+      "properties": {
+        "auth": {
+          "$ref": "#/$defs/Auth",
+          "description": "Auth applied to every request. Defaults to type none."
+        },
+        "baseURL": {
+          "$ref": "#/$defs/Template",
+          "description": "BaseURL of the API. Template evaluated per account and target, for\nexample {{ .params.baseURL | default \"https://api.example.com/v1\" }}."
+        },
+        "defaults": {
+          "$ref": "#/$defs/RequestDefaults",
+          "description": "Defaults applied to every request."
+        },
+        "errors": {
+          "$ref": "#/$defs/ErrorSemantics",
+          "description": "Errors declares how the API signals rate limiting, authentication\nfailures and retryable errors."
+        },
+        "limits": {
+          "description": "Limits declares every rate limit, concurrency limit and quota of the API.",
+          "items": {
+            "$ref": "#/$defs/Limit"
+          },
+          "type": "array"
+        },
+        "pagination": {
+          "$ref": "#/$defs/Pagination",
+          "description": "Pagination used by job templates that do not override it."
+        },
+        "params": {
+          "description": "Params an Account may or must provide.",
+          "items": {
+            "$ref": "#/$defs/ParamSpec"
+          },
+          "type": "array"
+        },
+        "redirects": {
+          "$ref": "#/$defs/Redirects",
+          "description": "Redirects lists the other hosts a response may redirect requests to.\nRedirects to another host are not followed otherwise: credentials\nonly go to the base URL and to these hosts."
+        },
+        "secrets": {
+          "description": "Secrets an Account may or must provide.",
+          "items": {
+            "$ref": "#/$defs/ParamSpec"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "baseURL"
+      ],
+      "type": "object"
+    },
+    "QuotaSync": {
+      "additionalProperties": false,
+      "description": "QuotaSync names the response headers carrying quota state.",
+      "properties": {
+        "limitHeader": {
+          "description": "LimitHeader carries the quota maximum.",
+          "type": "string"
+        },
+        "remainingHeader": {
+          "description": "RemainingHeader carries the remaining quota.",
+          "type": "string"
+        },
+        "resetHeader": {
+          "description": "ResetHeader carries the reset time (epoch seconds or delta seconds).",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "Rate": {
+      "examples": [
+        "10/s",
+        "600/m"
+      ],
+      "pattern": "^[0-9]+(\\.[0-9]+)?/(s|m|h)$",
+      "type": "string"
+    },
+    "RateLimitedErrors": {
+      "additionalProperties": false,
+      "description": "RateLimitedErrors matches rate-limited responses and configures penalties.",
+      "properties": {
+        "defaultPenalty": {
+          "$ref": "#/$defs/Duration",
+          "description": "DefaultPenalty applies when no Retry-After header is present. It grows\nexponentially on consecutive rate-limited responses, up to 10 minutes."
+        },
+        "penalize": {
+          "default": "narrowest",
+          "description": "Penalize the narrowest applicable scope, or all applicable scopes.",
+          "enum": [
+            "narrowest",
+            "all"
+          ],
+          "type": "string"
+        },
+        "retryAfterHeader": {
+          "default": "Retry-After",
+          "description": "RetryAfterHeader carries the penalty in seconds or as an HTTP date.",
+          "type": "string"
+        },
+        "statuses": {
+          "description": "Statuses that signal rate limiting (default 429).",
+          "items": {
+            "maximum": 599,
+            "minimum": 100,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "Redirects": {
+      "additionalProperties": false,
+      "description": "Redirects allows HTTP redirects to other hosts.",
+      "properties": {
+        "hosts": {
+          "description": "Hosts the requests may be redirected to: a host name, or \"*.\" and a\ndomain for every host under it (for example \"*.meraki.com\").",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "hosts"
+      ],
+      "type": "object"
+    },
+    "RequestDefaults": {
+      "additionalProperties": false,
+      "description": "RequestDefaults are applied to every request of the provider.",
+      "properties": {
+        "headers": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Template"
+          },
+          "description": "Headers added to every request. Values are templates.",
+          "type": "object"
+        },
+        "timeout": {
+          "$ref": "#/$defs/Duration",
+          "description": "Timeout of a single request. Defaults to settings.collection.defaultTimeout."
+        }
+      },
+      "type": "object"
+    },
+    "Scope": {
+      "additionalProperties": false,
+      "description": "Scope partitions a limit.",
+      "properties": {
+        "by": {
+          "description": "By lists the scope dimensions: instance, provider, account, target,\ncredential, endpoint or var:<name>. Empty means instance.",
+          "items": {
+            "pattern": "^(instance|provider|account|target|credential|endpoint|var:[A-Za-z_][A-Za-z0-9_]*)$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "type": "object"
+    },
+    "SessionLogin": {
+      "additionalProperties": false,
+      "description": "SessionLogin posts credentials to a login endpoint and applies the returned token to subsequent requests.",
+      "properties": {
+        "apply": {
+          "$ref": "#/$defs/TokenApply",
+          "description": "Apply describes how the token is attached to requests."
+        },
+        "expiresIn": {
+          "$ref": "#/$defs/Expr",
+          "description": "ExpiresIn is a CEL expression returning the token lifetime as a duration."
+        },
+        "logout": {
+          "$ref": "#/$defs/LogoutRequest",
+          "description": "Logout closes a session when its token is replaced and when Tapyr\nstops, for APIs that keep sessions open until they are closed."
+        },
+        "perTarget": {
+          "description": "PerTarget keeps one session per target of a multi-target account.",
+          "type": "boolean"
+        },
+        "refreshBefore": {
+          "$ref": "#/$defs/Duration",
+          "description": "RefreshBefore renews the session this long before it expires."
+        },
+        "request": {
+          "$ref": "#/$defs/LoginRequest",
+          "description": "Request is the login request."
+        },
+        "token": {
+          "$ref": "#/$defs/Expr",
+          "description": "Token is a CEL expression extracting the token from the login response."
+        }
+      },
+      "required": [
+        "request",
+        "token",
+        "apply"
+      ],
+      "type": "object"
+    },
+    "StatusMatcher": {
+      "additionalProperties": false,
+      "description": "StatusMatcher matches responses by HTTP status code.",
+      "properties": {
+        "statuses": {
+          "description": "Statuses that match.",
+          "items": {
+            "maximum": 599,
+            "minimum": 100,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "Template": {
+      "description": "Go text/template evaluated per account and target.",
+      "type": "string"
+    },
+    "TokenApply": {
+      "additionalProperties": false,
+      "description": "TokenApply attaches a session token to requests, as a header or a cookie.",
+      "properties": {
+        "cookie": {
+          "description": "Cookie that carries the token.",
+          "type": "string"
+        },
+        "format": {
+          "default": "{token}",
+          "description": "Format of the header value; {token} is replaced by the token.",
+          "type": "string"
+        },
+        "header": {
+          "description": "Header that carries the token.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "Value": {
+      "additionalProperties": false,
+      "description": "A literal string, {secret: name} or {expr: cel}.",
+      "maxProperties": 1,
+      "minProperties": 1,
+      "properties": {
+        "expr": {
+          "description": "CEL expression evaluated at runtime.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "secret": {
+          "description": "Name of a secret declared by the provider and supplied by the account.",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+          "type": "string"
+        }
+      },
+      "type": [
+        "string",
+        "object"
+      ]
+    },
+    "Window": {
+      "additionalProperties": false,
+      "description": "Window is the window of a quota: exactly one of period or rolling.",
+      "properties": {
+        "monthDay": {
+          "default": 1,
+          "description": "MonthDay is the day of month windows reset (1 to 31; the last day of\nshorter months).",
+          "maximum": 31,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "period": {
+          "description": "Period of a fixed calendar window.",
+          "enum": [
+            "minute",
+            "hour",
+            "day",
+            "week",
+            "month"
+          ],
+          "type": "string"
+        },
+        "resetAt": {
+          "default": "00:00",
+          "description": "ResetAt is the time of day (HH:MM, 24h) at which day, week and month\nwindows reset.",
+          "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+          "type": "string"
+        },
+        "rolling": {
+          "$ref": "#/$defs/Duration",
+          "description": "Rolling is the duration of a rolling window (1-minute precision)."
+        },
+        "timezone": {
+          "default": "UTC",
+          "description": "Timezone of the calendar (IANA name).",
+          "type": "string"
+        },
+        "weekStart": {
+          "default": "monday",
+          "description": "WeekStart is the first day of week windows.",
+          "enum": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$id": "https://raw.githubusercontent.com/kentrow/tapyr/main/schemas/v1alpha1/provider.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "An API family: base URL, auth, pagination, error semantics and rate limits.",
+  "properties": {
+    "apiVersion": {
+      "const": "tapyr/v1alpha1"
+    },
+    "kind": {
+      "const": "Provider"
+    },
+    "metadata": {
+      "$ref": "#/$defs/ProviderMeta"
+    },
+    "spec": {
+      "$ref": "#/$defs/ProviderSpec"
+    }
+  },
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "title": "Provider",
+  "type": "object"
+}

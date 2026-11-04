@@ -1,0 +1,17 @@
+kind: Output
+metadata: { name: no-api-version }
+---
+apiVersion: tapyr/v1
+kind: Output
+metadata: { name: old-api-version }
+---
+apiVersion: tapyr/v1alpha1
+metadata: { name: no-kind }
+---
+apiVersion: tapyr/v1alpha1
+kind: Exporter
+metadata: { name: unknown-kind }
+---
+apiVersion: tapyr/v1alpha1
+kind: Scenario
+metadata: { name: package-kind }

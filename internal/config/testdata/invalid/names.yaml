@@ -1,0 +1,13 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata:
+  name: Example_Provider
+  version: "1"
+spec:
+  baseURL: https://api.example.invalid
+  params:
+    - name: base-url
+  limits:
+    - name: this-limit-name-is-definitely-much-longer-than-sixty-three-characters
+      kind: concurrency
+      max: 2

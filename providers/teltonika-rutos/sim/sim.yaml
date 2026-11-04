@@ -1,0 +1,31 @@
+apiVersion: tapyr/v1alpha1
+kind: Simulation
+metadata:
+  name: teltonika-rutos
+spec:
+  # tapyr sim --all serves this simulator at --listen-base plus this offset.
+  portOffset: 4
+  # The local API of one router (every target of an account reaches the
+  # same simulated router). Fixtures follow the OpenAPI description of
+  # RutOS 7.26 (developers.teltonika-networks.com).
+  basePath: /api
+  inventory:
+    seed: 42
+    sets:
+      - { name: router, count: 1 }
+  auth:
+    accept:
+      logins: [{ username: sim-user, password: sim-password }]
+    tokenLifetime: 5m
+    loginResponse: fixtures/login.json
+  routes:
+    - path: /system/device/usage/status
+      response: { template: fixtures/usage.json.tmpl }
+    - path: /system/device/status
+      response: { template: fixtures/device.json.tmpl }
+    - path: /modems/status
+      response: { template: fixtures/modems.json.tmpl }
+    - path: /interfaces/status
+      response: { template: fixtures/interfaces.json.tmpl }
+    - path: /failover/status
+      response: { template: fixtures/failover.json.tmpl }

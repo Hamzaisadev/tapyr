@@ -1,0 +1,27 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: meraki-networks
+spec:
+  provider: meraki-dashboard
+  defaultInterval: 1h
+  defaultPriority: low
+  forEach:
+    template: meraki-organizations
+    vars:
+      organizationId: parent.organizationId
+  request:
+    path: /organizations/{organizationId}/networks
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: response.body
+    info:
+      - name: meraki_network_info
+        help: Descriptive attributes of a network
+        labels:
+          organization_id: vars.organizationId
+          network_id: item.id
+          name: "default(item.name, '')"
+          product_types: "has(item.productTypes) ? item.productTypes.join(',') : ''"
+          time_zone: "default(item.timeZone, '')"

@@ -1,0 +1,4 @@
+testdata/invalid/redirects.yaml:7:49: spec.redirects.hosts[2]: invalid host "https://n1.example.com" (want a lower-case host name, or "*." and a domain)
+testdata/invalid/redirects.yaml:7:75: spec.redirects.hosts[3]: invalid host "*." (want a lower-case host name, or "*." and a domain)
+testdata/invalid/redirects.yaml:7:81: spec.redirects.hosts[4]: invalid host "Upper.example.com" (want a lower-case host name, or "*." and a domain)
+testdata/invalid/redirects.yaml:7:102: spec.redirects.hosts[5]: invalid host "*.*.example.com" (want a lower-case host name, or "*." and a domain)

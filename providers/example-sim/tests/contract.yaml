@@ -1,0 +1,20 @@
+# Contract test of example-sim: tapyr provider lint runs these jobs once
+# against the simulator ($SIM_URL) and compares the samples with
+# expected.prom. Implicit parents run the networks and sites templates.
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: contract }
+spec:
+  provider: example-sim
+  params: { baseURL: "$SIM_URL" }
+  secrets: { apiKey: { env: EXAMPLE_SIM_API_KEY } }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: devices }
+spec: { account: contract, template: example-sim-devices }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: network-devices }
+spec: { account: contract, template: example-sim-network-devices }

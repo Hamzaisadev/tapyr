@@ -1,0 +1,1 @@
+testdata/invalid/duplicates/b.yaml:3:19: metadata.name: duplicate Output name "shared" (first defined at testdata/invalid/duplicates/a.yaml:3:19)

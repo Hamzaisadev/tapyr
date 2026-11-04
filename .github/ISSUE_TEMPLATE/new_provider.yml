@@ -1,0 +1,60 @@
+name: New provider
+description: Propose support for an API, before writing the package
+labels: [provider]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Provider packages are YAML and CEL (see docs/providers.md). This issue gathers what the package needs, so that the limits and endpoints are agreed before the work starts.
+  - type: input
+    id: api
+    attributes:
+      label: API
+      description: Vendor, product and API version.
+      placeholder: Acme Cloud API v2
+    validations:
+      required: true
+  - type: input
+    id: docs
+    attributes:
+      label: API documentation
+      description: Link to the reference documentation.
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: What to collect
+      description: The objects and measures worth metrics, with the endpoints that return them.
+    validations:
+      required: true
+  - type: textarea
+    id: auth
+    attributes:
+      label: Authentication
+      description: API key, OAuth2 client credentials, session login, other. Mention anything unusual (rotating tokens, signed requests).
+    validations:
+      required: true
+  - type: textarea
+    id: limits
+    attributes:
+      label: Rate limits and quotas
+      description: Every documented limit, with a link (per second, per day, per month, concurrency; scoped by token, account, organization, IP), and the quota headers the API sends.
+    validations:
+      required: true
+  - type: dropdown
+    id: access
+    attributes:
+      label: Access to a real platform
+      description: Can you test the package against the real API?
+      options:
+        - Yes, I can test against a real account
+        - No, simulator only
+    validations:
+      required: true
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to write the package myself

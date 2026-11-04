@@ -1,0 +1,80 @@
+# Install
+
+Tapyr is a single static binary with the web UI embedded. Releases ship it for Linux, macOS and Windows (amd64, arm64), and as the multi-arch image `ghcr.io/kentrow/tapyr`.
+
+## Binary
+
+Download the archive of your platform and `checksums.txt` from the [releases page](https://github.com/kentrow/tapyr/releases), check it, then put `tapyr` in your `PATH`:
+
+```sh
+VERSION=0.1.0
+curl -LO https://github.com/kentrow/tapyr/releases/download/v$VERSION/tapyr_${VERSION}_linux_amd64.tar.gz
+curl -LO https://github.com/kentrow/tapyr/releases/download/v$VERSION/checksums.txt
+sha256sum --ignore-missing -c checksums.txt
+tar xzf tapyr_${VERSION}_linux_amd64.tar.gz tapyr
+./tapyr version
+```
+
+On macOS, `sha256sum` is not installed: check the archive with `shasum -a 256 --ignore-missing -c checksums.txt`.
+
+Each archive has its SBOM next to it (`<archive>.sbom.json`, SPDX), and holds `LICENSE`, `NOTICE` and `THIRD_PARTY_LICENSES`, the licenses and notices of the software the binary includes.
+
+## Container image
+
+```sh
+docker run -d --name tapyr \
+  -v "$PWD/config:/etc/tapyr:ro" \
+  -v tapyr-data:/home/nonroot/data \
+  -p 9790:9790 \
+  ghcr.io/kentrow/tapyr:0.1.0
+```
+
+- The image runs `tapyr run --config /etc/tapyr` as the `nonroot` user (uid 65532), on `gcr.io/distroless/static-debian12`.
+- The state store (quota consumption, rotated tokens, counters) defaults to `./data/tapyr.db`, that is `/home/nonroot/data` in the image: keep it on a volume, or Tapyr forgets on restart what it already spent of the daily and monthly quotas.
+- Set `settings.server.listen` to `0.0.0.0:9790` in the configuration, so that the published port reaches the UI, the status API and `/metrics`.
+- Secrets come from environment variables or files (`{ env: NAME }`, `{ file: /path }`): pass them with `-e` or mount them, never in the configuration files.
+- `docker kill -s HUP tapyr` reloads the configuration.
+
+Tags: `X.Y.Z`, `X.Y` (latest patch of a minor version) and `latest` (latest release).
+
+## systemd
+
+[`examples/systemd`](../examples/systemd/README.md) has a hardened unit: a dynamic user, the configuration in `/etc/tapyr`, the secrets in an environment file read by systemd, the state store in `/var/lib/tapyr`, and `systemctl reload tapyr` for a reload.
+
+## Kubernetes
+
+[`examples/kubernetes`](../examples/kubernetes/README.md) has Kustomize manifests: a Deployment of one replica (non-root, read-only root file system, probes on `/readyz` and `/healthz`), its Service, a volume for the state store, and the configuration as a ConfigMap whose changes roll the Deployment out. Run a single replica: a second one would spend the same quotas without coordinating.
+
+## Verify the signatures
+
+The checksums and the image are signed with [cosign](https://docs.sigstore.dev/) in keyless mode by the release workflow of the repository. The signature proves that the files and the image were built by that workflow, from a tag of `Kentrow/tapyr`. The identity is compared as written, case included.
+
+```sh
+# The checksums of a release (then check the archives with sha256sum, above).
+cosign verify-blob checksums.txt \
+  --bundle checksums.txt.sigstore.json \
+  --certificate-identity "https://github.com/Kentrow/tapyr/.github/workflows/release.yml@refs/tags/v$VERSION" \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+
+# The image.
+cosign verify ghcr.io/kentrow/tapyr:$VERSION \
+  --certificate-identity "https://github.com/Kentrow/tapyr/.github/workflows/release.yml@refs/tags/v$VERSION" \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
+
+The SBOM of the image is attached to it as an attestation:
+
+```sh
+docker buildx imagetools inspect ghcr.io/kentrow/tapyr:$VERSION --format '{{ json .SBOM }}'
+```
+
+## From source
+
+Go 1.27 and Node.js 22 or later:
+
+```sh
+git clone https://github.com/kentrow/tapyr.git
+cd tapyr
+make build        # the UI, then the static binary in ./bin/tapyr
+make docker       # or the image tapyr:dev
+```

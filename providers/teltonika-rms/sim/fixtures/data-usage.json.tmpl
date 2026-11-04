@@ -1,0 +1,11 @@
+{{- /* GET /devices/{id}/data-usage: today's usage of the device, one modem
+       and SIM, growing since midnight UTC; an unknown device answers an empty list, like the real API
+       for a device without usage. */ -}}
+{"success": true, "data": [
+{{- range $d := items "devices" }}
+{{- if eq (printf "%d" (add 9300000 (num $d "id" 1000 99999))) $.vars.deviceId }}
+  {"date": {{ json (ts "2006-01-02" $.now) }}, "modems": [{"modem_id": "1-1", "sims": [{"sim_id": {{ num $d "sim" 1 2 }},
+   "data": {"rx": {{ mul (mod (unix $.now) 86400) (num $d "rx" 20 200) }}, "tx": {{ mul (mod (unix $.now) 86400) (num $d "tx" 5 50) }}}}]}]}
+{{- end }}
+{{- end }}
+]}

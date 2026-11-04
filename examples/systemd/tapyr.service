@@ -1,0 +1,61 @@
+# Tapyr as a systemd service, see README.md.
+#
+#   install -m 0644 tapyr.service /etc/systemd/system/
+#   systemctl daemon-reload && systemctl enable --now tapyr
+#
+# The configuration is read from /etc/tapyr (*.yaml), the secrets from the
+# environment file /etc/tapyr/tapyr.env, and the state store is kept in
+# /var/lib/tapyr. `systemctl reload tapyr` reloads the configuration.
+
+[Unit]
+Description=Tapyr API-to-metrics gateway
+Documentation=https://tapyr.eu https://github.com/kentrow/tapyr
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=exec
+ExecStart=/usr/local/bin/tapyr run --config /etc/tapyr
+ExecReload=kill -HUP $MAINPID
+# Read by systemd as root: the file can stay 0600 root:root.
+EnvironmentFile=-/etc/tapyr/tapyr.env
+# The default state path ./data/tapyr.db lands in /var/lib/tapyr/data.
+DynamicUser=yes
+StateDirectory=tapyr
+WorkingDirectory=/var/lib/tapyr
+# Shutdown flushes the state store and the outputs.
+TimeoutStopSec=30s
+Restart=on-failure
+RestartSec=5s
+
+# Hardening: Tapyr needs the network, its state directory and nothing else.
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+UMask=0077
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectProc=invisible
+ProcSubset=pid
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RemoveIPC=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged
+SystemCallErrorNumber=EPERM
+
+[Install]
+WantedBy=multi-user.target

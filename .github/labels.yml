@@ -1,0 +1,15 @@
+# Labels of the repository: scripts/sync-labels.sh creates or updates them.
+# The issue templates use bug, enhancement and provider.
+- { name: bug, color: d73a4a, description: Something does not work as documented }
+- { name: enhancement, color: a2eeef, description: A change of behavior or a new capability }
+- { name: provider, color: 0e8a16, description: A provider package, new or existing }
+- { name: documentation, color: 0075ca, description: Docs, specs, examples }
+- { name: security, color: b60205, description: Security hardening (vulnerabilities are reported privately) }
+- { name: good first issue, color: 7057ff, description: A good start for a new contributor }
+- { name: help wanted, color: 008672, description: Contributions welcome }
+- { name: area/budget, color: fbca04, description: Budget engine and planner }
+- { name: area/collect, color: fbca04, description: Requests, auth, pagination, discovery }
+- { name: area/outputs, color: fbca04, description: Prometheus, remote write, OTLP }
+- { name: area/ui, color: fbca04, description: Web UI and status API }
+- { name: area/sim, color: fbca04, description: Simulator, record mode, contract tests }
+- { name: dependencies, color: ededed, description: Dependency updates }

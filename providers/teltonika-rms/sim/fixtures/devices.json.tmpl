@@ -1,0 +1,32 @@
+{{- /* GET /devices: 12 devices, mostly cellular routers online. Fields as
+       recorded on the real API; timestamps relative to the simulated time. */ -}}
+{{- $devices := items "devices" -}}
+{"success": true, "meta": {"total": {{ len $devices }}, "sorters": {"id": "desc"}}, "data": [
+{{- range $i, $d := $devices }}{{ if $i }},{{ end }}
+{{- $status := flap $d "status" "30m" "1:0.9" "0:0.08" "2:0.02" }}
+{{- $model := pick $d "model" "RUTX11" "RUTM52" "RUT241" "CAP700" "TRB245" }}
+{{- $online := eq $status "1" }}
+  {"id": {{ add 9300000 (num $d "id" 1000 99999) }},
+   "name": {{ json (printf "router-%02d" (add $d.index 1)) }},
+   "serial": {{ json (serial $d "9999999999") }},
+   "model": {{ json $model }},
+   "firmware": {{ json (pick $d "firmware" "RUTX_R_00.07.24.5" "RUTM_R_00.07.15.2" "RUT2M_R_00.07.20.4") }},
+   "company_name": "Example Company",
+   "status": {{ $status }},
+   "last_connection_at": {{ json (ts "2006-01-02 15:04:05" (ago (printf "%dm" (num $d "seen" 1 40)))) }},
+   "last_update_at": {{ json (ts "2006-01-02 15:04:05" (ago (printf "%ds" (num $d "update" 10 290)))) }},
+   "router_uptime": {{ counter $d "uptime" 1 }},
+   "temperature": {{ walk $d "temperature" 38 62 "15m" }},
+   "sim_slot": {{ num $d "sim" 1 2 }},
+{{- if $online }}
+   "signal": {{ walk $d "rssi" -95 -55 "10m" }}, "rsrp": {{ walk $d "rsrp" -120 -80 "10m" }},
+   "rsrq": {{ walk $d "rsrq" -18 -6 "10m" }}, "sinr": {{ walk $d "sinr" -3 25 "10m" }},
+   "operator": {{ json (pick $d "operator" "Operator-A" "Operator-B" "Operator-C") }},
+   "connection_type": {{ json (pick $d "type" "4G (LTE)" "5G (NSA)" "4G (LTE)") }},
+   "connection_state": "Connected", "network_state": {{ json (pick $d "roaming" "Home" "Home" "Home" "Roaming") }}
+{{- else }}
+   "signal": null, "rsrp": null, "rsrq": null, "sinr": null,
+   "operator": "N/A", "connection_type": "No service", "connection_state": "Disconnected", "network_state": "Searching"
+{{- end }}}
+{{- end }}
+]}

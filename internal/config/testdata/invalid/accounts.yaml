@@ -1,0 +1,36 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata: { name: devices, version: 0.1.0 }
+spec:
+  baseURL: "{{ .params.baseURL }}"
+  params:
+    - { name: baseURL, required: true }
+  secrets:
+    - { name: username, required: true }
+    - { name: password, required: true }
+---
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: single }
+spec:
+  provider: devices
+  params: { baseURL: "https://10.0.0.1", region: eu }
+  secrets:
+    username: { env: TAPYR_USER }
+    token: { env: TAPYR_TOKEN }
+---
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: fleet }
+spec:
+  provider: devices
+  secrets:
+    username: { env: TAPYR_USER }
+    password: { env: TAPYR_PASSWORD }
+  targets:
+    - name: site-a
+      params: { baseURL: "https://10.0.1.1" }
+    - name: site-b
+      secrets: { apikey: { env: TAPYR_B } }
+    - name: site-a
+      params: { baseURL: "https://10.0.3.1" }

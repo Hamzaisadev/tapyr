@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tapyr
+spec:
+  # One instance: a second one would spend the same quotas without
+  # coordinating. Recreate, because the state store is a single SQLite file
+  # on a ReadWriteOnce volume.
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      # Shutdown flushes the state store and the outputs.
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: tapyr
+          image: ghcr.io/kentrow/tapyr
+          args: [run, --config, /etc/tapyr]
+          # The variables the configuration refers to ({ env: NAME }) and
+          # TAPYR_STATE_KEY, from the Secret tapyr (see README.md).
+          envFrom:
+            - secretRef:
+                name: tapyr
+          ports:
+            - name: http
+              containerPort: 9790
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 10
+            failureThreshold: 6
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - { name: config, mountPath: /etc/tapyr, readOnly: true }
+            - { name: data, mountPath: /home/nonroot/data }
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - name: config
+          configMap:
+            name: tapyr-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: tapyr-data
+        - name: tmp
+          emptyDir: {}

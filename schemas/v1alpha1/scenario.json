@@ -1,0 +1,207 @@
+{
+  "$defs": {
+    "Duration": {
+      "examples": [
+        "30s",
+        "5m",
+        "1h30m"
+      ],
+      "pattern": "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$",
+      "type": "string"
+    },
+    "ExternalConsumption": {
+      "additionalProperties": false,
+      "description": "ExternalConsumption consumes a quota at a steady rate.",
+      "properties": {
+        "limit": {
+          "$ref": "#/$defs/Name",
+          "description": "Limit is the name of a quota limit of the provider."
+        },
+        "ratePerHour": {
+          "description": "RatePerHour is the consumption rate.",
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "limit",
+        "ratePerHour"
+      ],
+      "type": "object"
+    },
+    "Name": {
+      "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$",
+      "type": "string"
+    },
+    "ObjectMeta": {
+      "additionalProperties": false,
+      "description": "ObjectMeta identifies a document.",
+      "properties": {
+        "description": {
+          "description": "Description is free text for humans.",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the document, unique per kind."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "ScenarioErrors": {
+      "additionalProperties": false,
+      "description": "ScenarioErrors injects error responses.",
+      "properties": {
+        "ratio": {
+          "description": "Ratio of the matching requests that fail (0 to 1).",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "routes": {
+          "description": "Routes are globs on the route paths (* within a segment, ** across\nsegments). Empty means every route.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "status": {
+          "description": "Status of the injected responses.",
+          "maximum": 599,
+          "minimum": 400,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "status",
+        "ratio"
+      ],
+      "type": "object"
+    },
+    "ScenarioLatency": {
+      "additionalProperties": false,
+      "description": "ScenarioLatency is a log-normal response delay given by two quantiles.",
+      "properties": {
+        "p50": {
+          "$ref": "#/$defs/Duration",
+          "description": "P50 is the median delay."
+        },
+        "p99": {
+          "$ref": "#/$defs/Duration",
+          "description": "P99 is the 99th percentile, at least P50."
+        }
+      },
+      "required": [
+        "p50"
+      ],
+      "type": "object"
+    },
+    "ScenarioLimit": {
+      "additionalProperties": false,
+      "description": "ScenarioLimit overrides a quota limit.",
+      "properties": {
+        "max": {
+          "description": "Max of the quota per window.",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "max"
+      ],
+      "type": "object"
+    },
+    "ScenarioSpec": {
+      "additionalProperties": false,
+      "description": "ScenarioSpec is the specification of a Scenario.",
+      "properties": {
+        "steps": {
+          "description": "Steps of the timeline.",
+          "items": {
+            "$ref": "#/$defs/ScenarioStep"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "ScenarioStep": {
+      "additionalProperties": false,
+      "description": "ScenarioStep applies from at until at + for (or until the end), in simulated time since the simulator start.",
+      "properties": {
+        "at": {
+          "$ref": "#/$defs/Duration",
+          "description": "At is the start of the step."
+        },
+        "errors": {
+          "$ref": "#/$defs/ScenarioErrors",
+          "description": "Errors answers a ratio of the requests to matching routes with a status."
+        },
+        "externalConsumption": {
+          "$ref": "#/$defs/ExternalConsumption",
+          "description": "ExternalConsumption simulates another client consuming a quota."
+        },
+        "fixtures": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Fixtures replaces the fixture of routes, by route path, to simulate\ninventory changes. Files are relative to the sim/ directory and take\nthe {var} placeholders of the route.",
+          "type": "object"
+        },
+        "for": {
+          "$ref": "#/$defs/Duration",
+          "description": "For is the duration of the step; empty means until the end."
+        },
+        "latency": {
+          "$ref": "#/$defs/ScenarioLatency",
+          "description": "Latency delays the responses (log-normal, in simulated time)."
+        },
+        "limits": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ScenarioLimit"
+          },
+          "description": "Limits overrides the max of named quota limits.",
+          "type": "object"
+        },
+        "outage": {
+          "description": "Outage closes connections without a response.",
+          "type": "boolean"
+        },
+        "tokenExpiry": {
+          "description": "TokenExpiry invalidates, when the step starts, the tokens issued\nbefore it.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$id": "https://raw.githubusercontent.com/kentrow/tapyr/main/schemas/v1alpha1/scenario.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A simulator scenario of a provider package (sim/scenarios/*.yaml).",
+  "properties": {
+    "apiVersion": {
+      "const": "tapyr/v1alpha1"
+    },
+    "kind": {
+      "const": "Scenario"
+    },
+    "metadata": {
+      "$ref": "#/$defs/ObjectMeta"
+    },
+    "spec": {
+      "$ref": "#/$defs/ScenarioSpec"
+    }
+  },
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "title": "Scenario",
+  "type": "object"
+}

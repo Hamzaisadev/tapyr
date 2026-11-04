@@ -1,0 +1,13 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: plan-only-things
+spec:
+  provider: plan-only
+  defaultInterval: 10m
+  request: { path: /things }
+  estimate: { pagesPerRun: 2 }
+  extract:
+    items: response.body
+    metrics:
+      - { name: plan_only_thing_up, help: Thing status, value: "1.0", labels: { id: "string(item.id)" } }

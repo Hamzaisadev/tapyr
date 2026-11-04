@@ -1,0 +1,8 @@
+testdata/invalid/templates.yaml:5:12: spec.baseURL: invalid template: template: spec.baseURL:1: function "sprig" not defined
+testdata/invalid/templates.yaml:6:39: spec.params[1].name: duplicate name "baseURL"
+testdata/invalid/templates.yaml:9:17: spec.defaults.headers.X-Region: invalid template: template: spec.defaults.headers.X-Region:1: unclosed action
+testdata/invalid/templates.yaml:16:11: spec.auth.sessionLogin.request.body.user: secret "username" is not declared in provider "templated"
+testdata/invalid/templates.yaml:18:41: spec.auth.sessionLogin.apply.format: format is only allowed with header
+testdata/invalid/templates.yaml:19:5: spec.auth.bearer: bearer is not allowed with auth type session_login
+testdata/invalid/templates.yaml:22:5: spec.pagination.cursor: cursor must set exactly one of param or header
+testdata/invalid/templates.yaml:23:5: spec.pagination.page: page is not allowed with pagination type cursor

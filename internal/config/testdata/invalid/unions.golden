@@ -1,0 +1,8 @@
+testdata/invalid/unions.yaml:6:3: spec.auth: missing required field "bearer"
+testdata/invalid/unions.yaml:8:3: spec.pagination: missing required field "offset"
+testdata/invalid/unions.yaml:11:7: spec.limits[0]: missing required field "rate"
+testdata/invalid/unions.yaml:12:7: spec.limits[1]: missing required field "window"
+testdata/invalid/unions.yaml:13:7: spec.limits[2]: missing required field "max"
+testdata/invalid/unions.yaml:18:1: spec: missing required field "remoteWrite"
+testdata/invalid/unions.yaml:26:21: spec.otlp.endpoint: "not a url" is not a valid uri
+testdata/invalid/unions.yaml:26:44: spec.otlp.protocol: invalid value "http/json" (want one of "http/protobuf", "grpc")

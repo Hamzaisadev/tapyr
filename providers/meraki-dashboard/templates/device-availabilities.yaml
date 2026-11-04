@@ -1,0 +1,36 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: meraki-device-availabilities
+spec:
+  provider: meraki-dashboard
+  # Meraki refreshes availabilities every 5 minutes.
+  defaultInterval: 5m
+  defaultPriority: high
+  forEach:
+    template: meraki-organizations
+    vars:
+      organizationId: parent.organizationId
+  request:
+    path: /organizations/{organizationId}/devices/availabilities
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: response.body
+    metrics:
+      - name: meraki_device_up
+        help: Device reachable by the Dashboard (1 online or alerting, 0 offline or dormant)
+        value: "item.status == 'online' || item.status == 'alerting'"
+        labels:
+          organization_id: vars.organizationId
+          network_id: "has(item.network) ? default(item.network.id, '') : ''"
+          serial: item.serial
+          product_type: "default(item.productType, '')"
+      - name: meraki_device_alerting
+        help: Device online with active alerts (1 alerting)
+        value: "item.status == 'alerting'"
+        labels:
+          organization_id: vars.organizationId
+          network_id: "has(item.network) ? default(item.network.id, '') : ''"
+          serial: item.serial
+          product_type: "default(item.productType, '')"

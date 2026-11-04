@@ -1,0 +1,14 @@
+# TYPE example_device_clients gauge
+example_device_clients{serial="A"} 12
+# TYPE example_device_info gauge
+example_device_info{model="SX \"100\"",serial="A"} 1
+# HELP example_device_received_bytes_total Bytes received
+# TYPE example_device_received_bytes_total counter
+example_device_received_bytes_total{serial="A"} 1.048576e+06
+# TYPE example_device_rssi_dbm gauge
+example_device_rssi_dbm{serial="A"} -70
+# HELP example_device_up Device status
+# TYPE example_device_up gauge
+example_device_up{serial="A"} 1
+example_device_up{serial="B"} 0
+example_device_up{serial="C"} 1

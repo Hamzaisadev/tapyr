@@ -1,0 +1,117 @@
+# Unit tests of the alert rules: promtool test rules tapyr-alerts.test.yaml
+rule_files: [tapyr-alerts.yaml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'tapyr_auth_reauth_required{provider="aruba-central-classic", account="campus"}'
+        values: "0 0 1 1"
+      - series: 'tapyr_budget_remaining{provider="aruba-central-classic", limit="daily", scope="account=campus"}'
+        values: "1000 200 200 200 200 200 200 200 200"
+      - series: 'tapyr_budget_limit{provider="aruba-central-classic", limit="daily", scope="account=campus"}'
+        values: "5000x8"
+      - series: 'tapyr_job_last_success_timestamp_seconds{provider="meraki-dashboard", account="acme", job="devices"}'
+        values: "0 60 60 60 60 60 60 60 60 60 60 60 60 60"
+      - series: 'tapyr_job_effective_interval_seconds{provider="meraki-dashboard", account="acme", job="devices"}'
+        values: "120x13"
+      - series: 'tapyr_budget_unexpected_429_total{provider="teltonika-rms", account="fleet"}'
+        values: "0 0 1 1"
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: TapyrReauthRequired
+        exp_alerts:
+          - exp_labels: { severity: critical, provider: aruba-central-classic, account: campus }
+            exp_annotations:
+              summary: aruba-central-classic account campus needs new credentials
+              description: The credentials of the account can no longer be renewed; its jobs stopped. Generate new ones and reload the configuration.
+      - eval_time: 4m
+        alertname: TapyrQuotaAlmostExhausted
+        exp_alerts: []
+      - eval_time: 7m
+        alertname: TapyrQuotaAlmostExhausted
+        exp_alerts:
+          - exp_labels: { severity: critical, provider: aruba-central-classic, limit: daily, scope: "account=campus" }
+            exp_annotations:
+              summary: "aruba-central-classic daily quota below 5% (account=campus)"
+              description: Less than 5% of the quota is left before its reset; low-priority jobs are paused and critical jobs may follow.
+      - eval_time: 1m
+        alertname: TapyrJobStale
+        exp_alerts: []
+      - eval_time: 13m
+        alertname: TapyrJobStale
+        exp_alerts:
+          - exp_labels: { severity: warning, provider: meraki-dashboard, account: acme, job: devices }
+            exp_annotations:
+              summary: Job devices of meraki-dashboard has not succeeded for 3 intervals
+              description: See the last runs of the job in the Tapyr UI (Jobs) or GET /api/v1/jobs/devices/runs.
+      - eval_time: 3m
+        alertname: TapyrUnexpected429
+        exp_alerts:
+          - exp_labels: { severity: warning, provider: teltonika-rms, account: fleet }
+            exp_annotations:
+              summary: teltonika-rms returned 429 that no declared limit predicted
+              description: The provider definition may lack a limit, or another client shares the credentials of account fleet.
+  - interval: 1m
+    input_series:
+      # An output that never delivered, and one that stopped delivering.
+      - series: 'tapyr_output_send_failures_total{output="vm", class="transient"}'
+        values: "0+1x25"
+      - series: 'tapyr_output_samples_sent_total{output="otel"}'
+        values: "0+100x5 500x20"
+      - series: 'tapyr_output_last_success_timestamp_seconds{output="otel"}'
+        values: "0 60 120 180 240 300 300x20"
+      - series: 'tapyr_job_lag_seconds{provider="meraki-dashboard", account="acme", job="devices"}'
+        values: "0 400x25"
+      - series: 'tapyr_job_effective_interval_seconds{provider="meraki-dashboard", account="acme", job="devices"}'
+        values: "300x25"
+      - series: 'tapyr_budget_exhaustion_eta_seconds{provider="aruba-central-classic", limit="daily", scope="account=campus"}'
+        values: "7200x25"
+      - series: 'tapyr_circuit_state{provider="teltonika-rutos", account="branches", target="north-01"}'
+        values: "2x25"
+      - series: 'tapyr_circuit_state{provider="meraki-dashboard", account="acme", target=""}'
+        values: "2x25"
+    alert_rule_test:
+      - eval_time: 12m
+        alertname: TapyrOutputFailing
+        exp_alerts:
+          - exp_labels: { severity: warning, output: vm }
+            exp_annotations:
+              summary: Output vm has not delivered for 10 minutes
+              description: The samples wait in the queue until the backend answers; the oldest are dropped when it is full.
+      - eval_time: 21m
+        alertname: TapyrOutputFailing
+        exp_alerts:
+          - exp_labels: { severity: warning, output: otel }
+            exp_annotations:
+              summary: Output otel has not delivered for 10 minutes
+              description: The samples wait in the queue until the backend answers; the oldest are dropped when it is full.
+          - exp_labels: { severity: warning, output: vm }
+            exp_annotations:
+              summary: Output vm has not delivered for 10 minutes
+              description: The samples wait in the queue until the backend answers; the oldest are dropped when it is full.
+      - eval_time: 17m
+        alertname: TapyrJobLagging
+        exp_alerts:
+          - exp_labels: { severity: info, provider: meraki-dashboard, account: acme, job: devices }
+            exp_annotations:
+              summary: Job devices of meraki-dashboard runs late
+              description: The runs start more than one interval after their schedule; rate or concurrency limits may be saturated.
+      - eval_time: 16m
+        alertname: TapyrQuotaExhaustionProjected
+        exp_alerts:
+          - exp_labels: { severity: warning, provider: aruba-central-classic, limit: daily, scope: "account=campus" }
+            exp_annotations:
+              summary: "aruba-central-classic daily quota runs out in 2h 0m 0s (account=campus)"
+              description: At the current pace the quota runs out before its reset; another client may be consuming it (see tapyr_budget_external_usage).
+      - eval_time: 16m
+        alertname: TapyrCircuitOpen
+        exp_alerts:
+          - exp_labels: { severity: warning, provider: meraki-dashboard, account: acme }
+            exp_annotations:
+              summary: Calls to meraki-dashboard account acme are suspended
+              description: "Repeated failures opened the circuit; Tapyr probes again on its own."
+          - exp_labels: { severity: warning, provider: teltonika-rutos, account: branches, target: north-01 }
+            exp_annotations:
+              summary: Calls to teltonika-rutos account branches are suspended
+              description: "Repeated failures opened the circuit of target north-01; Tapyr probes again on its own."
+

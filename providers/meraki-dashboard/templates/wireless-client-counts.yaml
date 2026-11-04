@@ -1,0 +1,26 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: meraki-wireless-client-counts
+spec:
+  provider: meraki-dashboard
+  defaultInterval: 5m
+  defaultPriority: normal
+  forEach:
+    template: meraki-organizations
+    vars:
+      organizationId: parent.organizationId
+  request:
+    path: /organizations/{organizationId}/wireless/clients/overview/byDevice
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: response.body.items
+    metrics:
+      - name: meraki_wireless_device_clients
+        help: Clients connected to the access point now
+        value: "has(item.counts) && has(item.counts.byStatus) ? toFloat(default(item.counts.byStatus.online, 0)) : 0.0"
+        labels:
+          organization_id: vars.organizationId
+          network_id: "has(item.network) ? default(item.network.id, '') : ''"
+          serial: item.serial

@@ -1,0 +1,54 @@
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata:
+  name: lab
+spec:
+  provider: example
+  params:
+    baseURL: https://lab.example.invalid/v1/
+  secrets:
+    apiKey: { file: secrets/api-key }
+  labels:
+    zip: !!str 01234
+    tenant: lab
+  tls:
+    caFile: ../certs/ca.pem
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata:
+  name: lab-devices
+spec:
+  account: lab
+  template: example-site-devices
+  labels: { env: lab }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata:
+  name: lab-status
+spec:
+  account: lab
+  interval: 30s
+  request:
+    path: /status
+    query:
+      verbose: "true"
+      since: { expr: "string(now)" }
+  extract:
+    items: "[response.body]"
+    metrics:
+      - name: example_api_up
+        value: "response.status == 200"
+---
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata:
+  name: vm
+spec:
+  type: remote_write
+  remoteWrite:
+    url: http://vm:8428/api/v1/write
+    headers:
+      X-Scope-OrgID: lab
+      Authorization: { file: secrets/vm-token }

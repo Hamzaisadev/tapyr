@@ -1,0 +1,20 @@
+# Contract test of teltonika-rms: tapyr provider lint runs these jobs once
+# against the simulator ($SIM_URL) and compares the samples with
+# expected.prom.
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: contract }
+spec:
+  provider: teltonika-rms
+  params: { baseURL: "$SIM_URL" }
+  secrets: { token: { env: RMS_TOKEN } }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: devices }
+spec: { account: contract, template: rms-devices }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: data-usage }
+spec: { account: contract, template: rms-device-data-usage }

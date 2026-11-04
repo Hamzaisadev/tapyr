@@ -1,0 +1,29 @@
+apiVersion: tapyr/v1alpha1
+kind: Simulation
+metadata:
+  name: teltonika-rms
+spec:
+  # tapyr sim --all serves this simulator at --listen-base plus this offset.
+  portOffset: 3
+  # The fixtures follow the shape of anonymized recordings of the real API
+  # (tapyr record, November 2026), over a synthetic fleet.
+  inventory:
+    seed: 42
+    sets:
+      - { name: devices, count: 12 }
+  auth:
+    accept:
+      bearer: [sim-rms-token]
+  headers:
+    X-RateLimit-Limit: "limit:monthly.max"
+    X-RateLimit-Remaining: "limit:monthly.remaining"
+    X-RateLimit-Reset: "limit:monthly.reset"
+  routes:
+    - path: /devices
+      pagination: offset
+      response:
+        template: fixtures/devices.json.tmpl
+        itemsField: data
+    - path: /devices/{deviceId}/data-usage
+      response:
+        template: fixtures/data-usage.json.tmpl

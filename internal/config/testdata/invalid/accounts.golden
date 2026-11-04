@@ -1,0 +1,6 @@
+testdata/invalid/accounts.yaml:15:1: spec: missing required secret "password" (declared by provider "devices")
+testdata/invalid/accounts.yaml:17:50: spec.params.region: param "region" is not declared by provider "devices"
+testdata/invalid/accounts.yaml:20:5: spec.secrets.token: secret "token" is not declared by provider "devices"
+testdata/invalid/accounts.yaml:33:7: spec.targets[1]: missing required param "baseURL" for target "site-b" (declared by provider "devices")
+testdata/invalid/accounts.yaml:34:18: spec.targets[1].secrets.apikey: secret "apikey" is not declared by provider "devices"
+testdata/invalid/accounts.yaml:35:13: spec.targets[2].name: duplicate target name "site-a"

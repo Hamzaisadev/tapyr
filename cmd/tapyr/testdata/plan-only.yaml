@@ -1,0 +1,12 @@
+# Uses the plan-only package of testdata/providers, loaded with --provider-path.
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: plan-only }
+spec:
+  provider: plan-only
+  secrets: { token: { env: PLAN_ONLY_TOKEN } }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: things }
+spec: { account: plan-only, template: plan-only-things }

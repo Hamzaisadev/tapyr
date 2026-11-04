@@ -1,0 +1,23 @@
+# Tapyr on Kubernetes, see README.md.
+#
+#   kubectl create namespace tapyr
+#   kubectl -n tapyr create secret generic tapyr --from-env-file=tapyr.env
+#   kubectl apply -k examples/kubernetes
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: tapyr
+labels:
+  - pairs: { app.kubernetes.io/name: tapyr }
+    includeSelectors: true
+resources:
+  - pvc.yaml
+  - deployment.yaml
+  - service.yaml
+# The name of the ConfigMap carries a hash of its content: editing
+# config.yaml and applying again rolls the Deployment out.
+configMapGenerator:
+  - name: tapyr-config
+    files: [config.yaml]
+images:
+  - name: ghcr.io/kentrow/tapyr
+    newTag: "0.1.0"

@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose a change of behavior or a new capability
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check the scope first (docs/spec/01-vision-and-scope.md): out-of-scope items need a discussion before any code.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What you are trying to do, and what gets in the way today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: The proposal
+      description: How Tapyr could behave. Mention the spec sections it touches, if you know them.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

@@ -1,0 +1,308 @@
+{
+  "$defs": {
+    "BasicAuthSecrets": {
+      "additionalProperties": false,
+      "description": "BasicAuthSecrets are HTTP basic credentials read from secrets.",
+      "properties": {
+        "password": {
+          "$ref": "#/$defs/SecretRef",
+          "description": "Password secret."
+        },
+        "username": {
+          "$ref": "#/$defs/SecretRef",
+          "description": "Username secret."
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ],
+      "type": "object"
+    },
+    "Duration": {
+      "examples": [
+        "30s",
+        "5m",
+        "1h30m"
+      ],
+      "pattern": "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$",
+      "type": "string"
+    },
+    "Name": {
+      "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$",
+      "type": "string"
+    },
+    "OTLPOutput": {
+      "additionalProperties": false,
+      "description": "OTLPOutput configures OTLP metrics export.",
+      "properties": {
+        "endpoint": {
+          "description": "Endpoint of the OTLP receiver.",
+          "format": "uri",
+          "type": "string"
+        },
+        "headers": {
+          "additionalProperties": {
+            "$ref": "#/$defs/StringOrSecret"
+          },
+          "description": "Headers added to every request; values are literals or secrets.",
+          "type": "object"
+        },
+        "protocol": {
+          "default": "http/protobuf",
+          "description": "Protocol: http/protobuf or grpc.",
+          "enum": [
+            "http/protobuf",
+            "grpc"
+          ],
+          "type": "string"
+        },
+        "resourceAttributes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "ResourceAttributes added to the OTLP resource.",
+          "type": "object"
+        },
+        "timeout": {
+          "$ref": "#/$defs/Duration",
+          "description": "Timeout of a send request."
+        }
+      },
+      "required": [
+        "endpoint"
+      ],
+      "type": "object"
+    },
+    "ObjectMeta": {
+      "additionalProperties": false,
+      "description": "ObjectMeta identifies a document.",
+      "properties": {
+        "description": {
+          "description": "Description is free text for humans.",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the document, unique per kind."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "OutputSpec": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "remote_write"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "remoteWrite"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "otlp"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "otlp"
+            ]
+          }
+        }
+      ],
+      "description": "OutputSpec is the specification of an Output.",
+      "properties": {
+        "externalLabels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "ExternalLabels added to every sample sent through this output.",
+          "propertyNames": {
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "otlp": {
+          "$ref": "#/$defs/OTLPOutput",
+          "description": "OTLP pushes OTLP metrics (type otlp)."
+        },
+        "prometheus": {
+          "$ref": "#/$defs/PrometheusOutput",
+          "description": "Prometheus pull exposition on /metrics (type prometheus, at most one)."
+        },
+        "queue": {
+          "$ref": "#/$defs/Queue",
+          "description": "Queue of a push output (not allowed for prometheus)."
+        },
+        "remoteWrite": {
+          "$ref": "#/$defs/RemoteWriteOutput",
+          "description": "RemoteWrite pushes with Prometheus remote write 1.0 (type remote_write)."
+        },
+        "type": {
+          "description": "Type of output.",
+          "enum": [
+            "prometheus",
+            "remote_write",
+            "otlp"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "PrometheusOutput": {
+      "additionalProperties": false,
+      "description": "PrometheusOutput configures the pull exposition.",
+      "properties": {
+        "exposeTimestamps": {
+          "description": "ExposeTimestamps adds sample timestamps to the exposition. Off by\ndefault, as recommended by Prometheus.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "Queue": {
+      "additionalProperties": false,
+      "description": "Queue is the bounded in-memory queue of a push output.",
+      "properties": {
+        "capacity": {
+          "default": 50000,
+          "description": "Capacity in samples; the oldest samples are dropped (with accounting)\nwhen full.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "flushInterval": {
+          "$ref": "#/$defs/Duration",
+          "description": "FlushInterval sends a partial batch after this delay."
+        },
+        "maxBatch": {
+          "default": 5000,
+          "description": "MaxBatch is the maximum number of samples per request.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "RemoteWriteOutput": {
+      "additionalProperties": false,
+      "description": "RemoteWriteOutput configures Prometheus remote write 1.0.",
+      "properties": {
+        "basicAuth": {
+          "$ref": "#/$defs/BasicAuthSecrets",
+          "description": "BasicAuth credentials."
+        },
+        "headers": {
+          "additionalProperties": {
+            "$ref": "#/$defs/StringOrSecret"
+          },
+          "description": "Headers added to every request; values are literals or secrets.",
+          "type": "object"
+        },
+        "timeout": {
+          "$ref": "#/$defs/Duration",
+          "description": "Timeout of a send request."
+        },
+        "url": {
+          "description": "URL of the remote write endpoint.",
+          "format": "uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "type": "object"
+    },
+    "SecretRef": {
+      "additionalProperties": false,
+      "description": "A secret read from an environment variable ({env: NAME}) or a file ({file: /path}).",
+      "maxProperties": 1,
+      "minProperties": 1,
+      "properties": {
+        "env": {
+          "description": "Name of an environment variable holding the secret.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "file": {
+          "description": "Path of a file holding the secret, relative to the declaring file.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "StringOrSecret": {
+      "additionalProperties": false,
+      "description": "A literal string, {env: NAME} or {file: /path}.",
+      "maxProperties": 1,
+      "minProperties": 1,
+      "properties": {
+        "env": {
+          "description": "Name of an environment variable holding the secret.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "file": {
+          "description": "Path of a file holding the secret, relative to the declaring file.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "type": [
+        "string",
+        "object"
+      ]
+    }
+  },
+  "$id": "https://raw.githubusercontent.com/kentrow/tapyr/main/schemas/v1alpha1/output.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Where collected samples are sent.",
+  "properties": {
+    "apiVersion": {
+      "const": "tapyr/v1alpha1"
+    },
+    "kind": {
+      "const": "Output"
+    },
+    "metadata": {
+      "$ref": "#/$defs/ObjectMeta"
+    },
+    "spec": {
+      "$ref": "#/$defs/OutputSpec"
+    }
+  },
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "title": "Output",
+  "type": "object"
+}

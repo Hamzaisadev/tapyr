@@ -1,0 +1,7 @@
+{{- /* GET /central/v2/sites */ -}}
+{{- $sites := items "sites" -}}
+{"count": {{ len $sites }}, "total": {{ len $sites }}, "sites": [
+{{- range $i, $s := $sites }}{{ if $i }},{{ end }}
+  {"site_id": {{ add 9 $s.index }}, "site_name": "Site {{ add $s.index 1 }}"}
+{{- end }}
+]}

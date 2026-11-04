@@ -1,0 +1,64 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata:
+  name: teltonika-rms
+  version: 0.1.0
+  description: Teltonika Remote Management System (RMS) cloud API
+  docs: https://developers.rms.teltonika-networks.com/
+spec:
+  baseURL: '{{ .params.baseURL | default "https://api.rms.teltonika-networks.com" | trimSuffix "/" }}'
+  params:
+    - name: baseURL
+      description: Base URL of the RMS API (default https://api.rms.teltonika-networks.com)
+  secrets:
+    - name: token
+      required: true
+      description: Personal access token with the devices:read scope (Account settings > API > Access tokens)
+  auth:
+    type: bearer
+    bearer:
+      token: { secret: token }
+  defaults:
+    headers:
+      Accept: application/json
+    timeout: 30s
+  pagination:
+    type: offset
+    offset:
+      offsetParam: offset
+      limitParam: limit
+      pageSize: 100
+      total: "int(response.body.meta.total)"
+  limits:
+    - name: monthly
+      description: >-
+        100000 requests per month
+        (developers.rms.teltonika-networks.com/pages/web-api.html); the platform
+        reports the limit, the remaining requests and the reset time in
+        X-RateLimit-* headers (measured), the window starting at the first request
+      kind: quota
+      max: auto
+      initialMax: 100000
+      window: { period: month, timezone: UTC }
+      scope: { by: [credential] }
+      sync:
+        limitHeader: X-RateLimit-Limit
+        remainingHeader: X-RateLimit-Remaining
+        resetHeader: X-RateLimit-Reset
+    - name: rate
+      description: Throughput per token (assumed, none documented)
+      kind: rate
+      rate: 2/s
+      burst: 4
+      scope: { by: [credential] }
+    - name: concurrency
+      description: Concurrent requests per token (assumed, none documented)
+      kind: concurrency
+      max: 2
+      scope: { by: [credential] }
+  errors:
+    rateLimited:
+      statuses: [429]
+      retryAfterHeader: Retry-After
+    authFailed:
+      statuses: [401]

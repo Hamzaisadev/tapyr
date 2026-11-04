@@ -1,0 +1,81 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata: { name: deep, version: 0.1.0 }
+spec:
+  baseURL: https://api.example.invalid
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: level-1 }
+spec:
+  provider: deep
+  role: inventory
+  defaultInterval: 1h
+  request: { path: /level-1 }
+  extract: { inventory: { key: item.id } }
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: level-2 }
+spec:
+  provider: deep
+  role: inventory
+  defaultInterval: 1h
+  request: { path: /level-2 }
+  forEach: { template: level-1 }
+  extract: { inventory: { key: item.id } }
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: level-3 }
+spec:
+  provider: deep
+  role: inventory
+  defaultInterval: 1h
+  request: { path: /level-3 }
+  forEach: { template: level-2 }
+  extract: { inventory: { key: item.id } }
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: level-4 }
+spec:
+  provider: deep
+  role: inventory
+  defaultInterval: 1h
+  request: { path: /level-4 }
+  forEach: { template: level-3 }
+  extract: { inventory: { key: item.id } }
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: level-5 }
+spec:
+  provider: deep
+  role: inventory
+  defaultInterval: 1h
+  request: { path: /level-5 }
+  forEach: { template: level-4 }
+  extract: { inventory: { key: item.id } }
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: loop-a }
+spec:
+  provider: deep
+  role: inventory
+  defaultInterval: 1h
+  request: { path: /loop-a }
+  forEach: { template: loop-b }
+  extract: { inventory: { key: item.id } }
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: loop-b }
+spec:
+  provider: deep
+  role: inventory
+  defaultInterval: 1h
+  request: { path: /loop-b }
+  forEach: { template: loop-a }
+  extract: { inventory: { key: item.id } }

@@ -1,0 +1,54 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata:
+  name: example-sim
+  version: 0.1.0
+  description: Vendor-neutral example API, served by tapyr sim, for development, tests and demos
+  docs: https://github.com/kentrow/tapyr/blob/main/docs/providers.md
+spec:
+  baseURL: '{{ .params.baseURL | default "http://127.0.0.1:8081/api/v1" | trimSuffix "/" }}'
+  params:
+    - name: baseURL
+      description: Base URL of the API, for example the address of tapyr sim
+  secrets:
+    - name: apiKey
+      required: true
+      description: API key sent as a bearer token (the simulator accepts sim-api-key)
+  auth:
+    type: bearer
+    bearer:
+      token: { secret: apiKey }
+  defaults:
+    headers:
+      Accept: application/json
+    timeout: 10s
+  pagination:
+    type: link_header
+    linkHeader:
+      pageSizeParam: perPage
+      pageSize: 100
+  limits:
+    - name: account-rate
+      description: Per-account throughput (assumed, example only)
+      kind: rate
+      rate: 10/s
+      scope: { by: [account] }
+    - name: concurrency
+      description: Concurrent requests per source (assumed, example only)
+      kind: concurrency
+      max: 4
+      scope: { by: [instance] }
+    - name: daily
+      description: Daily quota, learned from response headers (example only)
+      kind: quota
+      max: auto
+      initialMax: 5000
+      window: { period: day, resetAt: "00:00", timezone: UTC }
+      scope: { by: [account] }
+      sync:
+        limitHeader: X-RateLimit-Limit-Day
+        remainingHeader: X-RateLimit-Remaining-Day
+  errors:
+    rateLimited:
+      statuses: [429]
+      retryAfterHeader: Retry-After

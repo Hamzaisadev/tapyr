@@ -1,0 +1,8 @@
+apiVersion: tapyr/v1alpha1
+kind: Settings
+metadata: { name: default }
+spec:
+  collection: { jitter: 60% }
+  budget: { retryReserve: 51% }
+  retry: { initialBackoff: 10s, maxBackoff: 1s }
+  circuitBreaker: { cooldown: 5m, maxCooldown: 1m }

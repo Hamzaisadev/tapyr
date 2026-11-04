@@ -1,0 +1,26 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata: { name: unions, version: 0.1.0 }
+spec:
+  baseURL: https://api.example.invalid
+  auth:
+    type: bearer
+  pagination:
+    type: offset
+  limits:
+    - { name: no-rate, kind: rate }
+    - { name: no-window, kind: quota, max: 100 }
+    - { name: no-max, kind: concurrency }
+---
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: no-block }
+spec:
+  type: remote_write
+---
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: bad-url }
+spec:
+  type: otlp
+  otlp: { endpoint: "not a url", protocol: http/json }

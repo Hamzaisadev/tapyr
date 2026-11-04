@@ -1,0 +1,38 @@
+# Example configuration for an Aruba Central (classic) account. The daily
+# quota is the binding constraint: the defaults spend about 520 calls a day
+# per 1000 devices of each kind, out of at least 5000.
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: campus }
+spec:
+  provider: aruba-central-classic
+  params:
+    baseURL: https://apigw-eucentral3.central.arubanetworks.com   # the API gateway of your cluster
+  secrets:
+    clientId: { env: TAPYR_ARUBA_CLIENT_ID }
+    clientSecret: { env: TAPYR_ARUBA_CLIENT_SECRET }
+    # The bootstrap pair downloaded from API Gateway > My Apps & Tokens.
+    # Tapyr rotates it and keeps the current pair in its state store
+    # (encrypted with TAPYR_STATE_KEY).
+    refreshToken: { env: TAPYR_ARUBA_REFRESH_TOKEN }
+    accessToken: { env: TAPYR_ARUBA_ACCESS_TOKEN }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: aruba-aps }
+spec: { account: campus, template: aruba-aps }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: aruba-switches }
+spec: { account: campus, template: aruba-switches }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: aruba-gateways }
+spec: { account: campus, template: aruba-gateways }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: aruba-sites }
+spec: { account: campus, template: aruba-sites }

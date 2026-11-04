@@ -1,0 +1,2 @@
+testdata/invalid/discovery.yaml:58:3: spec.forEach: discovery chain is 5 levels deep (maximum 4)
+testdata/invalid/discovery.yaml:69:24: spec.forEach.template: discovery cycle: JobTemplate "loop-a" -> JobTemplate "loop-b" -> JobTemplate "loop-a"

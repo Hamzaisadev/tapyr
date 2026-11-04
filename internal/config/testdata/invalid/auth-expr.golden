@@ -1,0 +1,1 @@
+testdata/invalid/auth-expr.yaml:9:28: spec.auth.header.value: auth values cannot be expressions: use a literal or a {secret: name} reference

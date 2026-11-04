@@ -1,0 +1,51 @@
+# Example configuration for Teltonika routers polled on their local RutOS
+# API: one account, one target per router.
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: routers }
+spec:
+  provider: teltonika-rutos
+  secrets:
+    username: { env: TAPYR_RUTOS_USERNAME }   # a user of a read-only group
+    password: { env: TAPYR_RUTOS_PASSWORD }
+  tls:
+    # Routers use self-signed certificates. Prefer trusting them with a PEM
+    # bundle of their certificates (or of the CA that signed them):
+    #   caFile: ./rutos-ca.pem
+    # This example skips the verification instead, which Tapyr logs as a
+    # warning at every load.
+    insecureSkipVerify: true
+  targets:
+    - name: north-01
+      params: { baseURL: "https://192.0.2.10" }
+      labels: { site: north }
+    - name: south-01
+      params: { baseURL: "https://192.0.2.20" }
+      labels: { site: south }
+      secrets:
+        password: { env: TAPYR_RUTOS_SOUTH_PASSWORD }   # target secrets override the account ones
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: rutos-system }
+spec: { account: routers, template: rutos-system }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: rutos-device }
+spec: { account: routers, template: rutos-device }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: rutos-modems }
+spec: { account: routers, template: rutos-modems }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: rutos-interfaces }
+spec: { account: routers, template: rutos-interfaces }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: rutos-failover }
+spec: { account: routers, template: rutos-failover }

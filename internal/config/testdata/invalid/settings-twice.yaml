@@ -1,0 +1,9 @@
+apiVersion: tapyr/v1alpha1
+kind: Settings
+metadata: { name: first }
+spec: {}
+---
+apiVersion: tapyr/v1alpha1
+kind: Settings
+metadata: { name: second }
+spec: {}

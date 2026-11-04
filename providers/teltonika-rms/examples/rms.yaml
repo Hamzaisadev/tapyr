@@ -1,0 +1,28 @@
+# Example configuration for Teltonika RMS: the device list every 5 minutes
+# (status, mobile signal, inventory) and, optionally, today's mobile data
+# usage of every device every 6 hours (one request per device).
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: rms }
+spec:
+  provider: teltonika-rms
+  secrets:
+    token: { env: TAPYR_RMS_TOKEN }   # personal access token, scope devices:read
+  labels:
+    platform: rms
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: rms-devices }
+spec:
+  account: rms
+  template: rms-devices
+---
+# Uncomment to collect the data usage (about 120 requests per device and
+# month at the default 6h interval).
+# apiVersion: tapyr/v1alpha1
+# kind: Job
+# metadata: { name: rms-data-usage }
+# spec:
+#   account: rms
+#   template: rms-device-data-usage

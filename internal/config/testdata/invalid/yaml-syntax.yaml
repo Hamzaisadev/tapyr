@@ -1,0 +1,4 @@
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata:
+  name: [unclosed

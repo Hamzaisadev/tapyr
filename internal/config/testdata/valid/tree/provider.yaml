@@ -1,0 +1,78 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata:
+  name: example
+  version: 0.1.0
+spec:
+  baseURL: "{{ .params.baseURL | default \"https://api.example.invalid/v1\" | trimSuffix \"/\" }}"
+  params:
+    - name: baseURL
+  secrets:
+    - name: apiKey
+      required: true
+  auth:
+    type: header
+    header:
+      name: X-API-Key
+      value: { secret: apiKey }
+  pagination:
+    type: page
+    page: { pageParam: page, sizeParam: size, pageSize: 50 }
+  limits:
+    - name: rate
+      kind: rate
+      rate: 2.5/s
+    - name: daily
+      kind: quota
+      max: auto
+      initialMax: 1000
+      window: { period: month, timezone: Europe/Paris, monthDay: 31 }
+      scope: { by: [account] }
+      sync: { limitHeader: X-RateLimit-Limit, remainingHeader: X-RateLimit-Remaining }
+    - name: hourly
+      kind: quota
+      max: 100
+      window: { rolling: 1h }
+---
+# Anchors and merge keys within one document.
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: example-sites
+spec:
+  provider: example
+  role: inventory
+  defaultInterval: 1h
+  request: { path: /sites }
+  extract:
+    inventory:
+      key: item.id
+      fields: &fields
+        siteId: item.id
+        siteName: item.name
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: example-site-devices
+spec:
+  provider: example
+  defaultInterval: 5m
+  defaultPriority: high
+  forEach:
+    template: example-sites
+    vars: { siteId: parent.siteId }
+  request:
+    path: /sites/{siteId}/devices
+  extract:
+    metrics:
+      - &up
+        name: example_device_up
+        value: "item.online"
+        labels: { site: vars.siteId }
+      - <<: *up
+        name: example_device_clients
+        value: "double(item.clients)"
+    info:
+      - name: example_device_info
+        labels: { serial: item.serial, model: item.model }

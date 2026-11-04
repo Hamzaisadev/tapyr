@@ -1,0 +1,32 @@
+apiVersion: tapyr/v1alpha1
+kind: Settings
+metadata: { name: default }
+spec:
+  collection:
+    defaultTimeout: 1d
+    jitter: 0.1
+  budget:
+    retryReserve: ten percent
+  log:
+    level: verbose
+---
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata: { name: scalars, version: 0.1.0 }
+spec:
+  baseURL: https://api.example.invalid
+  limits:
+    - { name: rate, kind: rate, rate: 10/x }
+    - name: daily
+      kind: quota
+      max: lots
+      window: { period: day, resetAt: "24:00", monthDay: 32 }
+---
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: unquoted }
+spec:
+  provider: scalars
+  params:
+    port: 8080
+    enabled: true

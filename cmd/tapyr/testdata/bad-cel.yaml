@@ -1,0 +1,13 @@
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata:
+  name: broken-cel
+spec:
+  account: demo
+  interval: 1m
+  request:
+    path: /devices
+  extract:
+    metrics:
+      - name: example_device_temperature
+        value: "itme.temperature"

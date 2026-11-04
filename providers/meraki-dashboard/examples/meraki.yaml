@@ -1,0 +1,43 @@
+# Example configuration for the Meraki Dashboard API: every organization the
+# API key can read, through organization-wide endpoints (one request per
+# organization and job, whatever the number of devices).
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: meraki }
+spec:
+  provider: meraki-dashboard
+  secrets:
+    apiKey: { env: TAPYR_MERAKI_API_KEY }
+  # The per-organization rate (10/s) is shared with every other application
+  # using the API on the organizations: leave room for them.
+  budget: { share: 0.5, scaleRates: true }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: meraki-organizations }
+spec: { account: meraki, template: meraki-organizations }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: meraki-networks }
+spec: { account: meraki, template: meraki-networks }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: meraki-devices }
+spec: { account: meraki, template: meraki-devices }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: meraki-device-availabilities }
+spec: { account: meraki, template: meraki-device-availabilities }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: meraki-appliance-uplink-statuses }
+spec: { account: meraki, template: meraki-appliance-uplink-statuses }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: meraki-wireless-client-counts }
+spec: { account: meraki, template: meraki-wireless-client-counts }

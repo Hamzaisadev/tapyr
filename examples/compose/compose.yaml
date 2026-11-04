@@ -1,0 +1,86 @@
+# Demo of Tapyr without any vendor account: the simulators of the built-in
+# providers, Tapyr collecting from them, VictoriaMetrics storing the samples
+# (remote write) and the self-metrics (scrape), Grafana with the provider
+# dashboards and tapyr-overview.
+#
+#   docker compose up -d
+#
+# Grafana: http://127.0.0.1:3000, Tapyr UI: http://127.0.0.1:9790/ui/,
+# VictoriaMetrics: http://127.0.0.1:8428/vmui/. See README.md.
+name: tapyr-demo
+
+x-tapyr-image: &tapyr-image ${TAPYR_IMAGE:-ghcr.io/kentrow/tapyr:0.1.0}
+
+services:
+  sim:
+    image: *tapyr-image
+    # One simulator per built-in provider, at 8081 plus the portOffset of its
+    # package: aruba-central-classic 8081, example-sim 8082,
+    # meraki-dashboard 8083, teltonika-rms 8084, teltonika-rutos 8085.
+    # SIM_SCENARIO=quota-tight or bad-day overlays the fault scenario of the
+    # packages that have it.
+    command: ["sim", "--all", "--listen-base", "0.0.0.0:8081", "--scenario", "${SIM_SCENARIO:-default}"]
+    restart: unless-stopped
+
+  tapyr:
+    image: *tapyr-image
+    command: ["run", "--config", "/etc/tapyr"]
+    depends_on: [sim, victoriametrics]
+    environment:
+      # The credentials the simulators accept; nothing here is a real secret.
+      DEMO_ARUBA_CLIENT_ID: sim-client
+      DEMO_ARUBA_CLIENT_SECRET: sim-client-secret
+      DEMO_ARUBA_REFRESH_TOKEN: sim-refresh-token
+      DEMO_MERAKI_API_KEY: sim-meraki-key
+      DEMO_RMS_TOKEN: sim-rms-token
+      DEMO_RUTOS_USERNAME: sim-user
+      DEMO_RUTOS_PASSWORD: sim-password
+      # Encrypts the rotating Aruba tokens in the state store.
+      TAPYR_STATE_KEY: demo-state-key
+    volumes:
+      - ./tapyr:/etc/tapyr:ro
+      - tapyr-data:/home/nonroot/data
+    ports:
+      - "127.0.0.1:9790:9790"
+    restart: unless-stopped
+
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.155.0
+    command:
+      - -retentionPeriod=7d
+      - -promscrape.config=/etc/victoriametrics/scrape.yml
+    volumes:
+      - ./victoriametrics/scrape.yml:/etc/victoriametrics/scrape.yml:ro
+      - vm-data:/victoria-metrics-data
+    ports:
+      - "127.0.0.1:8428:8428"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:13.3.0
+    depends_on: [victoriametrics]
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/tapyr/tapyr-overview.json
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      # The dashboards come from the repository: tapyr-overview and the
+      # dashboard of every provider package.
+      - ../../dashboards:/var/lib/grafana/dashboards/tapyr:ro
+      - ../../providers/aruba-central-classic/dashboards:/var/lib/grafana/dashboards/aruba-central-classic:ro
+      - ../../providers/meraki-dashboard/dashboards:/var/lib/grafana/dashboards/meraki-dashboard:ro
+      - ../../providers/teltonika-rms/dashboards:/var/lib/grafana/dashboards/teltonika-rms:ro
+      - ../../providers/teltonika-rutos/dashboards:/var/lib/grafana/dashboards/teltonika-rutos:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3000:3000"
+    restart: unless-stopped
+
+volumes:
+  tapyr-data:
+  vm-data:
+  grafana-data:

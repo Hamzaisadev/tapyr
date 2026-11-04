@@ -1,0 +1,5 @@
+testdata/invalid/envelope.yaml:1:1: missing required field "apiVersion" (want tapyr/v1alpha1)
+testdata/invalid/envelope.yaml:4:13: apiVersion: unsupported apiVersion "tapyr/v1" (want tapyr/v1alpha1)
+testdata/invalid/envelope.yaml:8:1: missing required field "kind"
+testdata/invalid/envelope.yaml:12:7: kind: unknown kind "Exporter" (want one of Provider, JobTemplate, Account, Job, Output, Settings)
+testdata/invalid/envelope.yaml:16:7: kind: kind Scenario is only valid inside a provider package (sim/ directory)

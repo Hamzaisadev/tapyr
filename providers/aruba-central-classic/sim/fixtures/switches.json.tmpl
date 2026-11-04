@@ -1,0 +1,10 @@
+{{- /* GET /monitoring/v1/switches */ -}}
+{{- $sw := items "switches" -}}
+{"count": {{ len $sw }}, "total": {{ len $sw }}, "switches": [
+{{- range $i, $s := $sw }}{{ if $i }},{{ end }}
+  {"serial": {{ json (serial $s "XX99999999") }}, "name": "SW-{{ add $s.parent.index 1 }}-{{ add $s.n 1 }}", "macaddr": {{ json (mac $s) }},
+   "model": {{ json (pick $s "model" "Aruba 6100 24G" "Aruba 6200F 48G") }}, "firmware_version": "10.13.1000",
+   "ip_address": {{ json (ipv4 $s) }}, "group_name": "Campus", "site": "Site {{ add $s.parent.index 1 }}",
+   "status": "{{ flap $s "status" "30m" "Up:0.98" "Down:0.02" }}", "switch_type": "AOS-CX", "labels": [], "usage": {{ counter $s "usage" 50000 }}}
+{{- end }}
+]}

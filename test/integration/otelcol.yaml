@@ -1,0 +1,15 @@
+receivers:
+  otlp:
+    protocols:
+      grpc: { endpoint: 0.0.0.0:4317 }
+      http: { endpoint: 0.0.0.0:4318 }
+exporters:
+  file:
+    path: /out/metrics.json
+    flush_interval: 500ms
+extensions:
+  health_check: { endpoint: 0.0.0.0:13133 }
+service:
+  extensions: [health_check]
+  pipelines:
+    metrics: { receivers: [otlp], exporters: [file] }

@@ -1,0 +1,346 @@
+{
+  "$defs": {
+    "Duration": {
+      "examples": [
+        "30s",
+        "5m",
+        "1h30m"
+      ],
+      "pattern": "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$",
+      "type": "string"
+    },
+    "Name": {
+      "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$",
+      "type": "string"
+    },
+    "ObjectMeta": {
+      "additionalProperties": false,
+      "description": "ObjectMeta identifies a document.",
+      "properties": {
+        "description": {
+          "description": "Description is free text for humans.",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the document, unique per kind."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "SimulationAuth": {
+      "additionalProperties": false,
+      "description": "SimulationAuth configures the credentials accepted by the simulator.",
+      "properties": {
+        "accept": {
+          "$ref": "#/$defs/SimulationCredentials",
+          "description": "Accept lists the accepted credentials. They are fake values by design."
+        },
+        "loginResponse": {
+          "description": "LoginResponse is a JSON fixture answered by the login endpoint, relative\nto the sim/ directory; {token} and {expiresIn} (seconds) are replaced.\nDefault: {\"token\": \"{token}\", \"expiresIn\": {expiresIn}}.",
+          "type": "string"
+        },
+        "tokenLifetime": {
+          "$ref": "#/$defs/Duration",
+          "description": "TokenLifetime of the tokens issued by the token and login endpoints,\nin simulated time."
+        }
+      },
+      "type": "object"
+    },
+    "SimulationBasicCredential": {
+      "additionalProperties": false,
+      "description": "SimulationBasicCredential is a username and password pair.",
+      "properties": {
+        "password": {
+          "description": "Password accepted.",
+          "type": "string"
+        },
+        "username": {
+          "description": "Username accepted.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ],
+      "type": "object"
+    },
+    "SimulationClient": {
+      "additionalProperties": false,
+      "description": "SimulationClient is an OAuth 2.0 client.",
+      "properties": {
+        "clientId": {
+          "description": "ClientID accepted.",
+          "type": "string"
+        },
+        "clientSecret": {
+          "description": "ClientSecret accepted.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId",
+        "clientSecret"
+      ],
+      "type": "object"
+    },
+    "SimulationCredentials": {
+      "additionalProperties": false,
+      "description": "SimulationCredentials are accepted credentials per auth type.",
+      "properties": {
+        "basic": {
+          "description": "Basic credentials accepted with auth type basic.",
+          "items": {
+            "$ref": "#/$defs/SimulationBasicCredential"
+          },
+          "type": "array"
+        },
+        "bearer": {
+          "description": "Bearer tokens accepted with auth type bearer.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "clients": {
+          "description": "Clients accepted by the token endpoint with auth type\noauth2_client_credentials.",
+          "items": {
+            "$ref": "#/$defs/SimulationClient"
+          },
+          "type": "array"
+        },
+        "header": {
+          "description": "Header values accepted with auth type header.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "logins": {
+          "description": "Logins accepted by the login endpoint with auth type session_login:\nthe login body must carry both values.",
+          "items": {
+            "$ref": "#/$defs/SimulationBasicCredential"
+          },
+          "type": "array"
+        },
+        "plugin": {
+          "description": "Plugin holds the credentials accepted by the simulator side of an\nauth plugin (type plugin), read by the plugin.",
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "SimulationInventory": {
+      "additionalProperties": false,
+      "description": "SimulationInventory is a synthetic inventory: sets of items, each item under a parent item of another set.",
+      "properties": {
+        "seed": {
+          "default": 42,
+          "description": "Seed of the generated values. The same seed gives the same items and\nthe same dynamics.",
+          "type": "integer"
+        },
+        "sets": {
+          "description": "Sets of items, generated in order: a parent set comes first.",
+          "items": {
+            "$ref": "#/$defs/SimulationSet"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "sets"
+      ],
+      "type": "object"
+    },
+    "SimulationResponse": {
+      "additionalProperties": false,
+      "description": "SimulationResponse is the response of a route.",
+      "oneOf": [
+        {
+          "required": [
+            "file"
+          ]
+        },
+        {
+          "required": [
+            "template"
+          ]
+        }
+      ],
+      "properties": {
+        "file": {
+          "description": "File is the JSON fixture, relative to the sim/ directory. {var}\nplaceholders are replaced by the route variables. Paginated routes\nneed a JSON array, or a list at ItemsField.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Headers added to the response.",
+          "type": "object"
+        },
+        "itemsField": {
+          "description": "ItemsField is the dotted path of the list a paginated route serves\npage by page, inside an envelope; empty for a top-level array.",
+          "type": "string"
+        },
+        "status": {
+          "default": 200,
+          "description": "Status code of the response.",
+          "maximum": 599,
+          "minimum": 100,
+          "type": "integer"
+        },
+        "template": {
+          "description": "Template is a Go text/template fixture rendering JSON, relative to\nthe sim/ directory (see docs/spec/08-simulator.md for its data and\nhelpers). Exactly one of file and template is set.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "SimulationRoute": {
+      "additionalProperties": false,
+      "description": "SimulationRoute is an endpoint of the simulator.",
+      "properties": {
+        "method": {
+          "default": "GET",
+          "description": "Method of the route.",
+          "enum": [
+            "GET",
+            "HEAD",
+            "POST"
+          ],
+          "type": "string"
+        },
+        "pagination": {
+          "default": "none",
+          "description": "Pagination serves the fixture items page by page. Its parameters come\nfrom the job templates requesting this path, or from the provider.",
+          "enum": [
+            "none",
+            "offset",
+            "page",
+            "link_header",
+            "cursor",
+            "expression"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "description": "Path of the route, relative to basePath, with {var} segments.",
+          "pattern": "^/",
+          "type": "string"
+        },
+        "response": {
+          "$ref": "#/$defs/SimulationResponse",
+          "description": "Response returned by the route."
+        }
+      },
+      "required": [
+        "path",
+        "response"
+      ],
+      "type": "object"
+    },
+    "SimulationSet": {
+      "additionalProperties": false,
+      "description": "SimulationSet is a set of generated items.",
+      "properties": {
+        "count": {
+          "description": "Count of items (per parent item when Parent is set).",
+          "maximum": 100000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the set, used by the template helpers."
+        },
+        "parent": {
+          "$ref": "#/$defs/Name",
+          "description": "Parent set: count items are generated under each of its items."
+        }
+      },
+      "required": [
+        "name",
+        "count"
+      ],
+      "type": "object"
+    },
+    "SimulationSpec": {
+      "additionalProperties": false,
+      "description": "SimulationSpec is the specification of a Simulation.",
+      "properties": {
+        "auth": {
+          "$ref": "#/$defs/SimulationAuth",
+          "description": "Auth lists the credentials the simulator accepts. The way they are\nchecked follows the provider auth type."
+        },
+        "basePath": {
+          "default": "/",
+          "description": "BasePath is the path prefix of the API (the path part of the provider\nbase URL). Routes are relative to it.",
+          "pattern": "^/",
+          "type": "string"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Headers added to every response, computed from the limit state:\n\"limit:<name>.max\", \"limit:<name>.remaining\" or \"limit:<name>.reset\"\n(seconds until the window resets).",
+          "type": "object"
+        },
+        "inventory": {
+          "$ref": "#/$defs/SimulationInventory",
+          "description": "Inventory generates synthetic items for templated fixtures."
+        },
+        "portOffset": {
+          "description": "PortOffset is the port of the simulator in tapyr sim --all, as an\noffset from --listen-base, so that adding a package does not move the\nothers. Simulators without one take the ports after the largest\ndeclared offset, in provider name order.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "routes": {
+          "description": "Routes served by the simulator. Unknown routes return 404.",
+          "items": {
+            "$ref": "#/$defs/SimulationRoute"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "routes"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://raw.githubusercontent.com/kentrow/tapyr/main/schemas/v1alpha1/simulation.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The simulator of a provider package (sim/sim.yaml).",
+  "properties": {
+    "apiVersion": {
+      "const": "tapyr/v1alpha1"
+    },
+    "kind": {
+      "const": "Simulation"
+    },
+    "metadata": {
+      "$ref": "#/$defs/ObjectMeta"
+    },
+    "spec": {
+      "$ref": "#/$defs/SimulationSpec"
+    }
+  },
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "title": "Simulation",
+  "type": "object"
+}

@@ -1,0 +1,72 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata:
+  name: aruba-central-classic
+  version: 0.1.0
+  description: HPE Aruba Networking Central (classic platform) REST API
+  docs: https://developer.arubanetworks.com/aruba-central/
+spec:
+  baseURL: '{{ .params.baseURL | trimSuffix "/" }}'
+  params:
+    - name: baseURL
+      required: true
+      description: API gateway of the Central cluster, for example https://apigw-eucentral3.central.arubanetworks.com
+  secrets:
+    - name: clientId
+      required: true
+      description: Client ID of the API Gateway application
+    - name: clientSecret
+      required: true
+      description: Client secret of the API Gateway application
+    - name: refreshToken
+      required: true
+      description: Bootstrap refresh token (API Gateway > My Apps & Tokens > Download Token)
+    - name: accessToken
+      description: Bootstrap access token, used until the first refresh (optional)
+  auth:
+    type: plugin
+    plugin:
+      name: aruba_central_classic
+      config:
+        clientId: { secret: clientId }
+        clientSecret: { secret: clientSecret }
+        refreshToken: { secret: refreshToken }
+        accessToken: { secret: accessToken }
+  defaults:
+    headers:
+      Accept: application/json
+    timeout: 30s
+  pagination:
+    type: offset
+    offset:
+      offsetParam: offset
+      limitParam: limit
+      pageSize: 1000
+      total: "int(response.body.total)"
+  limits:
+    - name: daily
+      description: >-
+        Calls per account and day: the maximum of 5000 and 30 per Foundation
+        device plus 90 per Advanced device, reset at midnight GMT, reported in
+        X-RateLimit-*-day headers (developer.arubanetworks.com, Usage and Rate
+        Limits)
+      kind: quota
+      max: auto
+      initialMax: 5000
+      window: { period: day, resetAt: "00:00", timezone: UTC }
+      scope: { by: [account] }
+      sync:
+        limitHeader: X-RateLimit-Limit-day
+        remainingHeader: X-RateLimit-Remaining-day
+    - name: second
+      description: 7 calls per account per second (developer.arubanetworks.com, Usage and Rate Limits)
+      kind: rate
+      rate: 7/s
+      burst: 7
+      scope: { by: [account] }
+  errors:
+    rateLimited:
+      statuses: [429]
+      defaultPenalty: 2s
+    authFailed:
+      statuses: [401]

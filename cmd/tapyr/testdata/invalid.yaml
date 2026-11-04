@@ -1,0 +1,8 @@
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata:
+  name: broken
+spec:
+  account: demo
+  template: example-sim-devices
+  intervall: 5m

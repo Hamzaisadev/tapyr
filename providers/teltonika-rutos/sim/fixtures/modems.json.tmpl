@@ -1,0 +1,16 @@
+{{- /* GET /api/modems/status: a built-in 5G modem, connected, and a second
+       modem without SIM, offline. */ -}}
+{{- $r := find "router" "router-0" -}}
+{{- $state := flap $r "conn" "20m" "Connected:0.95" "Disconnected:0.05" -}}
+{"success": true, "data": [
+  {"id": "3-1", "name": "Primary modem", "index": 0, "model": "RG501Q-EU", "builtin": true, "primary": true,
+   "active_sim": 1, "simstate": "Inserted", "data_conn_state": {{ json $state }}, "state": {{ json $state }},
+   "operator_state": "Registered (home)", "netstate": "Registered (home)", "conntype": "5G (NSA)",
+   "rssi": {{ walk $r "rssi" -90 -55 "5m" }}, "signal": {{ walk $r "rssi" -90 -55 "5m" }},
+   "rsrp": {{ walk $r "rsrp" -115 -80 "5m" }}, "rsrq": {{ walk $r "rsrq" -16 -7 "5m" }}, "sinr": {{ walk $r "sinr" 0 24 "5m" }},
+   "signal_quality": {{ walk $r "quality" 40 95 "5m" }}, "temperature": {{ walk $r "mtemp" 38 58 "10m" }},
+   "operator": "Operator-A", "oper": "Operator-A", "ntype": "5G-NSA", "band": "B3 / N78",
+   "rxbytes": {{ counter $r "mrx" 40000 }}, "txbytes": {{ counter $r "mtx" 8000 }}},
+  {"id": "1-1", "name": "Secondary modem", "index": 1, "model": "EG06-E", "builtin": true, "primary": false,
+   "simstate": "Not inserted", "offline": "1"}
+]}

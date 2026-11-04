@@ -1,0 +1,5 @@
+[
+  { "id": "site-a", "name": "Alpha", "country": "FR", "deviceCount": 2 },
+  { "id": "site-b", "name": "Bravo", "country": "DE", "deviceCount": 2 },
+  { "id": "site-c", "name": "Charlie", "deviceCount": 1 }
+]

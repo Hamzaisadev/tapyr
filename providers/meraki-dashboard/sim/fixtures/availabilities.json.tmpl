@@ -1,0 +1,10 @@
+{{- /* GET /organizations/{organizationId}/devices/availabilities: status
+       refreshed every 5 minutes, as documented. */ -}}
+[{{- $sep := "" }}
+{{- range $o := items "organizations" }}{{ if eq (printf "%d" (add 549236 (mul $o.index 1111))) $.vars.organizationId }}
+{{- range $n := children "networks" $o }}{{ range $d := children "devices" $n }}{{ $sep }}{{ $sep = "," }}
+{{- $type := "wireless" }}{{ if eq $d.n 0 }}{{ $type = "appliance" }}{{ else if lt $d.n 4 }}{{ $type = "switch" }}{{ end }}
+  {"serial": {{ json (printf "Q2%s" (serial $d "XX-XXXX-XXXX")) }}, "mac": {{ json (mac $d) }}, "name": "",
+   "network": {"id": "N_{{ add 600000000000 (num $n "id" 1 99999999) }}"}, "productType": "{{ $type }}",
+   "status": {{ json (flap $d "status" "5m" "online:0.93" "alerting:0.04" "offline:0.02" "dormant:0.01") }}, "tags": []}
+{{- end }}{{ end }}{{ end }}{{ end }}]

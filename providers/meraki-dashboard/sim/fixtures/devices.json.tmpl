@@ -1,0 +1,12 @@
+{{- /* GET /organizations/{organizationId}/devices: per network, one MX
+       appliance, three MS switches, then MR access points. */ -}}
+[{{- $sep := "" }}
+{{- range $o := items "organizations" }}{{ if eq (printf "%d" (add 549236 (mul $o.index 1111))) $.vars.organizationId }}
+{{- range $n := children "networks" $o }}{{ range $d := children "devices" $n }}{{ $sep }}{{ $sep = "," }}
+{{- $type := "wireless" }}{{ $model := pick $d "model" "MR36" "MR46" "MR57" }}{{ $fw := "wireless-31-1-6" }}
+{{- if eq $d.n 0 }}{{ $type = "appliance" }}{{ $model = "MX68" }}{{ $fw = "MX 19.1.4" }}
+{{- else if lt $d.n 4 }}{{ $type = "switch" }}{{ $model = pick $d "model" "MS120-8LP" "MS210-24P" }}{{ $fw = "MS 17.1.2" }}{{ end }}
+  {"name": "{{ $model }}-{{ add $d.index 1 }}", "serial": {{ json (printf "Q2%s" (serial $d "XX-XXXX-XXXX")) }}, "mac": {{ json (mac $d) }},
+   "networkId": "N_{{ add 600000000000 (num $n "id" 1 99999999) }}", "model": "{{ $model }}", "firmware": "{{ $fw }}",
+   "productType": "{{ $type }}", "lanIp": {{ json (ipv4 $d) }}, "tags": [], "lat": 0, "lng": 0, "address": "", "notes": ""}
+{{- end }}{{ end }}{{ end }}{{ end }}]

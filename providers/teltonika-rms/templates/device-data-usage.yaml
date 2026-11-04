@@ -1,0 +1,45 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: rms-device-data-usage
+spec:
+  provider: teltonika-rms
+  # One request per device: at 6h, 4 requests per device and day, about 120
+  # per device and month out of the 100000 of the token.
+  defaultInterval: 6h
+  defaultPriority: low
+  forEach:
+    template: rms-devices
+    vars:
+      deviceId: parent.deviceId
+  request:
+    path: /devices/{deviceId}/data-usage
+    query:
+      # Today in UTC, in the Y-m-d H:i:s format of the API.
+      start_date: { expr: "string(now).substring(0, 10) + ' 00:00:00'" }
+      end_date: { expr: "string(now).substring(0, 19).replace('T', ' ')" }
+  pagination:
+    type: none
+  estimate:
+    pagesPerRun: 1
+  extract:
+    # One item per modem and SIM of the days returned (today).
+    items: >-
+      response.body.data.map(d, d.modems.map(m, m.sims.map(s, {'date': d.date, 'modem': m.modem_id, 'sim': string(s.sim_id), 'rx': s.data.rx, 'tx': s.data.tx}))).flatten().flatten()
+    metrics:
+      - name: rms_device_mobile_received_bytes_today
+        help: Mobile data received since 00:00 UTC, per modem and SIM
+        unit: bytes
+        value: toFloat(item.rx)
+        labels:
+          device_id: vars.deviceId
+          modem: item.modem
+          sim: item.sim
+      - name: rms_device_mobile_transmitted_bytes_today
+        help: Mobile data transmitted since 00:00 UTC, per modem and SIM
+        unit: bytes
+        value: toFloat(item.tx)
+        labels:
+          device_id: vars.deviceId
+          modem: item.modem
+          sim: item.sim

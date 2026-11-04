@@ -1,0 +1,14 @@
+apiVersion: tapyr/v1alpha1
+kind: Scenario
+metadata:
+  name: quota-tight
+  description: >-
+    A small account at the floor of the daily quota (5000 calls) shared with
+    another integration spending 150 calls an hour: Tapyr must stretch its
+    low-priority jobs to stay within what is left.
+spec:
+  steps:
+    - at: 0s
+      limits:
+        daily: { max: 5000 }
+      externalConsumption: { limit: daily, ratePerHour: 150 }

@@ -1,0 +1,8 @@
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata:
+  name: typo
+spec:
+  account: acme
+  template: devices
+  intervall: 5m

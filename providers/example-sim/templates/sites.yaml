@@ -1,0 +1,39 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: example-sim-sites
+spec:
+  provider: example-sim
+  defaultInterval: 1h
+  defaultPriority: low
+  # Sites are also the inventory the network jobs fan out over.
+  role: both
+  request:
+    path: /sites
+  pagination:
+    type: offset
+    offset:
+      offsetParam: offset
+      limitParam: limit
+      pageSize: 2
+  estimate:
+    pagesPerRun: 2
+  extract:
+    items: response.body
+    inventory:
+      key: item.id
+      fields:
+        siteId: item.id
+    metrics:
+      - name: example_site_devices
+        help: Number of devices registered on the site
+        value: item.deviceCount
+        labels:
+          site_id: item.id
+    info:
+      - name: example_site_info
+        help: Descriptive attributes of a site
+        labels:
+          site_id: item.id
+          name: item.name
+          country: "default(item.country, '')"

@@ -1,0 +1,341 @@
+# TYPE meraki_appliance_uplink_active gauge
+meraki_appliance_uplink_active{interface="wan1",network_id="N_600015621100",organization_id="550347",serial="Q26K-4FPK-ZASD"} 0
+meraki_appliance_uplink_active{interface="wan1",network_id="N_600016508703",organization_id="549236",serial="Q2YL-7DW9-N2MD"} 1
+meraki_appliance_uplink_active{interface="wan1",network_id="N_600030947655",organization_id="550347",serial="Q27S-9MYD-RAA1"} 1
+meraki_appliance_uplink_active{interface="wan1",network_id="N_600034484803",organization_id="550347",serial="Q23E-6C08-FFHG"} 1
+meraki_appliance_uplink_active{interface="wan1",network_id="N_600045801791",organization_id="549236",serial="Q21S-C4D5-KF2R"} 1
+meraki_appliance_uplink_active{interface="wan1",network_id="N_600063089460",organization_id="549236",serial="Q2PG-FSH7-KWYZ"} 1
+meraki_appliance_uplink_active{interface="wan1",network_id="N_600070410089",organization_id="550347",serial="Q24D-0K9U-Z2R7"} 1
+meraki_appliance_uplink_active{interface="wan1",network_id="N_600085115935",organization_id="549236",serial="Q2QH-FQS2-3TN6"} 1
+meraki_appliance_uplink_active{interface="wan2",network_id="N_600015621100",organization_id="550347",serial="Q26K-4FPK-ZASD"} 1
+meraki_appliance_uplink_active{interface="wan2",network_id="N_600016508703",organization_id="549236",serial="Q2YL-7DW9-N2MD"} 0
+meraki_appliance_uplink_active{interface="wan2",network_id="N_600030947655",organization_id="550347",serial="Q27S-9MYD-RAA1"} 0
+meraki_appliance_uplink_active{interface="wan2",network_id="N_600034484803",organization_id="550347",serial="Q23E-6C08-FFHG"} 0
+meraki_appliance_uplink_active{interface="wan2",network_id="N_600045801791",organization_id="549236",serial="Q21S-C4D5-KF2R"} 0
+meraki_appliance_uplink_active{interface="wan2",network_id="N_600063089460",organization_id="549236",serial="Q2PG-FSH7-KWYZ"} 0
+meraki_appliance_uplink_active{interface="wan2",network_id="N_600070410089",organization_id="550347",serial="Q24D-0K9U-Z2R7"} 0
+meraki_appliance_uplink_active{interface="wan2",network_id="N_600085115935",organization_id="549236",serial="Q2QH-FQS2-3TN6"} 0
+# TYPE meraki_appliance_uplink_up gauge
+meraki_appliance_uplink_up{interface="wan1",network_id="N_600015621100",organization_id="550347",serial="Q26K-4FPK-ZASD"} 0
+meraki_appliance_uplink_up{interface="wan1",network_id="N_600016508703",organization_id="549236",serial="Q2YL-7DW9-N2MD"} 1
+meraki_appliance_uplink_up{interface="wan1",network_id="N_600030947655",organization_id="550347",serial="Q27S-9MYD-RAA1"} 1
+meraki_appliance_uplink_up{interface="wan1",network_id="N_600034484803",organization_id="550347",serial="Q23E-6C08-FFHG"} 1
+meraki_appliance_uplink_up{interface="wan1",network_id="N_600045801791",organization_id="549236",serial="Q21S-C4D5-KF2R"} 1
+meraki_appliance_uplink_up{interface="wan1",network_id="N_600063089460",organization_id="549236",serial="Q2PG-FSH7-KWYZ"} 1
+meraki_appliance_uplink_up{interface="wan1",network_id="N_600070410089",organization_id="550347",serial="Q24D-0K9U-Z2R7"} 1
+meraki_appliance_uplink_up{interface="wan1",network_id="N_600085115935",organization_id="549236",serial="Q2QH-FQS2-3TN6"} 1
+meraki_appliance_uplink_up{interface="wan2",network_id="N_600015621100",organization_id="550347",serial="Q26K-4FPK-ZASD"} 1
+meraki_appliance_uplink_up{interface="wan2",network_id="N_600016508703",organization_id="549236",serial="Q2YL-7DW9-N2MD"} 1
+meraki_appliance_uplink_up{interface="wan2",network_id="N_600030947655",organization_id="550347",serial="Q27S-9MYD-RAA1"} 1
+meraki_appliance_uplink_up{interface="wan2",network_id="N_600034484803",organization_id="550347",serial="Q23E-6C08-FFHG"} 1
+meraki_appliance_uplink_up{interface="wan2",network_id="N_600045801791",organization_id="549236",serial="Q21S-C4D5-KF2R"} 1
+meraki_appliance_uplink_up{interface="wan2",network_id="N_600063089460",organization_id="549236",serial="Q2PG-FSH7-KWYZ"} 1
+meraki_appliance_uplink_up{interface="wan2",network_id="N_600070410089",organization_id="550347",serial="Q24D-0K9U-Z2R7"} 1
+meraki_appliance_uplink_up{interface="wan2",network_id="N_600085115935",organization_id="549236",serial="Q2QH-FQS2-3TN6"} 1
+# TYPE meraki_device_alerting gauge
+meraki_device_alerting{network_id="N_600015621100",organization_id="550347",product_type="appliance",serial="Q26K-4FPK-ZASD"} 0
+meraki_device_alerting{network_id="N_600015621100",organization_id="550347",product_type="switch",serial="Q262-C8FN-NV30"} 0
+meraki_device_alerting{network_id="N_600015621100",organization_id="550347",product_type="switch",serial="Q2DE-PXR8-DZ95"} 0
+meraki_device_alerting{network_id="N_600015621100",organization_id="550347",product_type="switch",serial="Q2MJ-F1NC-ESGU"} 0
+meraki_device_alerting{network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q20H-MQGU-9QU2"} 0
+meraki_device_alerting{network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2B0-91F1-797U"} 0
+meraki_device_alerting{network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2DU-Y1Y6-VETJ"} 0
+meraki_device_alerting{network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2F0-VGGG-CXZN"} 0
+meraki_device_alerting{network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2MM-XBAX-PPP3"} 0
+meraki_device_alerting{network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2SZ-LSPU-S0KE"} 0
+meraki_device_alerting{network_id="N_600016508703",organization_id="549236",product_type="appliance",serial="Q2YL-7DW9-N2MD"} 0
+meraki_device_alerting{network_id="N_600016508703",organization_id="549236",product_type="switch",serial="Q2LY-ZYPS-B0PD"} 0
+meraki_device_alerting{network_id="N_600016508703",organization_id="549236",product_type="switch",serial="Q2N2-MRGC-RWU7"} 0
+meraki_device_alerting{network_id="N_600016508703",organization_id="549236",product_type="switch",serial="Q2YQ-7GLW-C779"} 0
+meraki_device_alerting{network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q20X-J1XX-LADA"} 0
+meraki_device_alerting{network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q22J-8YA6-0S10"} 1
+meraki_device_alerting{network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q2HS-P9GV-BS4P"} 0
+meraki_device_alerting{network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q2RC-YB22-YZMM"} 0
+meraki_device_alerting{network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q2SN-0THE-TQ51"} 0
+meraki_device_alerting{network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q2SN-Z01T-3PV1"} 0
+meraki_device_alerting{network_id="N_600030947655",organization_id="550347",product_type="appliance",serial="Q27S-9MYD-RAA1"} 0
+meraki_device_alerting{network_id="N_600030947655",organization_id="550347",product_type="switch",serial="Q21N-D5MU-K70X"} 0
+meraki_device_alerting{network_id="N_600030947655",organization_id="550347",product_type="switch",serial="Q2AW-W50Y-MFK7"} 0
+meraki_device_alerting{network_id="N_600030947655",organization_id="550347",product_type="switch",serial="Q2C3-NQNE-8U0Y"} 0
+meraki_device_alerting{network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q201-JFPV-V4J0"} 0
+meraki_device_alerting{network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q26M-MT44-L4Q9"} 0
+meraki_device_alerting{network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q2BM-9GTH-DKR5"} 0
+meraki_device_alerting{network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q2FP-27T8-F36W"} 0
+meraki_device_alerting{network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q2HV-8V24-VE7S"} 0
+meraki_device_alerting{network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q2X4-TQUU-S08L"} 0
+meraki_device_alerting{network_id="N_600034484803",organization_id="550347",product_type="appliance",serial="Q23E-6C08-FFHG"} 0
+meraki_device_alerting{network_id="N_600034484803",organization_id="550347",product_type="switch",serial="Q2GU-TTSG-RVQT"} 0
+meraki_device_alerting{network_id="N_600034484803",organization_id="550347",product_type="switch",serial="Q2VH-MSF0-U088"} 0
+meraki_device_alerting{network_id="N_600034484803",organization_id="550347",product_type="switch",serial="Q2Z1-V3RG-B10M"} 0
+meraki_device_alerting{network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q217-TFCN-JFCJ"} 0
+meraki_device_alerting{network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2EV-UFHA-YR0U"} 0
+meraki_device_alerting{network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2QJ-ZADN-YUV1"} 0
+meraki_device_alerting{network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2R2-39CR-EQBD"} 0
+meraki_device_alerting{network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2TD-KY9B-XXSM"} 0
+meraki_device_alerting{network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2U5-HXPL-64EH"} 0
+meraki_device_alerting{network_id="N_600045801791",organization_id="549236",product_type="appliance",serial="Q21S-C4D5-KF2R"} 0
+meraki_device_alerting{network_id="N_600045801791",organization_id="549236",product_type="switch",serial="Q274-BAYE-6QG3"} 0
+meraki_device_alerting{network_id="N_600045801791",organization_id="549236",product_type="switch",serial="Q2BJ-YV6G-DVZZ"} 0
+meraki_device_alerting{network_id="N_600045801791",organization_id="549236",product_type="switch",serial="Q2FK-XC6H-S36W"} 0
+meraki_device_alerting{network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2LD-40UG-JYSL"} 0
+meraki_device_alerting{network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2MS-9TQT-Q880"} 0
+meraki_device_alerting{network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2NA-MFTE-GVMJ"} 0
+meraki_device_alerting{network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2QE-232Q-LAZ9"} 0
+meraki_device_alerting{network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2QW-H62L-K2TY"} 0
+meraki_device_alerting{network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2R1-E7MJ-4VM4"} 0
+meraki_device_alerting{network_id="N_600063089460",organization_id="549236",product_type="appliance",serial="Q2PG-FSH7-KWYZ"} 0
+meraki_device_alerting{network_id="N_600063089460",organization_id="549236",product_type="switch",serial="Q22W-AN1P-3LHL"} 0
+meraki_device_alerting{network_id="N_600063089460",organization_id="549236",product_type="switch",serial="Q29Y-2G6T-TEFT"} 0
+meraki_device_alerting{network_id="N_600063089460",organization_id="549236",product_type="switch",serial="Q2EB-YMP4-8HCE"} 0
+meraki_device_alerting{network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q252-51YH-J25A"} 0
+meraki_device_alerting{network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2E0-PL61-EXQL"} 0
+meraki_device_alerting{network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2QY-LP89-496B"} 0
+meraki_device_alerting{network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2RW-Y148-9HLS"} 0
+meraki_device_alerting{network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2T7-84WJ-XLTC"} 0
+meraki_device_alerting{network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2XS-8HYD-73SZ"} 0
+meraki_device_alerting{network_id="N_600070410089",organization_id="550347",product_type="appliance",serial="Q24D-0K9U-Z2R7"} 0
+meraki_device_alerting{network_id="N_600070410089",organization_id="550347",product_type="switch",serial="Q248-4F7A-KDNG"} 0
+meraki_device_alerting{network_id="N_600070410089",organization_id="550347",product_type="switch",serial="Q256-23Y1-H21R"} 0
+meraki_device_alerting{network_id="N_600070410089",organization_id="550347",product_type="switch",serial="Q26R-NK8T-2FQP"} 0
+meraki_device_alerting{network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q20M-0J5N-4DYE"} 1
+meraki_device_alerting{network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2HX-9MP7-NK80"} 0
+meraki_device_alerting{network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2PV-991R-2Q7J"} 0
+meraki_device_alerting{network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2QK-NL6P-T48A"} 0
+meraki_device_alerting{network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2QT-AVJZ-K9D0"} 0
+meraki_device_alerting{network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2V1-RQVL-6G60"} 0
+meraki_device_alerting{network_id="N_600085115935",organization_id="549236",product_type="appliance",serial="Q2QH-FQS2-3TN6"} 0
+meraki_device_alerting{network_id="N_600085115935",organization_id="549236",product_type="switch",serial="Q2F3-E669-X8G5"} 0
+meraki_device_alerting{network_id="N_600085115935",organization_id="549236",product_type="switch",serial="Q2FG-MH0Y-WPK4"} 0
+meraki_device_alerting{network_id="N_600085115935",organization_id="549236",product_type="switch",serial="Q2FX-RY0M-09FY"} 0
+meraki_device_alerting{network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q23H-72M2-MAF6"} 1
+meraki_device_alerting{network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q26Q-ZB2N-XJRY"} 0
+meraki_device_alerting{network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q2CQ-JHY7-3ZDL"} 0
+meraki_device_alerting{network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q2FR-ZX8B-CYWN"} 0
+meraki_device_alerting{network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q2LB-7S66-JHU6"} 1
+meraki_device_alerting{network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q2QU-WWMP-3TBJ"} 1
+# TYPE meraki_device_info gauge
+meraki_device_info{firmware="MS 17.1.2",model="MS120-8LP",name="MS120-8LP-12",network_id="N_600016508703",organization_id="549236",product_type="switch",serial="Q2YQ-7GLW-C779"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS120-8LP",name="MS120-8LP-14",network_id="N_600016508703",organization_id="549236",product_type="switch",serial="Q2LY-ZYPS-B0PD"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS120-8LP",name="MS120-8LP-2",network_id="N_600085115935",organization_id="549236",product_type="switch",serial="Q2F3-E669-X8G5"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS120-8LP",name="MS120-8LP-22",network_id="N_600045801791",organization_id="549236",product_type="switch",serial="Q274-BAYE-6QG3"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS120-8LP",name="MS120-8LP-24",network_id="N_600045801791",organization_id="549236",product_type="switch",serial="Q2FK-XC6H-S36W"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS120-8LP",name="MS120-8LP-33",network_id="N_600063089460",organization_id="549236",product_type="switch",serial="Q22W-AN1P-3LHL"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS120-8LP",name="MS120-8LP-4",network_id="N_600085115935",organization_id="549236",product_type="switch",serial="Q2FX-RY0M-09FY"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS120-8LP",name="MS120-8LP-43",network_id="N_600034484803",organization_id="550347",product_type="switch",serial="Q2GU-TTSG-RVQT"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS120-8LP",name="MS120-8LP-52",network_id="N_600070410089",organization_id="550347",product_type="switch",serial="Q248-4F7A-KDNG"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS120-8LP",name="MS120-8LP-53",network_id="N_600070410089",organization_id="550347",product_type="switch",serial="Q256-23Y1-H21R"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS120-8LP",name="MS120-8LP-73",network_id="N_600030947655",organization_id="550347",product_type="switch",serial="Q21N-D5MU-K70X"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS210-24P",name="MS210-24P-13",network_id="N_600016508703",organization_id="549236",product_type="switch",serial="Q2N2-MRGC-RWU7"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS210-24P",name="MS210-24P-23",network_id="N_600045801791",organization_id="549236",product_type="switch",serial="Q2BJ-YV6G-DVZZ"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS210-24P",name="MS210-24P-3",network_id="N_600085115935",organization_id="549236",product_type="switch",serial="Q2FG-MH0Y-WPK4"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS210-24P",name="MS210-24P-32",network_id="N_600063089460",organization_id="549236",product_type="switch",serial="Q2EB-YMP4-8HCE"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS210-24P",name="MS210-24P-34",network_id="N_600063089460",organization_id="549236",product_type="switch",serial="Q29Y-2G6T-TEFT"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS210-24P",name="MS210-24P-42",network_id="N_600034484803",organization_id="550347",product_type="switch",serial="Q2VH-MSF0-U088"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS210-24P",name="MS210-24P-44",network_id="N_600034484803",organization_id="550347",product_type="switch",serial="Q2Z1-V3RG-B10M"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS210-24P",name="MS210-24P-54",network_id="N_600070410089",organization_id="550347",product_type="switch",serial="Q26R-NK8T-2FQP"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS210-24P",name="MS210-24P-62",network_id="N_600015621100",organization_id="550347",product_type="switch",serial="Q2MJ-F1NC-ESGU"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS210-24P",name="MS210-24P-63",network_id="N_600015621100",organization_id="550347",product_type="switch",serial="Q262-C8FN-NV30"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS210-24P",name="MS210-24P-64",network_id="N_600015621100",organization_id="550347",product_type="switch",serial="Q2DE-PXR8-DZ95"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS210-24P",name="MS210-24P-72",network_id="N_600030947655",organization_id="550347",product_type="switch",serial="Q2AW-W50Y-MFK7"} 1
+meraki_device_info{firmware="MS 17.1.2",model="MS210-24P",name="MS210-24P-74",network_id="N_600030947655",organization_id="550347",product_type="switch",serial="Q2C3-NQNE-8U0Y"} 1
+meraki_device_info{firmware="MX 19.1.4",model="MX68",name="MX68-1",network_id="N_600085115935",organization_id="549236",product_type="appliance",serial="Q2QH-FQS2-3TN6"} 1
+meraki_device_info{firmware="MX 19.1.4",model="MX68",name="MX68-11",network_id="N_600016508703",organization_id="549236",product_type="appliance",serial="Q2YL-7DW9-N2MD"} 1
+meraki_device_info{firmware="MX 19.1.4",model="MX68",name="MX68-21",network_id="N_600045801791",organization_id="549236",product_type="appliance",serial="Q21S-C4D5-KF2R"} 1
+meraki_device_info{firmware="MX 19.1.4",model="MX68",name="MX68-31",network_id="N_600063089460",organization_id="549236",product_type="appliance",serial="Q2PG-FSH7-KWYZ"} 1
+meraki_device_info{firmware="MX 19.1.4",model="MX68",name="MX68-41",network_id="N_600034484803",organization_id="550347",product_type="appliance",serial="Q23E-6C08-FFHG"} 1
+meraki_device_info{firmware="MX 19.1.4",model="MX68",name="MX68-51",network_id="N_600070410089",organization_id="550347",product_type="appliance",serial="Q24D-0K9U-Z2R7"} 1
+meraki_device_info{firmware="MX 19.1.4",model="MX68",name="MX68-61",network_id="N_600015621100",organization_id="550347",product_type="appliance",serial="Q26K-4FPK-ZASD"} 1
+meraki_device_info{firmware="MX 19.1.4",model="MX68",name="MX68-71",network_id="N_600030947655",organization_id="550347",product_type="appliance",serial="Q27S-9MYD-RAA1"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-15",network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q2RC-YB22-YZMM"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-25",network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2QW-H62L-K2TY"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-30",network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2QE-232Q-LAZ9"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-35",network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2XS-8HYD-73SZ"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-37",network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2QY-LP89-496B"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-39",network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2T7-84WJ-XLTC"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-46",network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q217-TFCN-JFCJ"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-47",network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2EV-UFHA-YR0U"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-48",network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2QJ-ZADN-YUV1"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-60",network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2QK-NL6P-T48A"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-67",network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2MM-XBAX-PPP3"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-8",network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q26Q-ZB2N-XJRY"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-80",network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q2X4-TQUU-S08L"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR36",name="MR36-9",network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q2CQ-JHY7-3ZDL"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-16",network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q2SN-Z01T-3PV1"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-19",network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q2SN-0THE-TQ51"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-20",network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q2HS-P9GV-BS4P"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-26",network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2R1-E7MJ-4VM4"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-27",network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2NA-MFTE-GVMJ"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-28",network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2LD-40UG-JYSL"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-29",network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2MS-9TQT-Q880"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-38",network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2RW-Y148-9HLS"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-40",network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q252-51YH-J25A"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-45",network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2TD-KY9B-XXSM"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-49",network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2R2-39CR-EQBD"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-5",network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q2QU-WWMP-3TBJ"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-55",network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2QT-AVJZ-K9D0"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-57",network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2V1-RQVL-6G60"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-58",network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2PV-991R-2Q7J"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-59",network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q20M-0J5N-4DYE"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-6",network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q2LB-7S66-JHU6"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-66",network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q20H-MQGU-9QU2"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-7",network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q23H-72M2-MAF6"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-75",network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q201-JFPV-V4J0"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR46",name="MR46-78",network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q2HV-8V24-VE7S"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR57",name="MR57-10",network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q2FR-ZX8B-CYWN"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR57",name="MR57-17",network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q20X-J1XX-LADA"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR57",name="MR57-18",network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q22J-8YA6-0S10"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR57",name="MR57-36",network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2E0-PL61-EXQL"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR57",name="MR57-50",network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2U5-HXPL-64EH"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR57",name="MR57-56",network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2HX-9MP7-NK80"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR57",name="MR57-65",network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2DU-Y1Y6-VETJ"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR57",name="MR57-68",network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2B0-91F1-797U"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR57",name="MR57-69",network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2F0-VGGG-CXZN"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR57",name="MR57-70",network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2SZ-LSPU-S0KE"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR57",name="MR57-76",network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q26M-MT44-L4Q9"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR57",name="MR57-77",network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q2FP-27T8-F36W"} 1
+meraki_device_info{firmware="wireless-31-1-6",model="MR57",name="MR57-79",network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q2BM-9GTH-DKR5"} 1
+# TYPE meraki_device_up gauge
+meraki_device_up{network_id="N_600015621100",organization_id="550347",product_type="appliance",serial="Q26K-4FPK-ZASD"} 1
+meraki_device_up{network_id="N_600015621100",organization_id="550347",product_type="switch",serial="Q262-C8FN-NV30"} 1
+meraki_device_up{network_id="N_600015621100",organization_id="550347",product_type="switch",serial="Q2DE-PXR8-DZ95"} 1
+meraki_device_up{network_id="N_600015621100",organization_id="550347",product_type="switch",serial="Q2MJ-F1NC-ESGU"} 1
+meraki_device_up{network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q20H-MQGU-9QU2"} 1
+meraki_device_up{network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2B0-91F1-797U"} 1
+meraki_device_up{network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2DU-Y1Y6-VETJ"} 1
+meraki_device_up{network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2F0-VGGG-CXZN"} 1
+meraki_device_up{network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2MM-XBAX-PPP3"} 1
+meraki_device_up{network_id="N_600015621100",organization_id="550347",product_type="wireless",serial="Q2SZ-LSPU-S0KE"} 1
+meraki_device_up{network_id="N_600016508703",organization_id="549236",product_type="appliance",serial="Q2YL-7DW9-N2MD"} 1
+meraki_device_up{network_id="N_600016508703",organization_id="549236",product_type="switch",serial="Q2LY-ZYPS-B0PD"} 1
+meraki_device_up{network_id="N_600016508703",organization_id="549236",product_type="switch",serial="Q2N2-MRGC-RWU7"} 1
+meraki_device_up{network_id="N_600016508703",organization_id="549236",product_type="switch",serial="Q2YQ-7GLW-C779"} 1
+meraki_device_up{network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q20X-J1XX-LADA"} 1
+meraki_device_up{network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q22J-8YA6-0S10"} 1
+meraki_device_up{network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q2HS-P9GV-BS4P"} 1
+meraki_device_up{network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q2RC-YB22-YZMM"} 1
+meraki_device_up{network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q2SN-0THE-TQ51"} 1
+meraki_device_up{network_id="N_600016508703",organization_id="549236",product_type="wireless",serial="Q2SN-Z01T-3PV1"} 1
+meraki_device_up{network_id="N_600030947655",organization_id="550347",product_type="appliance",serial="Q27S-9MYD-RAA1"} 1
+meraki_device_up{network_id="N_600030947655",organization_id="550347",product_type="switch",serial="Q21N-D5MU-K70X"} 1
+meraki_device_up{network_id="N_600030947655",organization_id="550347",product_type="switch",serial="Q2AW-W50Y-MFK7"} 1
+meraki_device_up{network_id="N_600030947655",organization_id="550347",product_type="switch",serial="Q2C3-NQNE-8U0Y"} 1
+meraki_device_up{network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q201-JFPV-V4J0"} 1
+meraki_device_up{network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q26M-MT44-L4Q9"} 1
+meraki_device_up{network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q2BM-9GTH-DKR5"} 1
+meraki_device_up{network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q2FP-27T8-F36W"} 1
+meraki_device_up{network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q2HV-8V24-VE7S"} 1
+meraki_device_up{network_id="N_600030947655",organization_id="550347",product_type="wireless",serial="Q2X4-TQUU-S08L"} 1
+meraki_device_up{network_id="N_600034484803",organization_id="550347",product_type="appliance",serial="Q23E-6C08-FFHG"} 1
+meraki_device_up{network_id="N_600034484803",organization_id="550347",product_type="switch",serial="Q2GU-TTSG-RVQT"} 1
+meraki_device_up{network_id="N_600034484803",organization_id="550347",product_type="switch",serial="Q2VH-MSF0-U088"} 1
+meraki_device_up{network_id="N_600034484803",organization_id="550347",product_type="switch",serial="Q2Z1-V3RG-B10M"} 0
+meraki_device_up{network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q217-TFCN-JFCJ"} 1
+meraki_device_up{network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2EV-UFHA-YR0U"} 1
+meraki_device_up{network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2QJ-ZADN-YUV1"} 1
+meraki_device_up{network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2R2-39CR-EQBD"} 1
+meraki_device_up{network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2TD-KY9B-XXSM"} 1
+meraki_device_up{network_id="N_600034484803",organization_id="550347",product_type="wireless",serial="Q2U5-HXPL-64EH"} 1
+meraki_device_up{network_id="N_600045801791",organization_id="549236",product_type="appliance",serial="Q21S-C4D5-KF2R"} 1
+meraki_device_up{network_id="N_600045801791",organization_id="549236",product_type="switch",serial="Q274-BAYE-6QG3"} 1
+meraki_device_up{network_id="N_600045801791",organization_id="549236",product_type="switch",serial="Q2BJ-YV6G-DVZZ"} 1
+meraki_device_up{network_id="N_600045801791",organization_id="549236",product_type="switch",serial="Q2FK-XC6H-S36W"} 1
+meraki_device_up{network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2LD-40UG-JYSL"} 1
+meraki_device_up{network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2MS-9TQT-Q880"} 1
+meraki_device_up{network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2NA-MFTE-GVMJ"} 1
+meraki_device_up{network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2QE-232Q-LAZ9"} 1
+meraki_device_up{network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2QW-H62L-K2TY"} 1
+meraki_device_up{network_id="N_600045801791",organization_id="549236",product_type="wireless",serial="Q2R1-E7MJ-4VM4"} 1
+meraki_device_up{network_id="N_600063089460",organization_id="549236",product_type="appliance",serial="Q2PG-FSH7-KWYZ"} 1
+meraki_device_up{network_id="N_600063089460",organization_id="549236",product_type="switch",serial="Q22W-AN1P-3LHL"} 1
+meraki_device_up{network_id="N_600063089460",organization_id="549236",product_type="switch",serial="Q29Y-2G6T-TEFT"} 1
+meraki_device_up{network_id="N_600063089460",organization_id="549236",product_type="switch",serial="Q2EB-YMP4-8HCE"} 0
+meraki_device_up{network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q252-51YH-J25A"} 1
+meraki_device_up{network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2E0-PL61-EXQL"} 1
+meraki_device_up{network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2QY-LP89-496B"} 1
+meraki_device_up{network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2RW-Y148-9HLS"} 1
+meraki_device_up{network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2T7-84WJ-XLTC"} 1
+meraki_device_up{network_id="N_600063089460",organization_id="549236",product_type="wireless",serial="Q2XS-8HYD-73SZ"} 1
+meraki_device_up{network_id="N_600070410089",organization_id="550347",product_type="appliance",serial="Q24D-0K9U-Z2R7"} 1
+meraki_device_up{network_id="N_600070410089",organization_id="550347",product_type="switch",serial="Q248-4F7A-KDNG"} 1
+meraki_device_up{network_id="N_600070410089",organization_id="550347",product_type="switch",serial="Q256-23Y1-H21R"} 1
+meraki_device_up{network_id="N_600070410089",organization_id="550347",product_type="switch",serial="Q26R-NK8T-2FQP"} 1
+meraki_device_up{network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q20M-0J5N-4DYE"} 1
+meraki_device_up{network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2HX-9MP7-NK80"} 1
+meraki_device_up{network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2PV-991R-2Q7J"} 1
+meraki_device_up{network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2QK-NL6P-T48A"} 1
+meraki_device_up{network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2QT-AVJZ-K9D0"} 1
+meraki_device_up{network_id="N_600070410089",organization_id="550347",product_type="wireless",serial="Q2V1-RQVL-6G60"} 1
+meraki_device_up{network_id="N_600085115935",organization_id="549236",product_type="appliance",serial="Q2QH-FQS2-3TN6"} 1
+meraki_device_up{network_id="N_600085115935",organization_id="549236",product_type="switch",serial="Q2F3-E669-X8G5"} 1
+meraki_device_up{network_id="N_600085115935",organization_id="549236",product_type="switch",serial="Q2FG-MH0Y-WPK4"} 0
+meraki_device_up{network_id="N_600085115935",organization_id="549236",product_type="switch",serial="Q2FX-RY0M-09FY"} 1
+meraki_device_up{network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q23H-72M2-MAF6"} 1
+meraki_device_up{network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q26Q-ZB2N-XJRY"} 1
+meraki_device_up{network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q2CQ-JHY7-3ZDL"} 1
+meraki_device_up{network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q2FR-ZX8B-CYWN"} 1
+meraki_device_up{network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q2LB-7S66-JHU6"} 1
+meraki_device_up{network_id="N_600085115935",organization_id="549236",product_type="wireless",serial="Q2QU-WWMP-3TBJ"} 1
+# TYPE meraki_network_info gauge
+meraki_network_info{name="Site 1",network_id="N_600085115935",organization_id="549236",product_types="appliance,switch,wireless",time_zone="Europe/London"} 1
+meraki_network_info{name="Site 2",network_id="N_600016508703",organization_id="549236",product_types="appliance,switch,wireless",time_zone="Europe/Paris"} 1
+meraki_network_info{name="Site 3",network_id="N_600045801791",organization_id="549236",product_types="appliance,switch,wireless",time_zone="Europe/Paris"} 1
+meraki_network_info{name="Site 4",network_id="N_600063089460",organization_id="549236",product_types="appliance,switch,wireless",time_zone="America/New_York"} 1
+meraki_network_info{name="Site 5",network_id="N_600034484803",organization_id="550347",product_types="appliance,switch,wireless",time_zone="Europe/London"} 1
+meraki_network_info{name="Site 6",network_id="N_600070410089",organization_id="550347",product_types="appliance,switch,wireless",time_zone="America/New_York"} 1
+meraki_network_info{name="Site 7",network_id="N_600015621100",organization_id="550347",product_types="appliance,switch,wireless",time_zone="Europe/London"} 1
+meraki_network_info{name="Site 8",network_id="N_600030947655",organization_id="550347",product_types="appliance,switch,wireless",time_zone="America/New_York"} 1
+# TYPE meraki_organization_api_enabled gauge
+meraki_organization_api_enabled{organization_id="549236"} 1
+meraki_organization_api_enabled{organization_id="550347"} 1
+# TYPE meraki_organization_info gauge
+meraki_organization_info{licensing_model="co-term",name="Organization 1",organization_id="549236",region="Europe"} 1
+meraki_organization_info{licensing_model="co-term",name="Organization 2",organization_id="550347",region="Europe"} 1
+# TYPE meraki_wireless_device_clients gauge
+meraki_wireless_device_clients{network_id="N_600015621100",organization_id="550347",serial="Q20H-MQGU-9QU2"} 19
+meraki_wireless_device_clients{network_id="N_600015621100",organization_id="550347",serial="Q2B0-91F1-797U"} 33
+meraki_wireless_device_clients{network_id="N_600015621100",organization_id="550347",serial="Q2DU-Y1Y6-VETJ"} 3
+meraki_wireless_device_clients{network_id="N_600015621100",organization_id="550347",serial="Q2F0-VGGG-CXZN"} 33
+meraki_wireless_device_clients{network_id="N_600015621100",organization_id="550347",serial="Q2MM-XBAX-PPP3"} 3
+meraki_wireless_device_clients{network_id="N_600015621100",organization_id="550347",serial="Q2SZ-LSPU-S0KE"} 1
+meraki_wireless_device_clients{network_id="N_600016508703",organization_id="549236",serial="Q20X-J1XX-LADA"} 15
+meraki_wireless_device_clients{network_id="N_600016508703",organization_id="549236",serial="Q22J-8YA6-0S10"} 15
+meraki_wireless_device_clients{network_id="N_600016508703",organization_id="549236",serial="Q2HS-P9GV-BS4P"} 14
+meraki_wireless_device_clients{network_id="N_600016508703",organization_id="549236",serial="Q2RC-YB22-YZMM"} 38
+meraki_wireless_device_clients{network_id="N_600016508703",organization_id="549236",serial="Q2SN-0THE-TQ51"} 14
+meraki_wireless_device_clients{network_id="N_600016508703",organization_id="549236",serial="Q2SN-Z01T-3PV1"} 44
+meraki_wireless_device_clients{network_id="N_600030947655",organization_id="550347",serial="Q201-JFPV-V4J0"} 17
+meraki_wireless_device_clients{network_id="N_600030947655",organization_id="550347",serial="Q26M-MT44-L4Q9"} 26
+meraki_wireless_device_clients{network_id="N_600030947655",organization_id="550347",serial="Q2BM-9GTH-DKR5"} 18
+meraki_wireless_device_clients{network_id="N_600030947655",organization_id="550347",serial="Q2FP-27T8-F36W"} 37
+meraki_wireless_device_clients{network_id="N_600030947655",organization_id="550347",serial="Q2HV-8V24-VE7S"} 16
+meraki_wireless_device_clients{network_id="N_600030947655",organization_id="550347",serial="Q2X4-TQUU-S08L"} 19
+meraki_wireless_device_clients{network_id="N_600034484803",organization_id="550347",serial="Q217-TFCN-JFCJ"} 43
+meraki_wireless_device_clients{network_id="N_600034484803",organization_id="550347",serial="Q2EV-UFHA-YR0U"} 18
+meraki_wireless_device_clients{network_id="N_600034484803",organization_id="550347",serial="Q2QJ-ZADN-YUV1"} 43
+meraki_wireless_device_clients{network_id="N_600034484803",organization_id="550347",serial="Q2R2-39CR-EQBD"} 9
+meraki_wireless_device_clients{network_id="N_600034484803",organization_id="550347",serial="Q2TD-KY9B-XXSM"} 15
+meraki_wireless_device_clients{network_id="N_600034484803",organization_id="550347",serial="Q2U5-HXPL-64EH"} 36
+meraki_wireless_device_clients{network_id="N_600045801791",organization_id="549236",serial="Q2LD-40UG-JYSL"} 15
+meraki_wireless_device_clients{network_id="N_600045801791",organization_id="549236",serial="Q2MS-9TQT-Q880"} 41
+meraki_wireless_device_clients{network_id="N_600045801791",organization_id="549236",serial="Q2NA-MFTE-GVMJ"} 33
+meraki_wireless_device_clients{network_id="N_600045801791",organization_id="549236",serial="Q2QE-232Q-LAZ9"} 13
+meraki_wireless_device_clients{network_id="N_600045801791",organization_id="549236",serial="Q2QW-H62L-K2TY"} 29
+meraki_wireless_device_clients{network_id="N_600045801791",organization_id="549236",serial="Q2R1-E7MJ-4VM4"} 21
+meraki_wireless_device_clients{network_id="N_600063089460",organization_id="549236",serial="Q252-51YH-J25A"} 35
+meraki_wireless_device_clients{network_id="N_600063089460",organization_id="549236",serial="Q2E0-PL61-EXQL"} 33
+meraki_wireless_device_clients{network_id="N_600063089460",organization_id="549236",serial="Q2QY-LP89-496B"} 17
+meraki_wireless_device_clients{network_id="N_600063089460",organization_id="549236",serial="Q2RW-Y148-9HLS"} 23
+meraki_wireless_device_clients{network_id="N_600063089460",organization_id="549236",serial="Q2T7-84WJ-XLTC"} 40
+meraki_wireless_device_clients{network_id="N_600063089460",organization_id="549236",serial="Q2XS-8HYD-73SZ"} 26
+meraki_wireless_device_clients{network_id="N_600070410089",organization_id="550347",serial="Q20M-0J5N-4DYE"} 6
+meraki_wireless_device_clients{network_id="N_600070410089",organization_id="550347",serial="Q2HX-9MP7-NK80"} 39
+meraki_wireless_device_clients{network_id="N_600070410089",organization_id="550347",serial="Q2PV-991R-2Q7J"} 33
+meraki_wireless_device_clients{network_id="N_600070410089",organization_id="550347",serial="Q2QK-NL6P-T48A"} 4
+meraki_wireless_device_clients{network_id="N_600070410089",organization_id="550347",serial="Q2QT-AVJZ-K9D0"} 38
+meraki_wireless_device_clients{network_id="N_600070410089",organization_id="550347",serial="Q2V1-RQVL-6G60"} 8
+meraki_wireless_device_clients{network_id="N_600085115935",organization_id="549236",serial="Q23H-72M2-MAF6"} 21
+meraki_wireless_device_clients{network_id="N_600085115935",organization_id="549236",serial="Q26Q-ZB2N-XJRY"} 35
+meraki_wireless_device_clients{network_id="N_600085115935",organization_id="549236",serial="Q2CQ-JHY7-3ZDL"} 39
+meraki_wireless_device_clients{network_id="N_600085115935",organization_id="549236",serial="Q2FR-ZX8B-CYWN"} 39
+meraki_wireless_device_clients{network_id="N_600085115935",organization_id="549236",serial="Q2LB-7S66-JHU6"} 22
+meraki_wireless_device_clients{network_id="N_600085115935",organization_id="549236",serial="Q2QU-WWMP-3TBJ"} 32

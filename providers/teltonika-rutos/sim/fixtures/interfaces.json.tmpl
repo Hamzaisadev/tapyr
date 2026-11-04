@@ -1,0 +1,20 @@
+{{- /* GET /api/interfaces/status (abridged): LAN, wired WAN and the mobile
+       interface of the first SIM. */ -}}
+{{- $r := find "router" "router-0" -}}
+{{- $wan := flap $r "wan" "30m" "true:0.9" "false:0.1" -}}
+{"success": true, "data": [
+  {"id": "lan", "interface": "lan", "name": "lan", "ifname": "br-lan", "l3_device": "br-lan", "device": "br-lan",
+   "proto": "static", "area_type": "lan", "network_type": "lan", "is_up": true, "up": true, "uptime": {{ mod (unix $.now) 2592000 }},
+   "rx_bytes": {{ counter $r "lanrx" 90000 }}, "tx_bytes": {{ counter $r "lantx" 400000 }},
+   "rx_packets": {{ counter $r "lanrxp" 120 }}, "tx_packets": {{ counter $r "lantxp" 300 }}},
+  {"id": "wan", "interface": "wan", "name": "wan", "ifname": "eth1", "l3_device": "eth1", "device": "eth1",
+   "proto": "dhcp", "area_type": "wan", "network_type": "wan", "is_up": {{ $wan }}, "up": {{ $wan }},
+   "uptime": {{ if eq $wan "true" }}{{ mod (unix $.now) 1800 }}{{ else }}0{{ end }},
+   "rx_bytes": {{ counter $r "wanrx" 350000 }}, "tx_bytes": {{ counter $r "wantx" 80000 }},
+   "rx_packets": {{ counter $r "wanrxp" 280 }}, "tx_packets": {{ counter $r "wantxp" 110 }}},
+  {"id": "mob1s1a1", "interface": "mob1s1a1", "name": "mob1s1a1", "ifname": "qmimux0", "l3_device": "qmimux0", "device": "qmimux0",
+   "proto": "wwan", "area_type": "wan", "network_type": "mobile", "modem_id": "3-1", "is_up": true, "up": true,
+   "uptime": {{ mod (unix $.now) 86400 }},
+   "rx_bytes": {{ counter $r "mobrx" 40000 }}, "tx_bytes": {{ counter $r "mobtx" 8000 }},
+   "rx_packets": {{ counter $r "mobrxp" 40 }}, "tx_packets": {{ counter $r "mobtxp" 20 }}}
+]}

@@ -1,0 +1,571 @@
+openapi: 3.1.0
+info:
+  title: Tapyr status API
+  version: v1
+  description: |
+    Read-only view of a running Tapyr collector: configuration, jobs, budgets,
+    plan and outputs. The API never changes anything and never exposes secrets.
+    Times are RFC 3339 in UTC, durations are seconds, field names are snake_case.
+    List endpoints are paginated with `limit` and the opaque `cursor` of the
+    previous page (`next_cursor`, omitted on the last page).
+  license:
+    name: Apache-2.0
+    identifier: Apache-2.0
+servers:
+  - url: /
+paths:
+  /api/v1/status:
+    get:
+      summary: Version, uptime, configuration, readiness and plan feasibility
+      operationId: getStatus
+      responses:
+        "200":
+          description: Status
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Status" }
+  /api/v1/providers:
+    get:
+      summary: Providers in use
+      operationId: listProviders
+      parameters: [{ $ref: "#/components/parameters/limit" }, { $ref: "#/components/parameters/cursor" }]
+      responses:
+        "200":
+          description: Providers
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProviderList" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+  /api/v1/accounts:
+    get:
+      summary: Accounts, without secrets
+      operationId: listAccounts
+      parameters: [{ $ref: "#/components/parameters/limit" }, { $ref: "#/components/parameters/cursor" }]
+      responses:
+        "200":
+          description: Accounts
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AccountList" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+  /api/v1/accounts/{name}:
+    get:
+      summary: One account
+      operationId: getAccount
+      parameters: [{ $ref: "#/components/parameters/name" }]
+      responses:
+        "200":
+          description: Account
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Account" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/jobs:
+    get:
+      summary: Jobs with their effective intervals and last run
+      operationId: listJobs
+      parameters: [{ $ref: "#/components/parameters/limit" }, { $ref: "#/components/parameters/cursor" }]
+      responses:
+        "200":
+          description: Jobs
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JobList" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+  /api/v1/jobs/{name}:
+    get:
+      summary: One job, with its effective definition
+      operationId: getJob
+      parameters: [{ $ref: "#/components/parameters/name" }]
+      responses:
+        "200":
+          description: Job
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Job" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/jobs/{name}/instances:
+    get:
+      summary: Instances of a job (fan-out and targets)
+      operationId: listInstances
+      parameters:
+        - { $ref: "#/components/parameters/name" }
+        - { $ref: "#/components/parameters/limit" }
+        - { $ref: "#/components/parameters/cursor" }
+      responses:
+        "200":
+          description: Instances
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/InstanceList" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/jobs/{name}/runs:
+    get:
+      summary: Recent runs of a job, newest first
+      operationId: listRuns
+      parameters:
+        - { $ref: "#/components/parameters/name" }
+        - { $ref: "#/components/parameters/limit" }
+        - name: instance
+          in: query
+          description: Only the runs of this instance
+          schema: { type: string }
+      responses:
+        "200":
+          description: Runs
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RunList" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/budgets:
+    get:
+      summary: Every limit and scope key
+      operationId: listBudgets
+      parameters: [{ $ref: "#/components/parameters/limit" }, { $ref: "#/components/parameters/cursor" }]
+      responses:
+        "200":
+          description: Budgets
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BudgetList" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+  /api/v1/budgets/{limit}/timeline:
+    get:
+      summary: Consumption of a quota scope over the current and previous windows
+      operationId: getTimeline
+      parameters:
+        - name: limit
+          in: path
+          required: true
+          description: The limit, as provider/limit
+          schema: { type: string }
+        - name: scope
+          in: query
+          required: true
+          description: The scope key, as listed by /api/v1/budgets
+          schema: { type: string }
+      responses:
+        "200":
+          description: Timeline
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Timeline" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/plan:
+    get:
+      summary: The plan applied by the collector
+      operationId: getPlan
+      responses:
+        "200":
+          description: Plan
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Plan" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/graph:
+    get:
+      summary: Providers, accounts, targets, jobs and outputs as a graph
+      operationId: getGraph
+      responses:
+        "200":
+          description: Graph
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Graph" }
+  /api/v1/outputs:
+    get:
+      summary: Outputs with their queues and last sends
+      operationId: listOutputs
+      parameters: [{ $ref: "#/components/parameters/limit" }, { $ref: "#/components/parameters/cursor" }]
+      responses:
+        "200":
+          description: Outputs
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OutputList" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+  /api/v1/openapi.yaml:
+    get:
+      summary: This description
+      operationId: getOpenAPI
+      responses:
+        "200":
+          description: The OpenAPI description
+          content:
+            application/yaml:
+              schema: { type: string }
+  /api/v1/debug/jobs/{name}/last:
+    get:
+      summary: Last raw responses of a job instance and the samples produced
+      description: >-
+        Only when settings.server.debug.enabled; bodies are redacted and
+        truncated to settings.server.debug.maxBodyBytes. Without instance,
+        the most recent capture of the job.
+      operationId: getDebugLast
+      parameters:
+        - { $ref: "#/components/parameters/name" }
+        - { name: instance, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: The capture
+          content: { application/json: { schema: { $ref: "#/components/schemas/Debug" } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/events:
+    get:
+      summary: Server-Sent Events stream
+      description: >-
+        Events run_finished (job, instance, result, duration_ms, samples),
+        plan_changed, circuit_changed (account, target, state) and
+        config_reloaded (result, error); every data line is a JSON object
+        with time. A comment line is sent every 15 seconds.
+      operationId: getEvents
+      responses:
+        "200":
+          description: The event stream
+          content: { text/event-stream: { schema: { type: string } } }
+components:
+  parameters:
+    name:
+      name: name
+      in: path
+      required: true
+      schema: { type: string }
+    limit:
+      name: limit
+      in: query
+      description: Page size, 100 by default
+      schema: { type: integer, minimum: 1, maximum: 1000 }
+    cursor:
+      name: cursor
+      in: query
+      description: The next_cursor of the previous page
+      schema: { type: string }
+  responses:
+    BadRequest:
+      description: Invalid parameters
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Unknown name
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+  schemas:
+    Time: { type: string, format: date-time }
+    Labels:
+      type: object
+      additionalProperties: { type: string }
+    Status:
+      type: object
+      additionalProperties: false
+      required: [version, revision, go_version, started_at, uptime_seconds, config_hash, last_reload, ready, readiness_reasons, plan_feasible, instances]
+      properties:
+        version: { type: string }
+        revision: { type: string }
+        go_version: { type: string }
+        started_at: { $ref: "#/components/schemas/Time" }
+        uptime_seconds: { type: number, minimum: 0 }
+        config_hash: { type: string, description: SHA-256 of the configuration files }
+        last_reload:
+          type: object
+          additionalProperties: false
+          required: [at, success]
+          properties:
+            at: { $ref: "#/components/schemas/Time" }
+            success: { type: boolean }
+            error: { type: string }
+        ready: { type: boolean }
+        readiness_reasons: { type: array, items: { type: string } }
+        plan_feasible: { type: boolean }
+        instances: { type: integer, minimum: 0 }
+    Provider:
+      type: object
+      additionalProperties: false
+      required: [name, version, accounts, jobs, health]
+      properties:
+        name: { type: string }
+        version: { type: string }
+        description: { type: string }
+        accounts: { type: integer }
+        jobs: { type: integer }
+        health: { $ref: "#/components/schemas/Health" }
+    Health: { type: string, enum: [ok, degraded, failing, unknown] }
+    Circuit: { type: string, enum: [closed, half_open, open] }
+    Account:
+      type: object
+      additionalProperties: false
+      required: [name, provider, labels, targets, auth]
+      properties:
+        name: { type: string }
+        provider: { type: string }
+        labels: { $ref: "#/components/schemas/Labels" }
+        targets:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [name, labels, circuit]
+            properties:
+              name: { type: string }
+              labels: { $ref: "#/components/schemas/Labels" }
+              circuit: { $ref: "#/components/schemas/Circuit" }
+        circuit: { $ref: "#/components/schemas/Circuit" }
+        auth:
+          type: object
+          additionalProperties: false
+          required: [type, reauth_required]
+          properties:
+            type: { type: string }
+            token_expiry: { $ref: "#/components/schemas/Time" }
+            reauth_required: { type: boolean }
+    RunSummary:
+      type: object
+      required: [run_id, instance, result, started_at, ended_at]
+      properties:
+        run_id: { type: string }
+        instance: { type: string }
+        result: { type: string, enum: [success, partial, failed, skipped_budget, skipped_overlap, skipped_circuit] }
+        started_at: { $ref: "#/components/schemas/Time" }
+        ended_at: { $ref: "#/components/schemas/Time" }
+        error: { type: string, description: Redacted summary }
+    Job:
+      type: object
+      additionalProperties: false
+      required: [name, provider, account, role, priority, implicit, desired_interval_seconds, effective_interval_seconds, instances, outputs, labels]
+      properties:
+        name: { type: string }
+        provider: { type: string }
+        account: { type: string }
+        template: { type: string }
+        role: { type: string, enum: [metrics, inventory, both] }
+        priority: { type: string, enum: [critical, high, normal, low] }
+        implicit: { type: boolean }
+        parent: { type: string, description: The job whose inventory drives the fan-out }
+        desired_interval_seconds: { type: number }
+        effective_interval_seconds: { type: number }
+        stretch_reason: { type: string }
+        instances: { type: integer }
+        outputs: { type: array, items: { type: string } }
+        labels: { $ref: "#/components/schemas/Labels" }
+        last_run: { $ref: "#/components/schemas/RunSummary" }
+        next_run: { $ref: "#/components/schemas/Time" }
+        definition: { type: object, description: Effective job definition, in job details only }
+    Instance:
+      type: object
+      additionalProperties: false
+      required: [key, vars, series]
+      properties:
+        key: { type: string }
+        target: { type: string }
+        vars: { $ref: "#/components/schemas/Labels" }
+        last_success: { $ref: "#/components/schemas/Time" }
+        series: { type: integer }
+        next_run: { $ref: "#/components/schemas/Time" }
+        last_run: { $ref: "#/components/schemas/RunSummary" }
+    Run:
+      allOf:
+        - { $ref: "#/components/schemas/RunSummary" }
+        - type: object
+          required: [duration_seconds, requests, retries, pages, items, samples]
+          properties:
+            duration_seconds: { type: number }
+            requests: { type: integer }
+            retries: { type: integer }
+            pages: { type: integer }
+            items: { type: integer }
+            samples: { type: integer }
+      unevaluatedProperties: false
+    Budget:
+      type: object
+      additionalProperties: false
+      required: [provider, limit, kind, scope]
+      properties:
+        provider: { type: string }
+        limit: { type: string }
+        kind: { type: string, enum: [quota, rate, concurrency] }
+        scope: { type: string }
+        max: { type: integer }
+        usable: { type: integer }
+        reserve: { type: integer }
+        used: { type: integer }
+        remaining: { type: integer }
+        remaining_observed: { type: integer }
+        external_usage: { type: integer }
+        reserve_remaining: { type: integer }
+        window_start: { $ref: "#/components/schemas/Time" }
+        window_end: { $ref: "#/components/schemas/Time" }
+        rolling: { type: boolean }
+        exhaustion_eta_seconds: { type: number }
+        limit_mismatch: { type: boolean }
+        rate_per_second: { type: number }
+        burst: { type: number }
+        tokens: { type: number }
+        in_use: { type: integer }
+        penalty_until: { $ref: "#/components/schemas/Time" }
+    TimelineWindow:
+      type: object
+      additionalProperties: false
+      required: [start, end, buckets]
+      properties:
+        start: { $ref: "#/components/schemas/Time" }
+        end: { $ref: "#/components/schemas/Time" }
+        buckets:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [start, count]
+            properties:
+              start: { $ref: "#/components/schemas/Time" }
+              count: { type: integer }
+    Timeline:
+      type: object
+      additionalProperties: false
+      required: [provider, limit, scope, bucket_seconds, current]
+      properties:
+        provider: { type: string }
+        limit: { type: string }
+        scope: { type: string }
+        bucket_seconds: { type: number }
+        current: { $ref: "#/components/schemas/TimelineWindow" }
+        previous: { $ref: "#/components/schemas/TimelineWindow" }
+    Plan:
+      type: object
+      additionalProperties: false
+      required: [at, feasible, jobs, scopes]
+      properties:
+        at: { $ref: "#/components/schemas/Time" }
+        feasible: { type: boolean }
+        jobs:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [name, provider, account, priority, desired_interval_seconds, effective_interval_seconds, stretch, instances, pages_per_run]
+            properties:
+              name: { type: string }
+              provider: { type: string }
+              account: { type: string }
+              priority: { type: string }
+              desired_interval_seconds: { type: number }
+              effective_interval_seconds: { type: number }
+              stretch: { type: number }
+              reason: { type: string }
+              instances: { type: integer }
+              pages_per_run: { type: number }
+        scopes:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [limit, scope, period_seconds, budget, reserve, projected, feasible, jobs]
+            properties:
+              limit: { type: string }
+              scope: { type: string }
+              period_seconds: { type: number }
+              budget: { type: number }
+              reserve: { type: number }
+              projected: { type: number }
+              feasible: { type: boolean }
+              exhaustion_at: { $ref: "#/components/schemas/Time" }
+              jobs: { type: array, items: { type: string } }
+    Graph:
+      type: object
+      additionalProperties: false
+      required: [nodes, edges]
+      properties:
+        nodes:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [id, kind, label, health]
+            properties:
+              id: { type: string }
+              kind: { type: string, enum: [provider, account, target, job, output] }
+              label: { type: string }
+              health: { $ref: "#/components/schemas/Health" }
+              instances: { type: integer }
+        edges:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [from, to]
+            properties:
+              from: { type: string }
+              to: { type: string }
+    Output:
+      type: object
+      additionalProperties: false
+      required: [name, type, queue, capacity, sent, dropped]
+      properties:
+        name: { type: string }
+        type: { type: string, enum: [prometheus, remote_write, otlp] }
+        queue: { type: integer }
+        capacity: { type: integer }
+        sent: { type: integer }
+        dropped: { type: integer }
+        last_success: { $ref: "#/components/schemas/Time" }
+        last_error: { type: string }
+        last_error_at: { $ref: "#/components/schemas/Time" }
+    Debug:
+      type: object
+      required: [job, instance, run_id, time, result, pages, samples, instances]
+      properties:
+        job: { type: string }
+        instance: { type: string }
+        run_id: { type: string }
+        time: { $ref: "#/components/schemas/Time" }
+        result: { type: string }
+        error: { type: string }
+        pages:
+          type: array
+          items:
+            type: object
+            required: [status, headers, body, truncated]
+            properties:
+              status: { type: integer }
+              headers: { type: object, additionalProperties: { type: string } }
+              body: { type: string, description: The body, redacted; not valid JSON when truncated }
+              truncated: { type: boolean }
+        samples:
+          type: array
+          items:
+            type: object
+            required: [name, type, labels, value]
+            properties:
+              name: { type: string }
+              type: { type: string, enum: [gauge, counter] }
+              labels: { $ref: "#/components/schemas/Labels" }
+              value: { type: number }
+        instances: { type: array, items: { type: string } }
+    ProviderList: { $ref: "#/components/schemas/ListOf", properties: { items: { items: { $ref: "#/components/schemas/Provider" } } } }
+    AccountList: { $ref: "#/components/schemas/ListOf", properties: { items: { items: { $ref: "#/components/schemas/Account" } } } }
+    JobList: { $ref: "#/components/schemas/ListOf", properties: { items: { items: { $ref: "#/components/schemas/Job" } } } }
+    InstanceList: { $ref: "#/components/schemas/ListOf", properties: { items: { items: { $ref: "#/components/schemas/Instance" } } } }
+    RunList: { $ref: "#/components/schemas/ListOf", properties: { items: { items: { $ref: "#/components/schemas/Run" } } } }
+    BudgetList: { $ref: "#/components/schemas/ListOf", properties: { items: { items: { $ref: "#/components/schemas/Budget" } } } }
+    OutputList: { $ref: "#/components/schemas/ListOf", properties: { items: { items: { $ref: "#/components/schemas/Output" } } } }
+    ListOf:
+      type: object
+      required: [items]
+      properties:
+        items: { type: array }
+        next_cursor: { type: string }
+      unevaluatedProperties: false
+    Error:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }

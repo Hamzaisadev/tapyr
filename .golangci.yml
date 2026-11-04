@@ -1,0 +1,65 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: standard
+  enable:
+    - bodyclose
+    - depguard
+    - errorlint
+    - forbidigo
+    - gocheckcompilerdirectives
+    - gocritic
+    - gosec
+    - intrange
+    - misspell
+    - noctx
+    - nolintlint
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - unconvert
+    - usestdlibvars
+  settings:
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: github.com/mattn/go-sqlite3
+              desc: CGO is not allowed, use modernc.org/sqlite
+            - pkg: go.opentelemetry.io/otel/sdk/metric
+              desc: collected data must not go through the OpenTelemetry metrics SDK (ADR 0008)
+    forbidigo:
+      forbid:
+        - pattern: ^time\.(Now|Since|Until|Sleep|After|AfterFunc|NewTimer|NewTicker|Tick)$
+          msg: inject a clock.Clock (internal/clock) instead of reading the wall clock
+    gosec:
+      excludes:
+        # Reading user-provided configuration paths is the purpose of the loader.
+        - G304
+    misspell:
+      locale: US
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+  exclusions:
+    presets:
+      - std-error-handling
+    rules:
+      # The clock package wraps the time package; tests may use real time to
+      # guard against hangs.
+      - path: internal/clock/
+        linters: [forbidigo]
+      - path: _test\.go
+        linters: [forbidigo, gosec]
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/kentrow/tapyr

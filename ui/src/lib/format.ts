@@ -1,0 +1,129 @@
+// Formatting helpers. Durations and counts use compact units; times are
+// shown relative to now, with the absolute time in a title.
+
+import type { Health, Output } from "./types";
+
+export function duration(seconds: number | undefined): string {
+  if (seconds === undefined || !Number.isFinite(seconds)) return "-";
+  const s = Math.round(seconds);
+  if (s < 60) return `${s}s`;
+  const units: [number, string][] = [
+    [86400, "d"],
+    [3600, "h"],
+    [60, "m"],
+  ];
+  const parts: string[] = [];
+  let rest = s;
+  for (const [n, u] of units) {
+    if (rest >= n) {
+      parts.push(`${Math.floor(rest / n)}${u}`);
+      rest %= n;
+    }
+    if (parts.length === 2) break;
+  }
+  if (parts.length < 2 && rest > 0 && s < 3600) parts.push(`${rest}s`);
+  return parts.join("");
+}
+
+export function count(n: number | undefined): string {
+  if (n === undefined || !Number.isFinite(n)) return "-";
+  const abs = Math.abs(n);
+  if (abs >= 1e9) return `${(n / 1e9).toFixed(1)}G`;
+  if (abs >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
+  if (abs >= 1e4) return `${(n / 1e3).toFixed(1)}k`;
+  return Math.round(n).toLocaleString("en-US");
+}
+
+export function plural(n: number, one: string, many = one + "s"): string {
+  return `${count(n)} ${n === 1 ? one : many}`;
+}
+
+export function percent(part: number, whole: number): string {
+  if (!whole) return "-";
+  return `${((100 * part) / whole).toFixed(1)}%`;
+}
+
+export function since(iso: string | undefined, now = Date.now()): string {
+  if (!iso) return "never";
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return "-";
+  const d = (now - t) / 1000;
+  if (Math.abs(d) < 2) return "now";
+  return d > 0 ? `${duration(d)} ago` : `in ${duration(-d)}`;
+}
+
+export function absolute(iso: string | undefined): string {
+  if (!iso) return "";
+  return new Date(iso).toLocaleString("en-GB", { hour12: false });
+}
+
+export function clock(iso: string | undefined): string {
+  if (!iso) return "-";
+  return new Date(iso).toLocaleTimeString("en-GB", { hour12: false, hour: "2-digit", minute: "2-digit" });
+}
+
+// toYAML renders a JSON value as YAML, for the effective definitions.
+export function toYAML(v: unknown, indent = 0): string {
+  const pad = "  ".repeat(indent);
+  if (v === null || v === undefined) return "null";
+  if (Array.isArray(v)) {
+    if (v.length === 0) return "[]";
+    return v
+      .map((x) => {
+        const body = toYAML(x, indent + 1);
+        return `\n${pad}- ${isBlock(x) ? body.trimStart() : body}`;
+      })
+      .join("");
+  }
+  if (typeof v === "object") {
+    const entries = Object.entries(v as Record<string, unknown>);
+    if (entries.length === 0) return "{}";
+    return entries.map(([k, x]) => `\n${pad}${yamlKey(k)}:${isBlock(x) ? "" : " "}${toYAML(x, indent + 1)}`).join("");
+  }
+  if (typeof v === "string") return yamlString(v);
+  return String(v);
+}
+
+function isBlock(v: unknown): boolean {
+  return (Array.isArray(v) && v.length > 0) || (typeof v === "object" && v !== null && !Array.isArray(v) && Object.keys(v).length > 0);
+}
+
+function yamlKey(k: string): string {
+  return /^[A-Za-z_][\w.-]*$/.test(k) ? k : JSON.stringify(k);
+}
+
+function yamlString(s: string): string {
+  if (s === "" || /^[\s]|[\s]$|[:#{}[\],&*?|<>=!%@`'"]|^(true|false|null|yes|no|on|off|~|-?\d)/i.test(s) || s.includes("\n")) {
+    return JSON.stringify(s);
+  }
+  return s;
+}
+
+export function healthClass(h: string | undefined): "ok" | "warn" | "bad" | "idle" {
+  switch (h) {
+    case "ok":
+    case "success":
+    case "closed":
+      return "ok";
+    case "degraded":
+    case "partial":
+    case "half_open":
+    case "skipped_budget":
+    case "skipped_overlap":
+      return "warn";
+    case "failing":
+    case "failed":
+    case "open":
+    case "skipped_circuit":
+      return "bad";
+  }
+  return "idle";
+}
+
+// outputHealth is the health of an output: failing when its last error is
+// more recent than its last success; a scraped output is always ok.
+export function outputHealth(o: Output): Health {
+  if (o.type === "prometheus") return "ok";
+  if (o.last_error && (!o.last_success || (o.last_error_at ?? "") > o.last_success)) return "failing";
+  return o.last_success ? "ok" : "unknown";
+}

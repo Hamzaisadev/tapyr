@@ -1,0 +1,14 @@
+testdata/invalid/jobs.yaml:26:3: spec.forEach: forEach must set exactly one of template or job
+testdata/invalid/jobs.yaml:26:36: spec.forEach.job: forEach.job is only allowed in inline jobs; use forEach.template
+testdata/invalid/jobs.yaml:28:11: spec.request.path: invalid path variable {bad-var}: must be an identifier: letters, digits and underscores, not starting with a digit
+testdata/invalid/jobs.yaml:28:11: spec.request.path: path variable {serial} is not provided by the forEach.vars of the job or of its parents, or by a param of provider "api"
+testdata/invalid/jobs.yaml:29:14: spec.request.query.key: secret "apiKey" is not declared in provider "api"
+testdata/invalid/jobs.yaml:42:3: spec.request: request is not allowed in a job that uses a template
+testdata/invalid/jobs.yaml:43:3: spec.extract: extract is not allowed in a job that uses a template
+testdata/invalid/jobs.yaml:48:1: spec: a job without template requires interval
+testdata/invalid/jobs.yaml:48:1: spec: a job without template requires request
+testdata/invalid/jobs.yaml:59:13: spec.request.method: POST requests must be declared readOnly: true (Tapyr never writes to providers)
+testdata/invalid/jobs.yaml:66:1: spec: role inventory requires extract.inventory
+testdata/invalid/jobs.yaml:72:5: spec.request.body: body is only allowed for POST requests
+testdata/invalid/jobs.yaml:73:17: spec.request.idempotent: idempotent is only meaningful for POST requests
+testdata/invalid/jobs.yaml:81:19: spec.forEach.job: parent job "inline-post" must have role inventory or both

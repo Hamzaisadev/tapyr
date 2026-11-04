@@ -1,0 +1,10 @@
+[
+  {
+    "id": "net-a1",
+    "name": "Alpha LAN"
+  },
+  {
+    "id": "net-a2",
+    "name": "Alpha Guest"
+  }
+]

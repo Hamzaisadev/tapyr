@@ -1,0 +1,22 @@
+# The build context of make docker: sources only.
+.git
+.github
+.claude
+.agents
+bin/
+dist/
+data/
+tapyr
+THIRD_PARTY_LICENSES
+coverage.out
+coverage.html
+*.out
+.env
+.env.*
+**/node_modules/
+ui/dist/app/
+ui/dist/licenses.txt
+ui/*.tsbuildinfo
+test/integration/out/
+**/*.db
+**/*.db-*

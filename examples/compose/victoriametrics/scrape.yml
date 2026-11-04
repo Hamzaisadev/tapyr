@@ -1,0 +1,11 @@
+# VictoriaMetrics scrapes the self-metrics of Tapyr; the collected samples
+# arrive by remote write.
+global:
+  scrape_interval: 15s
+scrape_configs:
+  - job_name: tapyr
+    # The self-metrics carry their own job label (the Tapyr job).
+    honor_labels: true
+    metrics_path: /metrics/self
+    static_configs:
+      - targets: ["tapyr:9790"]

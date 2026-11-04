@@ -1,0 +1,4 @@
+testdata/invalid/names.yaml:4:9: metadata.name: "Example_Provider" must be a DNS label: lowercase letters, digits and hyphens, starting and ending with a letter or digit, at most 63 characters
+testdata/invalid/names.yaml:5:12: metadata.version: "1" must be a semantic version such as 0.1.0
+testdata/invalid/names.yaml:9:13: spec.params[0].name: "base-url" must be an identifier: letters, digits and underscores, not starting with a digit
+testdata/invalid/names.yaml:11:13: spec.limits[0].name: "this-limit-name-is-definitely-much-longer-than-sixty-three-characters" must be a DNS label: lowercase letters, digits and hyphens, starting and ending with a letter or digit, at most 63 characters

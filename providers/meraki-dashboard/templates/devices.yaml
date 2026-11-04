@@ -1,0 +1,29 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: meraki-devices
+spec:
+  provider: meraki-dashboard
+  defaultInterval: 1h
+  defaultPriority: low
+  forEach:
+    template: meraki-organizations
+    vars:
+      organizationId: parent.organizationId
+  request:
+    path: /organizations/{organizationId}/devices
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: response.body
+    info:
+      - name: meraki_device_info
+        help: Descriptive attributes of a device
+        labels:
+          organization_id: vars.organizationId
+          network_id: "default(item.networkId, '')"
+          serial: item.serial
+          name: "default(item.name, '')"
+          model: "default(item.model, '')"
+          firmware: "default(item.firmware, '')"
+          product_type: "default(item.productType, '')"

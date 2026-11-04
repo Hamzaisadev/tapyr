@@ -1,0 +1,1 @@
+testdata/invalid/yaml-syntax.yaml:4:9: invalid YAML: sequence end token ']' not found

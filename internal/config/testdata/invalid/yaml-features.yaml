@@ -1,0 +1,14 @@
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: tags }
+spec:
+  type: prometheus
+  externalLabels:
+    binary: !!binary aGVsbG8=
+---
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: unknown-alias }
+spec:
+  provider: x
+  labels: *nowhere

@@ -1,0 +1,39 @@
+# Contract test of meraki-dashboard: every template once against the
+# synthetic Dashboard of the simulator ($SIM_URL).
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: contract }
+spec:
+  provider: meraki-dashboard
+  params: { baseURL: "$SIM_URL" }
+  secrets: { apiKey: { env: MERAKI_API_KEY } }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: organizations }
+spec: { account: contract, template: meraki-organizations }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: networks }
+spec: { account: contract, template: meraki-networks }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: devices }
+spec: { account: contract, template: meraki-devices }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: device-availabilities }
+spec: { account: contract, template: meraki-device-availabilities }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: appliance-uplink-statuses }
+spec: { account: contract, template: meraki-appliance-uplink-statuses }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: wireless-client-counts }
+spec: { account: contract, template: meraki-wireless-client-counts }

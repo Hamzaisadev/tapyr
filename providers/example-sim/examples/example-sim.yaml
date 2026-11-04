@@ -1,0 +1,20 @@
+# Example configuration for example-sim, against tapyr sim --provider
+# example-sim --listen 127.0.0.1:8081.
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: lab }
+spec:
+  provider: example-sim
+  params: { baseURL: "http://127.0.0.1:8081/api/v1" }
+  secrets:
+    apiKey: { env: TAPYR_LAB_API_KEY }   # the simulator accepts sim-api-key
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: devices }
+spec: { account: lab, template: example-sim-devices }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: network-devices }
+spec: { account: lab, template: example-sim-network-devices }

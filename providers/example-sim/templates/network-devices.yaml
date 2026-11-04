@@ -1,0 +1,35 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: example-sim-network-devices
+spec:
+  provider: example-sim
+  defaultInterval: 5m
+  defaultPriority: normal
+  # One instance per network of every site: the path uses the variables of
+  # both discovery levels.
+  forEach:
+    template: example-sim-networks
+    vars:
+      networkId: parent.networkId
+  request:
+    path: /sites/{siteId}/networks/{networkId}/devices
+  pagination:
+    type: cursor
+    cursor:
+      cursor: "default(response.headers['x-next-cursor'][0], '')"
+      param: cursor
+      pageSizeParam: limit
+      pageSize: 2
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: response.body
+    metrics:
+      - name: example_network_device_up
+        help: Device status (1 online, 0 otherwise)
+        value: "item.status == 'online'"
+        labels:
+          serial: item.serial
+          site_id: vars.siteId
+          network_id: vars.networkId

@@ -1,0 +1,2 @@
+testdata/invalid/yaml-features.yaml:7:13: YAML tag !!binary is not supported (only !!str)
+testdata/invalid/yaml-features.yaml:14:11: unknown alias "nowhere"

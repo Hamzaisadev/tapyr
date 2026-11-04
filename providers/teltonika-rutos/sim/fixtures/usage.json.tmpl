@@ -1,0 +1,13 @@
+{{- /* GET /api/system/device/usage/status. The router reboots every 30 days;
+       memory values are in MB, as RutOS reports them; values on the scale of a
+       recording of a real router (CAP7xx, 07.24.5). */ -}}
+{{- $r := find "router" "router-0" -}}
+{{- $up := mod (unix $.now) 2592000 -}}
+{"success": true, "data": {
+  "uptime_seconds": {{ $up }}, "uptime": "", "localtime": {{ unix $.now }},
+  "loadavg": {{ walk $r "loadavg" 0.01 0.6 "5m" }},
+  "load": {"min1": {{ walk $r "load1" 0.05 1.6 "1m" }}, "min5": {{ walk $r "load5" 0.1 1.2 "5m" }}, "min15": {{ walk $r "load15" 0.1 0.9 "15m" }}},
+  "memory": {"ram_total": 639.73, "ram_free": {{ walk $r "ramfree" 180 260 "10m" }}, "ram_used": {{ sub 639.73 (walk $r "ramfree" 180 260 "10m") }},
+    "ram_buffered": 29.6, "ram_shared": 0.8, "ram_percentage": 62,
+    "flash_total": 435.88, "flash_free": 434.49, "flash_used": 1.38, "flash_percentage": 0.31}
+}}

@@ -1,0 +1,122 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: rms-devices
+spec:
+  provider: teltonika-rms
+  # Devices report to RMS every few minutes (dynamic_monitoring, often 300 s):
+  # polling faster only spends the monthly quota.
+  defaultInterval: 5m
+  defaultPriority: high
+  # Devices are also the inventory of the per-device jobs.
+  role: both
+  request:
+    path: /devices
+    query:
+      fields: >-
+        id,name,serial,model,firmware,status,company_name,last_connection_at,last_update_at,router_uptime,temperature,signal,rsrp,rsrq,sinr,operator,connection_type,connection_state,network_state,sim_slot
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: response.body.data
+    inventory:
+      key: string(item.id)
+      fields:
+        deviceId: string(item.id)
+    metrics:
+      - name: rms_device_up
+        help: Device online in RMS (1 online, 0 offline or pending)
+        value: "has(item.status) && item.status == 1"
+        labels:
+          device_id: string(item.id)
+      - name: rms_device_last_connection_timestamp_seconds
+        help: Last connection of the device to RMS
+        unit: seconds
+        value: "double(int(parseTimestamp(item.last_connection_at, '2006-01-02 15:04:05')))"
+        labels:
+          device_id: string(item.id)
+        skipIf: "!has(item.last_connection_at) || item.last_connection_at == null"
+      - name: rms_device_last_update_timestamp_seconds
+        help: Last update of the device information in RMS
+        unit: seconds
+        value: "double(int(parseTimestamp(item.last_update_at, '2006-01-02 15:04:05')))"
+        labels:
+          device_id: string(item.id)
+        skipIf: "!has(item.last_update_at) || item.last_update_at == null"
+      - name: rms_device_uptime_seconds
+        help: Router uptime reported to RMS
+        unit: seconds
+        value: toFloat(item.router_uptime)
+        labels:
+          device_id: string(item.id)
+        skipIf: "!has(item.router_uptime) || item.router_uptime == null"
+      - name: rms_device_temperature_celsius
+        help: Device temperature
+        unit: celsius
+        value: toFloat(item.temperature)
+        labels:
+          device_id: string(item.id)
+        skipIf: "!has(item.temperature) || item.temperature == null"
+      - name: rms_device_mobile_rssi_dbm
+        help: Mobile signal strength (RSSI) of the first modem
+        unit: dBm
+        value: toFloat(item.signal)
+        labels:
+          device_id: string(item.id)
+        skipIf: "!has(item.signal) || item.signal == null"
+      - name: rms_device_mobile_rsrp_dbm
+        help: Mobile reference signal received power (RSRP) of the first modem
+        unit: dBm
+        value: toFloat(item.rsrp)
+        labels:
+          device_id: string(item.id)
+        skipIf: "!has(item.rsrp) || item.rsrp == null"
+      - name: rms_device_mobile_rsrq_db
+        help: Mobile reference signal received quality (RSRQ) of the first modem
+        unit: dB
+        value: toFloat(item.rsrq)
+        labels:
+          device_id: string(item.id)
+        skipIf: "!has(item.rsrq) || item.rsrq == null"
+      - name: rms_device_mobile_sinr_db
+        help: Mobile signal to interference plus noise ratio (SINR) of the first modem
+        unit: dB
+        value: toFloat(item.sinr)
+        labels:
+          device_id: string(item.id)
+        skipIf: "!has(item.sinr) || item.sinr == null"
+      - name: rms_device_mobile_connected
+        help: Mobile data connection of the first modem (1 connected, 0 disconnected)
+        value: "item.connection_state == 'Connected'"
+        labels:
+          device_id: string(item.id)
+        skipIf: "!has(item.connection_state) || item.connection_state == null"
+      - name: rms_device_mobile_roaming
+        help: First modem registered on a roaming network (1 roaming, 0 home network or not registered)
+        value: "item.network_state == 'Roaming'"
+        labels:
+          device_id: string(item.id)
+        skipIf: "!has(item.network_state) || item.network_state == null"
+    info:
+      - name: rms_device_info
+        help: Descriptive attributes of a device
+        labels:
+          device_id: string(item.id)
+          name: "default(item.name, '')"
+          serial: "default(item.serial, '')"
+          model: "default(item.model, '')"
+          firmware: "default(item.firmware, '')"
+          company: "default(item.company_name, '')"
+      - name: rms_device_mobile_info
+        help: Descriptive attributes of the mobile connection of the first modem
+        labels:
+          device_id: string(item.id)
+          operator: "default(item.operator, '')"
+          connection_type: "default(item.connection_type, '')"
+        # Without service RMS reports the operator N/A: no info series rather
+        # than a short-lived one.
+        skipIf: "!has(item.operator) || item.operator == null || item.operator == 'N/A'"
+    post:
+      - name: rms_devices
+        help: Devices visible to the token
+        value: "double(responses[0].body.meta.total)"

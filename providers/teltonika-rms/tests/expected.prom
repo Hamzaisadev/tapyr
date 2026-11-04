@@ -1,0 +1,177 @@
+# TYPE rms_device_info gauge
+rms_device_info{company="Example Company",device_id="9317903",firmware="RUT2M_R_00.07.20.4",model="CAP700",name="router-07",serial="9131230070"} 1
+rms_device_info{company="Example Company",device_id="9318189",firmware="RUT2M_R_00.07.20.4",model="RUTM52",name="router-06",serial="2509064147"} 1
+rms_device_info{company="Example Company",device_id="9321842",firmware="RUTM_R_00.07.15.2",model="RUTM52",name="router-04",serial="9105641541"} 1
+rms_device_info{company="Example Company",device_id="9329995",firmware="RUT2M_R_00.07.20.4",model="RUTX11",name="router-11",serial="8257567428"} 1
+rms_device_info{company="Example Company",device_id="9348641",firmware="RUT2M_R_00.07.20.4",model="RUTX11",name="router-03",serial="9631360885"} 1
+rms_device_info{company="Example Company",device_id="9349384",firmware="RUTX_R_00.07.24.5",model="RUTX11",name="router-10",serial="3753369180"} 1
+rms_device_info{company="Example Company",device_id="9351433",firmware="RUTM_R_00.07.15.2",model="RUTX11",name="router-12",serial="2673600643"} 1
+rms_device_info{company="Example Company",device_id="9355360",firmware="RUTM_R_00.07.15.2",model="RUT241",name="router-02",serial="1128289696"} 1
+rms_device_info{company="Example Company",device_id="9362706",firmware="RUTX_R_00.07.24.5",model="RUTM52",name="router-05",serial="2056095673"} 1
+rms_device_info{company="Example Company",device_id="9373588",firmware="RUTM_R_00.07.15.2",model="RUTM52",name="router-01",serial="4755886333"} 1
+rms_device_info{company="Example Company",device_id="9379398",firmware="RUTM_R_00.07.15.2",model="RUT241",name="router-08",serial="0879302094"} 1
+rms_device_info{company="Example Company",device_id="9397270",firmware="RUT2M_R_00.07.20.4",model="RUTM52",name="router-09",serial="8408969491"} 1
+# TYPE rms_device_last_connection_timestamp_seconds gauge
+rms_device_last_connection_timestamp_seconds{device_id="9317903"} 1.76722434e+09
+rms_device_last_connection_timestamp_seconds{device_id="9318189"} 1.76722326e+09
+rms_device_last_connection_timestamp_seconds{device_id="9321842"} 1.76722482e+09
+rms_device_last_connection_timestamp_seconds{device_id="9329995"} 1.76722434e+09
+rms_device_last_connection_timestamp_seconds{device_id="9348641"} 1.76722332e+09
+rms_device_last_connection_timestamp_seconds{device_id="9349384"} 1.767225e+09
+rms_device_last_connection_timestamp_seconds{device_id="9351433"} 1.76722506e+09
+rms_device_last_connection_timestamp_seconds{device_id="9355360"} 1.76722518e+09
+rms_device_last_connection_timestamp_seconds{device_id="9362706"} 1.76722416e+09
+rms_device_last_connection_timestamp_seconds{device_id="9373588"} 1.76722554e+09
+rms_device_last_connection_timestamp_seconds{device_id="9379398"} 1.76722422e+09
+rms_device_last_connection_timestamp_seconds{device_id="9397270"} 1.76722524e+09
+# TYPE rms_device_last_update_timestamp_seconds gauge
+rms_device_last_update_timestamp_seconds{device_id="9317903"} 1.767225382e+09
+rms_device_last_update_timestamp_seconds{device_id="9318189"} 1.767225358e+09
+rms_device_last_update_timestamp_seconds{device_id="9321842"} 1.767225502e+09
+rms_device_last_update_timestamp_seconds{device_id="9329995"} 1.767225408e+09
+rms_device_last_update_timestamp_seconds{device_id="9348641"} 1.767225407e+09
+rms_device_last_update_timestamp_seconds{device_id="9349384"} 1.767225395e+09
+rms_device_last_update_timestamp_seconds{device_id="9351433"} 1.767225572e+09
+rms_device_last_update_timestamp_seconds{device_id="9355360"} 1.767225519e+09
+rms_device_last_update_timestamp_seconds{device_id="9362706"} 1.767225555e+09
+rms_device_last_update_timestamp_seconds{device_id="9373588"} 1.767225336e+09
+rms_device_last_update_timestamp_seconds{device_id="9379398"} 1.767225488e+09
+rms_device_last_update_timestamp_seconds{device_id="9397270"} 1.767225455e+09
+# TYPE rms_device_mobile_connected gauge
+rms_device_mobile_connected{device_id="9317903"} 0
+rms_device_mobile_connected{device_id="9318189"} 0
+rms_device_mobile_connected{device_id="9321842"} 1
+rms_device_mobile_connected{device_id="9329995"} 1
+rms_device_mobile_connected{device_id="9348641"} 0
+rms_device_mobile_connected{device_id="9349384"} 1
+rms_device_mobile_connected{device_id="9351433"} 1
+rms_device_mobile_connected{device_id="9355360"} 1
+rms_device_mobile_connected{device_id="9362706"} 0
+rms_device_mobile_connected{device_id="9373588"} 1
+rms_device_mobile_connected{device_id="9379398"} 1
+rms_device_mobile_connected{device_id="9397270"} 1
+# TYPE rms_device_mobile_info gauge
+rms_device_mobile_info{connection_type="4G (LTE)",device_id="9321842",operator="Operator-B"} 1
+rms_device_mobile_info{connection_type="4G (LTE)",device_id="9349384",operator="Operator-A"} 1
+rms_device_mobile_info{connection_type="4G (LTE)",device_id="9351433",operator="Operator-A"} 1
+rms_device_mobile_info{connection_type="4G (LTE)",device_id="9355360",operator="Operator-C"} 1
+rms_device_mobile_info{connection_type="4G (LTE)",device_id="9373588",operator="Operator-A"} 1
+rms_device_mobile_info{connection_type="4G (LTE)",device_id="9397270",operator="Operator-B"} 1
+rms_device_mobile_info{connection_type="5G (NSA)",device_id="9329995",operator="Operator-A"} 1
+rms_device_mobile_info{connection_type="5G (NSA)",device_id="9379398",operator="Operator-B"} 1
+# TYPE rms_device_mobile_received_bytes_today gauge
+rms_device_mobile_received_bytes_today{device_id="9317903",modem="1-1",sim="2"} 186
+rms_device_mobile_received_bytes_today{device_id="9318189",modem="1-1",sim="1"} 244
+rms_device_mobile_received_bytes_today{device_id="9321842",modem="1-1",sim="2"} 130
+rms_device_mobile_received_bytes_today{device_id="9329995",modem="1-1",sim="1"} 396
+rms_device_mobile_received_bytes_today{device_id="9348641",modem="1-1",sim="2"} 0
+rms_device_mobile_received_bytes_today{device_id="9349384",modem="1-1",sim="2"} 648
+rms_device_mobile_received_bytes_today{device_id="9351433",modem="1-1",sim="1"} 550
+rms_device_mobile_received_bytes_today{device_id="9355360",modem="1-1",sim="1"} 0
+rms_device_mobile_received_bytes_today{device_id="9362706",modem="1-1",sim="2"} 49
+rms_device_mobile_received_bytes_today{device_id="9373588",modem="1-1",sim="2"} 0
+rms_device_mobile_received_bytes_today{device_id="9379398",modem="1-1",sim="1"} 273
+rms_device_mobile_received_bytes_today{device_id="9397270",modem="1-1",sim="2"} 114
+# TYPE rms_device_mobile_roaming gauge
+rms_device_mobile_roaming{device_id="9317903"} 0
+rms_device_mobile_roaming{device_id="9318189"} 0
+rms_device_mobile_roaming{device_id="9321842"} 0
+rms_device_mobile_roaming{device_id="9329995"} 0
+rms_device_mobile_roaming{device_id="9348641"} 0
+rms_device_mobile_roaming{device_id="9349384"} 0
+rms_device_mobile_roaming{device_id="9351433"} 0
+rms_device_mobile_roaming{device_id="9355360"} 0
+rms_device_mobile_roaming{device_id="9362706"} 0
+rms_device_mobile_roaming{device_id="9373588"} 0
+rms_device_mobile_roaming{device_id="9379398"} 0
+rms_device_mobile_roaming{device_id="9397270"} 1
+# TYPE rms_device_mobile_rsrp_dbm gauge
+rms_device_mobile_rsrp_dbm{device_id="9321842"} -93.661
+rms_device_mobile_rsrp_dbm{device_id="9329995"} -87.293
+rms_device_mobile_rsrp_dbm{device_id="9349384"} -87.263
+rms_device_mobile_rsrp_dbm{device_id="9351433"} -116.426
+rms_device_mobile_rsrp_dbm{device_id="9355360"} -91.125
+rms_device_mobile_rsrp_dbm{device_id="9373588"} -96.949
+rms_device_mobile_rsrp_dbm{device_id="9379398"} -98.402
+rms_device_mobile_rsrp_dbm{device_id="9397270"} -111.003
+# TYPE rms_device_mobile_rsrq_db gauge
+rms_device_mobile_rsrq_db{device_id="9321842"} -13.212
+rms_device_mobile_rsrq_db{device_id="9329995"} -17.241
+rms_device_mobile_rsrq_db{device_id="9349384"} -15.91
+rms_device_mobile_rsrq_db{device_id="9351433"} -13.865
+rms_device_mobile_rsrq_db{device_id="9355360"} -8.132
+rms_device_mobile_rsrq_db{device_id="9373588"} -16.191
+rms_device_mobile_rsrq_db{device_id="9379398"} -17.472
+rms_device_mobile_rsrq_db{device_id="9397270"} -12.955
+# TYPE rms_device_mobile_rssi_dbm gauge
+rms_device_mobile_rssi_dbm{device_id="9321842"} -93.67
+rms_device_mobile_rssi_dbm{device_id="9329995"} -57.646
+rms_device_mobile_rssi_dbm{device_id="9349384"} -56.085
+rms_device_mobile_rssi_dbm{device_id="9351433"} -82.536
+rms_device_mobile_rssi_dbm{device_id="9355360"} -64.359
+rms_device_mobile_rssi_dbm{device_id="9373588"} -80.692
+rms_device_mobile_rssi_dbm{device_id="9379398"} -93.908
+rms_device_mobile_rssi_dbm{device_id="9397270"} -92.132
+# TYPE rms_device_mobile_sinr_db gauge
+rms_device_mobile_sinr_db{device_id="9321842"} -0.105
+rms_device_mobile_sinr_db{device_id="9329995"} 19.448
+rms_device_mobile_sinr_db{device_id="9349384"} 15.199
+rms_device_mobile_sinr_db{device_id="9351433"} 22.264
+rms_device_mobile_sinr_db{device_id="9355360"} 12.108
+rms_device_mobile_sinr_db{device_id="9373588"} 18.97
+rms_device_mobile_sinr_db{device_id="9379398"} 11.088
+rms_device_mobile_sinr_db{device_id="9397270"} 3.667
+# TYPE rms_device_mobile_transmitted_bytes_today gauge
+rms_device_mobile_transmitted_bytes_today{device_id="9317903",modem="1-1",sim="2"} 54
+rms_device_mobile_transmitted_bytes_today{device_id="9318189",modem="1-1",sim="1"} 56
+rms_device_mobile_transmitted_bytes_today{device_id="9321842",modem="1-1",sim="2"} 38
+rms_device_mobile_transmitted_bytes_today{device_id="9329995",modem="1-1",sim="1"} 112
+rms_device_mobile_transmitted_bytes_today{device_id="9348641",modem="1-1",sim="2"} 0
+rms_device_mobile_transmitted_bytes_today{device_id="9349384",modem="1-1",sim="2"} 56
+rms_device_mobile_transmitted_bytes_today{device_id="9351433",modem="1-1",sim="1"} 210
+rms_device_mobile_transmitted_bytes_today{device_id="9355360",modem="1-1",sim="1"} 0
+rms_device_mobile_transmitted_bytes_today{device_id="9362706",modem="1-1",sim="2"} 35
+rms_device_mobile_transmitted_bytes_today{device_id="9373588",modem="1-1",sim="2"} 0
+rms_device_mobile_transmitted_bytes_today{device_id="9379398",modem="1-1",sim="1"} 39
+rms_device_mobile_transmitted_bytes_today{device_id="9397270",modem="1-1",sim="2"} 24
+# TYPE rms_device_temperature_celsius gauge
+rms_device_temperature_celsius{device_id="9317903"} 54.421
+rms_device_temperature_celsius{device_id="9318189"} 43.839
+rms_device_temperature_celsius{device_id="9321842"} 48.648
+rms_device_temperature_celsius{device_id="9329995"} 54.499
+rms_device_temperature_celsius{device_id="9348641"} 53.012
+rms_device_temperature_celsius{device_id="9349384"} 57.654
+rms_device_temperature_celsius{device_id="9351433"} 48.02
+rms_device_temperature_celsius{device_id="9355360"} 38.301
+rms_device_temperature_celsius{device_id="9362706"} 59.105
+rms_device_temperature_celsius{device_id="9373588"} 53.137
+rms_device_temperature_celsius{device_id="9379398"} 52.573
+rms_device_temperature_celsius{device_id="9397270"} 44.828
+# TYPE rms_device_up gauge
+rms_device_up{device_id="9317903"} 0
+rms_device_up{device_id="9318189"} 0
+rms_device_up{device_id="9321842"} 1
+rms_device_up{device_id="9329995"} 1
+rms_device_up{device_id="9348641"} 0
+rms_device_up{device_id="9349384"} 1
+rms_device_up{device_id="9351433"} 1
+rms_device_up{device_id="9355360"} 1
+rms_device_up{device_id="9362706"} 0
+rms_device_up{device_id="9373588"} 1
+rms_device_up{device_id="9379398"} 1
+rms_device_up{device_id="9397270"} 1
+# TYPE rms_device_uptime_seconds gauge
+rms_device_uptime_seconds{device_id="9317903"} 0
+rms_device_uptime_seconds{device_id="9318189"} 0
+rms_device_uptime_seconds{device_id="9321842"} 0
+rms_device_uptime_seconds{device_id="9329995"} 0
+rms_device_uptime_seconds{device_id="9348641"} 0
+rms_device_uptime_seconds{device_id="9349384"} 0
+rms_device_uptime_seconds{device_id="9351433"} 0
+rms_device_uptime_seconds{device_id="9355360"} 0
+rms_device_uptime_seconds{device_id="9362706"} 0
+rms_device_uptime_seconds{device_id="9373588"} 0
+rms_device_uptime_seconds{device_id="9379398"} 0
+rms_device_uptime_seconds{device_id="9397270"} 0
+# TYPE rms_devices gauge
+rms_devices 12

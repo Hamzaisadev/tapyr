@@ -1,0 +1,4 @@
+testdata/invalid/settings.yaml:5:25: spec.collection.jitter: must be between 0% and 50%
+testdata/invalid/settings.yaml:6:27: spec.budget.retryReserve: must be between 0% and 50%
+testdata/invalid/settings.yaml:7:45: spec.retry.maxBackoff: maxBackoff must be greater than or equal to initialBackoff
+testdata/invalid/settings.yaml:8:48: spec.circuitBreaker.maxCooldown: maxCooldown must be greater than or equal to cooldown

@@ -1,0 +1,8 @@
+{{- /* GET /api/system/device/status (abridged to the fields read). */ -}}
+{{- $r := find "router" "router-0" -}}
+{"success": true, "data": {
+  "mnfinfo": {"name": "RUTX5000XXXX", "serial": {{ json (serial $r "9999999999") }}, "hwver": "0101", "batch": "0012", "mac": {{ json (mac $r) }}},
+  "static": {"fw_version": "RUTX_R_00.07.24.5", "device_name": "RUTX50", "model": "RUTX", "hostname": "rutx50-sim",
+    "kernel": "5.15.167", "cpu_count": 4, "board_name": "rutx", "fw_build_date": "2026-09-30 10:12:00"},
+  "features": {"ipv6": true}
+}}

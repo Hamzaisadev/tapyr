@@ -1,0 +1,28 @@
+# The configuration of Tapyr, mounted in /etc/tapyr. Replace the account,
+# the jobs and the output with yours (see the README of the provider
+# package); secrets come from the Secret tapyr as environment variables.
+apiVersion: tapyr/v1alpha1
+kind: Settings
+metadata: { name: kubernetes }
+spec:
+  # Reachable by the Service and the probes.
+  server: { listen: "0.0.0.0:9790" }
+  # The volume of the state store.
+  state: { path: /home/nonroot/data/tapyr.db }
+---
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: campus }
+spec:
+  provider: meraki-dashboard
+  secrets: { apiKey: { env: TAPYR_MERAKI_API_KEY } }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: device-availabilities }
+spec: { account: campus, template: meraki-device-availabilities }
+---
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: prom }
+spec: { type: prometheus }

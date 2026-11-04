@@ -1,0 +1,105 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: rutos-modems
+spec:
+  provider: teltonika-rutos
+  defaultInterval: 1m
+  defaultPriority: high
+  request:
+    path: /modems/status
+  pagination:
+    type: none
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: response.body.data
+    # Offline modems carry no measure.
+    filter: "!has(item.offline) || item.offline == '' || item.offline == '0'"
+    metrics:
+      - name: rutos_modem_connected
+        help: Mobile data connection of the modem (1 connected)
+        # data_conn_state since 7.12, state before.
+        value: "default(item.data_conn_state, default(item.state, '')) == 'Connected'"
+        labels: { router: target.name, modem: item.id }
+      - name: rutos_modem_rssi_dbm
+        help: Received signal strength (RSSI)
+        unit: dBm
+        value: "toFloat(default(item.rssi, item.signal))"
+        labels: { router: target.name, modem: item.id }
+        skipIf: "!has(item.rssi) && !has(item.signal)"
+      - name: rutos_modem_rsrp_dbm
+        help: Reference signal received power (RSRP)
+        unit: dBm
+        value: toFloat(item.rsrp)
+        labels: { router: target.name, modem: item.id }
+        skipIf: "!has(item.rsrp)"
+      - name: rutos_modem_rsrq_db
+        help: Reference signal received quality (RSRQ)
+        unit: dB
+        value: toFloat(item.rsrq)
+        labels: { router: target.name, modem: item.id }
+        skipIf: "!has(item.rsrq)"
+      - name: rutos_modem_sinr_db
+        help: Signal to interference plus noise ratio (SINR)
+        unit: dB
+        value: toFloat(item.sinr)
+        labels: { router: target.name, modem: item.id }
+        skipIf: "!has(item.sinr)"
+      - name: rutos_modem_signal_quality_ratio
+        help: Signal quality computed by RutOS (0 to 1)
+        unit: ratio
+        value: toFloat(item.signal_quality) / 100.0
+        labels: { router: target.name, modem: item.id }
+        skipIf: "!has(item.signal_quality)"
+      - name: rutos_modem_temperature_celsius
+        help: Modem temperature
+        unit: celsius
+        value: toFloat(item.temperature)
+        labels: { router: target.name, modem: item.id }
+        skipIf: "!has(item.temperature)"
+      - name: rutos_modem_received_bytes_total
+        type: counter
+        help: Bytes received by the modem
+        unit: bytes
+        value: toFloat(item.rxbytes)
+        labels: { router: target.name, modem: item.id }
+        skipIf: "!has(item.rxbytes)"
+      - name: rutos_modem_transmitted_bytes_total
+        type: counter
+        help: Bytes transmitted by the modem
+        unit: bytes
+        value: toFloat(item.txbytes)
+        labels: { router: target.name, modem: item.id }
+        skipIf: "!has(item.txbytes)"
+      - name: rutos_modem_registered
+        help: Registration of the modem on a mobile network (1 registered, home or roaming; 0 searching, denied or not registered)
+        # operator_state since 7.12, netstate before.
+        value: "default(item.operator_state, default(item.netstate, '')).startsWith('Registered')"
+        labels: { router: target.name, modem: item.id }
+        skipIf: "!has(item.operator_state) && !has(item.netstate)"
+      - name: rutos_modem_roaming
+        help: Modem registered on a roaming network (1 roaming, 0 otherwise)
+        value: "default(item.operator_state, default(item.netstate, '')).lower().contains('roaming')"
+        labels: { router: target.name, modem: item.id }
+        skipIf: "!has(item.operator_state) && !has(item.netstate)"
+      - name: rutos_modem_sim_inserted
+        help: SIM card of the modem (1 inserted, 0 not inserted or not usable)
+        value: "default(item.simstate, '') == 'Inserted'"
+        labels: { router: target.name, modem: item.id }
+        skipIf: "!has(item.simstate)"
+      - name: rutos_modem_active_sim
+        help: Number of the SIM slot in use by the modem (1 or 2)
+        value: toFloat(item.active_sim)
+        labels: { router: target.name, modem: item.id }
+        skipIf: "!has(item.active_sim)"
+    info:
+      - name: rutos_modem_info
+        help: Descriptive attributes of the modem and its mobile connection
+        labels:
+          router: target.name
+          modem: item.id
+          model: "default(item.model, '')"
+          operator: "default(item.operator, default(item.oper, ''))"
+          network_type: "default(item.ntype, '')"
+          band: "default(item.band, '')"

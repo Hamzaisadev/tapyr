@@ -1,0 +1,57 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: rutos-system
+spec:
+  provider: teltonika-rutos
+  defaultInterval: 1m
+  defaultPriority: high
+  request:
+    path: /system/device/usage/status
+  pagination:
+    type: none
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: "[response.body.data]"
+    metrics:
+      - name: rutos_system_uptime_seconds
+        help: Router uptime
+        unit: seconds
+        value: toFloat(item.uptime_seconds)
+        labels: { router: target.name }
+      - name: rutos_system_load1
+        help: Load average over 1 minute
+        value: toFloat(item.load.min1)
+        labels: { router: target.name }
+        skipIf: "!has(item.load)"
+      - name: rutos_system_load5
+        help: Load average over 5 minutes
+        value: toFloat(item.load.min5)
+        labels: { router: target.name }
+        skipIf: "!has(item.load)"
+      - name: rutos_system_load15
+        help: Load average over 15 minutes
+        value: toFloat(item.load.min15)
+        labels: { router: target.name }
+        skipIf: "!has(item.load)"
+      - name: rutos_memory_total_bytes
+        help: Total RAM
+        unit: bytes
+        value: toFloat(item.memory.ram_total) * 1048576.0
+        labels: { router: target.name }
+      - name: rutos_memory_free_bytes
+        help: Free RAM
+        unit: bytes
+        value: toFloat(item.memory.ram_free) * 1048576.0
+        labels: { router: target.name }
+      - name: rutos_flash_total_bytes
+        help: Total flash storage
+        unit: bytes
+        value: toFloat(item.memory.flash_total) * 1048576.0
+        labels: { router: target.name }
+      - name: rutos_flash_free_bytes
+        help: Free flash storage
+        unit: bytes
+        value: toFloat(item.memory.flash_free) * 1048576.0
+        labels: { router: target.name }

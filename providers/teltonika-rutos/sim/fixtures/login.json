@@ -1,0 +1,1 @@
+{"success": true, "data": {"username": "sim-user", "token": "{token}", "expires": {expiresIn}, "group": "monitoring", "2fa_login": false}}

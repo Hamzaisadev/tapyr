@@ -1,0 +1,10 @@
+[
+  {
+    "serial": "SIM-0111",
+    "status": "online"
+  },
+  {
+    "serial": "SIM-0112",
+    "status": "offline"
+  }
+]

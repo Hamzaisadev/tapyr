@@ -1,0 +1,12 @@
+apiVersion: tapyr/v1alpha1
+kind: Scenario
+metadata:
+  name: quota-tight
+  description: >-
+    RutOS has no quota: this scenario simulates a router at the limit of its
+    resources instead, slow to answer and refusing a part of the requests.
+spec:
+  steps:
+    - at: 0s
+      latency: { p50: 1500ms, p99: 8s }
+      errors: { status: 503, ratio: 0.2 }

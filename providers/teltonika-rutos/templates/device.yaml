@@ -1,0 +1,28 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: rutos-device
+spec:
+  provider: teltonika-rutos
+  # Model, firmware and names change rarely.
+  defaultInterval: 30m
+  defaultPriority: low
+  request:
+    path: /system/device/status
+  pagination:
+    type: none
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: "[response.body.data]"
+    info:
+      - name: rutos_device_info
+        help: Descriptive attributes of the router
+        labels:
+          router: target.name
+          model: "default(item.static.device_name, '')"
+          product_code: "default(item.mnfinfo.name, '')"
+          firmware: "default(item.static.fw_version, '')"
+          hostname: "default(item.static.hostname, '')"
+          serial: "default(item.mnfinfo.serial, '')"
+          hardware_revision: "default(item.mnfinfo.hwver, '')"

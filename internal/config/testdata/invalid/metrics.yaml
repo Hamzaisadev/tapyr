@@ -1,0 +1,34 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata: { name: example, version: 0.1.0 }
+spec:
+  baseURL: https://api.example.invalid
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: first }
+spec:
+  provider: example
+  defaultInterval: 5m
+  request: { path: /a }
+  extract:
+    metrics:
+      - { name: device_up, value: "1.0" }
+      - { name: device_bytes_5m, value: "1.0", accumulate: true }
+      - { name: device_rx_bytes_total, type: counter, value: "1.0", windowField: item.window }
+    info:
+      - { name: device_info, labels: { serial: item.serial } }
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: second }
+spec:
+  provider: example
+  defaultInterval: 5m
+  role: both
+  request: { path: /b }
+  extract:
+    metrics:
+      - { name: device_up, type: counter, value: "1.0" }
+    post:
+      - { name: device_info, type: counter, value: "1.0" }

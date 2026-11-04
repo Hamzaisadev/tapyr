@@ -1,0 +1,4 @@
+testdata/invalid/metrics-schema.yaml:10:15: spec.extract.metrics[0].name: "9lives" must be a valid metric name: letters, digits, underscores and colons, not starting with a digit
+testdata/invalid/metrics-schema.yaml:11:15: spec.extract.metrics[0].type: invalid value "histogram" (want one of "gauge", "counter")
+testdata/invalid/metrics-schema.yaml:13:19: spec.extract.metrics[0].labels.bad-label: invalid key "bad-label": must be a valid label name: letters, digits and underscores, not starting with a digit
+testdata/invalid/metrics-schema.yaml:15:15: spec.extract.info[0].name: "device_details" must be a valid metric name ending with _info

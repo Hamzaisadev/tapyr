@@ -1,0 +1,53 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: example-sim-devices
+spec:
+  provider: example-sim
+  defaultInterval: 5m
+  defaultPriority: high
+  request:
+    path: /devices
+  pagination:
+    type: link_header
+    linkHeader:
+      pageSizeParam: perPage
+      pageSize: 2
+  estimate:
+    pagesPerRun: 3
+  extract:
+    items: response.body
+    filter: "item.status != 'decommissioned'"
+    metrics:
+      - name: example_device_up
+        help: Device status (1 online, 0 otherwise)
+        value: "item.status == 'online'"
+        labels:
+          serial: item.serial
+          site_id: item.siteId
+      - name: example_device_clients
+        help: Clients connected to the device
+        value: item.clients
+        labels:
+          serial: item.serial
+        skipIf: "!has(item.clients)"
+      - name: example_device_received_bytes_total
+        type: counter
+        help: Bytes received by the device since boot
+        unit: bytes
+        value: toFloat(item.rxBytes)
+        labels:
+          serial: item.serial
+        timestamp: parseTimestamp(item.updatedAt)
+    info:
+      - name: example_device_info
+        help: Descriptive attributes of a device
+        labels:
+          serial: item.serial
+          name: item.name.lower()
+          model: item.model
+          firmware: "default(item.firmware, '')"
+    post:
+      - name: example_devices
+        help: Devices returned by the API in the last run
+        value: "double(size(responses.map(r, r.body).flatten()))"

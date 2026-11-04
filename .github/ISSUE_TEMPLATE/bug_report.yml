@@ -1,0 +1,51 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. **Security issues are reported privately**, see SECURITY.md. Remove every credential, token and real identifier (serials, MAC and IP addresses, names) from what you paste.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `tapyr version`.
+      placeholder: tapyr 0.1.0, revision abc123
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: How Tapyr runs
+      options:
+        - Binary
+        - Container image
+        - Demo compose
+        - Built from source
+    validations:
+      required: true
+  - type: input
+    id: provider
+    attributes:
+      label: Provider package
+      description: The provider involved, if any.
+      placeholder: meraki-dashboard
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: The configuration (secrets removed) and the steps. A reproduction against the simulator (`tapyr sim --provider ... --scenario ...`) helps most.
+      render: yaml
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and evidence
+      description: Relevant log lines, `tapyr plan` output, status API responses, self-metrics. Tapyr redacts secrets from its logs, but check before pasting.
+      render: text

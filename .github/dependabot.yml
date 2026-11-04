@@ -1,0 +1,77 @@
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      go-dependencies:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      actions:
+        patterns: ["*"]
+  - package-ecosystem: docker-compose
+    directory: /test/integration
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: test
+      include: scope
+  - package-ecosystem: docker-compose
+    directory: /examples/compose
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: build
+      include: scope
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: build
+      include: scope
+    ignore:
+      # Node majors are updated by hand, to an LTS release, together with
+      # the CI (node-version) and @types/node.
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: npm
+    directory: /ui
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: build
+      include: scope
+    ignore:
+      # @types/node follows the Node major the UI is built with; TypeScript
+      # majors wait for typescript-eslint to support them.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+    groups:
+      ui-dependencies:
+        patterns: ["*"]

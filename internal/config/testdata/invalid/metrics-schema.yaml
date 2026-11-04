@@ -1,0 +1,16 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: metric-names }
+spec:
+  provider: example
+  defaultInterval: 5m
+  request: { path: /devices }
+  extract:
+    metrics:
+      - name: 9lives
+        type: histogram
+        value: "1.0"
+        labels: { "bad-label": item.x }
+    info:
+      - name: device_details
+        labels: { serial: item.serial }

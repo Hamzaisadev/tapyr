@@ -1,0 +1,36 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: rutos-failover
+spec:
+  provider: teltonika-rutos
+  defaultInterval: 1m
+  defaultPriority: normal
+  request:
+    path: /failover/status
+  pagination:
+    type: none
+  estimate:
+    pagesPerRun: 1
+  extract:
+    # data maps the interfaces of the failover (mwan3) to their state.
+    items: "response.body.data.map(k, {'name': k, 'state': response.body.data[k]})"
+    metrics:
+      - name: rutos_failover_interface_online
+        help: Failover state of the interface (1 online)
+        value: "default(item.state.status, '') == 'online'"
+        labels: { router: target.name, interface: item.name }
+      - name: rutos_failover_interface_enabled
+        help: Interface enabled in the failover configuration
+        value: "default(item.state.enabled, false)"
+        labels: { router: target.name, interface: item.name }
+      - name: rutos_failover_interface_score
+        help: Tracking score of the interface (successful probes)
+        value: toFloat(item.state.score)
+        labels: { router: target.name, interface: item.name }
+        skipIf: "!has(item.state.score)"
+      - name: rutos_failover_interface_lost_probes
+        help: Probes lost by the interface in the current tracking round
+        value: toFloat(item.state.lost)
+        labels: { router: target.name, interface: item.name }
+        skipIf: "!has(item.state.lost)"

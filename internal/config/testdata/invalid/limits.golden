@@ -1,0 +1,13 @@
+testdata/invalid/limits.yaml:7:44: spec.limits[0].rate: rate must be greater than zero
+testdata/invalid/limits.yaml:8:59: spec.limits[1].max: max is not allowed for kind rate
+testdata/invalid/limits.yaml:9:57: spec.limits[2].max: max: auto is only allowed for quota limits
+testdata/invalid/limits.yaml:10:55: spec.limits[3].max: max: auto requires initialMax (used until the limit header is observed)
+testdata/invalid/limits.yaml:10:55: spec.limits[3].max: max: auto requires sync.limitHeader
+testdata/invalid/limits.yaml:11:71: spec.limits[4].initialMax: initialMax is only allowed with max: auto
+testdata/invalid/limits.yaml:12:51: spec.limits[5].window: window must set exactly one of period or rolling
+testdata/invalid/limits.yaml:13:71: spec.limits[6].window.rolling: rolling window must be at least 1m (1-minute precision)
+testdata/invalid/limits.yaml:17:40: spec.limits[7].window.resetAt: resetAt is only allowed for day, week and month periods
+testdata/invalid/limits.yaml:17:60: spec.limits[7].window.weekStart: weekStart is only allowed for the week period
+testdata/invalid/limits.yaml:17:78: spec.limits[7].window.monthDay: monthDay is only allowed for the month period
+testdata/invalid/limits.yaml:17:91: spec.limits[7].window.timezone: unknown timezone "Mars/Olympus"
+testdata/invalid/limits.yaml:18:15: spec.limits[8].name: duplicate limit name "zero-rate" (first defined at testdata/invalid/limits.yaml:7:15)

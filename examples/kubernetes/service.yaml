@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tapyr
+spec:
+  ports:
+    - name: http
+      port: 9790
+      targetPort: http

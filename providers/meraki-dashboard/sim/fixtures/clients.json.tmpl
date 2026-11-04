@@ -1,0 +1,10 @@
+{{- /* GET /organizations/{organizationId}/wireless/clients/overview/byDevice:
+       an envelope with items, paginated at itemsField. */ -}}
+{{- $list := "" }}{{ $count := 0 }}
+{"items": [{{- $sep := "" }}
+{{- range $o := items "organizations" }}{{ if eq (printf "%d" (add 549236 (mul $o.index 1111))) $.vars.organizationId }}
+{{- range $n := children "networks" $o }}{{ range $d := children "devices" $n }}{{ if ge $d.n 4 }}{{ $sep }}{{ $sep = "," }}{{ $count = add $count 1 }}
+  {"network": {"id": "N_{{ add 600000000000 (num $n "id" 1 99999999) }}"}, "serial": {{ json (printf "Q2%s" (serial $d "XX-XXXX-XXXX")) }},
+   "counts": {"byStatus": {"online": {{ printf "%.0f" (walk $d "clients" 0 45 "5m") }}}}}
+{{- end }}{{ end }}{{ end }}{{ end }}{{ end }}],
+ "meta": {"counts": {"items": {"total": {{ $count }}, "remaining": 0}}}}

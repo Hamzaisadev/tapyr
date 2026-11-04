@@ -1,0 +1,12 @@
+apiVersion: tapyr/v1alpha1
+kind: Settings
+metadata:
+  name: lab
+spec:
+  state:
+    path: state/tapyr.db
+  providerPaths:
+    - ../providers
+    - /opt/tapyr/providers
+  collection:
+    jitter: 5%

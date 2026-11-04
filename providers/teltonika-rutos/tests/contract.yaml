@@ -1,0 +1,38 @@
+# Contract test of teltonika-rutos: one router (target) served by the
+# simulator ($SIM_ADDR, the provider adds /api). The simulator serves one
+# router: several targets would share its per-router limits.
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: contract }
+spec:
+  provider: teltonika-rutos
+  secrets:
+    username: { env: RUTOS_USERNAME }
+    password: { env: RUTOS_PASSWORD }
+  targets:
+    - { name: north-01, params: { baseURL: "$SIM_ADDR" } }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: system }
+spec: { account: contract, template: rutos-system }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: device }
+spec: { account: contract, template: rutos-device }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: modems }
+spec: { account: contract, template: rutos-modems }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: interfaces }
+spec: { account: contract, template: rutos-interfaces }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: failover }
+spec: { account: contract, template: rutos-failover }

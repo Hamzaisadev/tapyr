@@ -1,0 +1,19 @@
+apiVersion: tapyr/v1alpha1
+kind: Scenario
+metadata:
+  name: bad-day
+  description: >-
+    Another tool eats the quota, the access token is revoked (one refresh),
+    then the monitoring endpoints fail intermittently.
+spec:
+  steps:
+    - at: 0s
+      externalConsumption: { limit: daily, ratePerHour: 100 }
+    - at: 1h
+      tokenExpiry: true
+    - at: 2h
+      for: 30m
+      errors: { routes: ["/monitoring/**"], status: 503, ratio: 0.3 }
+    - at: 3h
+      for: 1h
+      latency: { p50: 1s, p99: 8s }

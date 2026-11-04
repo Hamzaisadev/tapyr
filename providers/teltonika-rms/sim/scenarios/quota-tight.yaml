@@ -1,0 +1,13 @@
+apiVersion: tapyr/v1alpha1
+kind: Scenario
+metadata:
+  name: quota-tight
+  description: >-
+    A token whose monthly quota is mostly spent by other tools: 3000 requests
+    left for the month, and another client using 20 per hour.
+spec:
+  steps:
+    - at: 0s
+      limits:
+        monthly: { max: 3000 }
+      externalConsumption: { limit: monthly, ratePerHour: 20 }

@@ -1,0 +1,31 @@
+apiVersion: tapyr/v1alpha1
+kind: Simulation
+metadata:
+  name: example-sim
+spec:
+  # tapyr sim --all serves this simulator at --listen-base plus this offset.
+  portOffset: 1
+  basePath: /api/v1
+  auth:
+    accept:
+      bearer: [sim-api-key]
+  headers:
+    X-RateLimit-Limit-Day: "limit:daily.max"
+    X-RateLimit-Remaining-Day: "limit:daily.remaining"
+  routes:
+    - path: /sites
+      pagination: offset
+      response:
+        file: fixtures/sites.json
+    - path: /devices
+      pagination: link_header
+      response:
+        file: fixtures/devices.json
+    - path: /sites/{siteId}/networks
+      pagination: page
+      response:
+        file: fixtures/networks/{siteId}.json
+    - path: /sites/{siteId}/networks/{networkId}/devices
+      pagination: cursor
+      response:
+        file: fixtures/network-devices/{networkId}.json

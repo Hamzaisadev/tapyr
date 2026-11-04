@@ -1,0 +1,21 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: aruba-sites
+spec:
+  provider: aruba-central-classic
+  defaultInterval: 1h
+  defaultPriority: low
+  request:
+    path: /central/v2/sites
+    query: { calculate_total: "true" }
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: response.body.sites
+    info:
+      - name: aruba_site_info
+        help: Descriptive attributes of a site
+        labels:
+          site_id: string(item.site_id)
+          site: "default(item.site_name, '')"

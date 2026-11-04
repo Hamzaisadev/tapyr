@@ -1,0 +1,45 @@
+# TYPE example_device_clients gauge
+example_device_clients{serial="SIM-0001"} 12
+example_device_clients{serial="SIM-0002"} 0
+example_device_clients{serial="SIM-0003"} 30
+# TYPE example_device_info gauge
+example_device_info{firmware="1.3.9",model="SX-50",name="bravo-spare",serial="SIM-0004"} 1
+example_device_info{firmware="1.4.2",model="SX-100",name="alpha-core",serial="SIM-0001"} 1
+example_device_info{firmware="1.4.2",model="SX-50",name="alpha-edge",serial="SIM-0002"} 1
+example_device_info{model="SX-100",name="bravo-core",serial="SIM-0003"} 1
+# TYPE example_device_received_bytes_total counter
+example_device_received_bytes_total{serial="SIM-0001"} 1.048576e+06
+example_device_received_bytes_total{serial="SIM-0002"} 2048
+example_device_received_bytes_total{serial="SIM-0003"} 7.340032e+08
+example_device_received_bytes_total{serial="SIM-0004"} 0
+# TYPE example_device_up gauge
+example_device_up{serial="SIM-0001",site_id="site-a"} 1
+example_device_up{serial="SIM-0002",site_id="site-a"} 0
+example_device_up{serial="SIM-0003",site_id="site-b"} 1
+example_device_up{serial="SIM-0004",site_id="site-b"} 1
+# TYPE example_devices gauge
+example_devices 5
+# TYPE example_network_device_up gauge
+example_network_device_up{network_id="net-a1",serial="SIM-0101",site_id="site-a"} 1
+example_network_device_up{network_id="net-a1",serial="SIM-0102",site_id="site-a"} 0
+example_network_device_up{network_id="net-a1",serial="SIM-0103",site_id="site-a"} 1
+example_network_device_up{network_id="net-a2",serial="SIM-0104",site_id="site-a"} 1
+example_network_device_up{network_id="net-a3",serial="SIM-0105",site_id="site-a"} 1
+example_network_device_up{network_id="net-a3",serial="SIM-0106",site_id="site-a"} 0
+example_network_device_up{network_id="net-b1",serial="SIM-0107",site_id="site-b"} 1
+example_network_device_up{network_id="net-b1",serial="SIM-0108",site_id="site-b"} 0
+example_network_device_up{network_id="net-c1",serial="SIM-0110",site_id="site-c"} 1
+# TYPE example_network_info gauge
+example_network_info{name="Alpha Guest",network_id="net-a2",site_id="site-a"} 1
+example_network_info{name="Alpha IoT",network_id="net-a3",site_id="site-a"} 1
+example_network_info{name="Alpha LAN",network_id="net-a1",site_id="site-a"} 1
+example_network_info{name="Bravo LAN",network_id="net-b1",site_id="site-b"} 1
+example_network_info{name="Charlie LAN",network_id="net-c1",site_id="site-c"} 1
+# TYPE example_site_devices gauge
+example_site_devices{site_id="site-a"} 2
+example_site_devices{site_id="site-b"} 2
+example_site_devices{site_id="site-c"} 1
+# TYPE example_site_info gauge
+example_site_info{country="DE",name="Bravo",site_id="site-b"} 1
+example_site_info{country="FR",name="Alpha",site_id="site-a"} 1
+example_site_info{name="Charlie",site_id="site-c"} 1

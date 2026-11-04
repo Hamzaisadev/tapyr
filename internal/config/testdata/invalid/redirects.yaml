@@ -1,0 +1,7 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata: { name: redirects, version: 0.1.0 }
+spec:
+  baseURL: https://api.example.invalid
+  redirects:
+    hosts: ["*.example.com", "api.example.org", "https://n1.example.com", "*.", "Upper.example.com", "*.*.example.com"]

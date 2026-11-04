@@ -1,0 +1,21 @@
+# A provider package that is not built in, for the --provider-path tests.
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata:
+  name: plan-only
+  version: 0.1.0
+  description: Test package loaded with --provider-path
+spec:
+  baseURL: http://127.0.0.1:9/api
+  secrets:
+    - { name: token, required: true }
+  auth:
+    type: bearer
+    bearer: { token: { secret: token } }
+  limits:
+    - name: daily
+      description: Test quota
+      kind: quota
+      max: 1000
+      window: { period: day }
+      scope: { by: [account] }

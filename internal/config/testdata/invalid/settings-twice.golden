@@ -1,0 +1,1 @@
+testdata/invalid/settings-twice.yaml:7:7: kind: at most one Settings document is allowed (another one is at testdata/invalid/settings-twice.yaml:2:7)

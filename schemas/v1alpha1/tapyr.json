@@ -1,0 +1,3122 @@
+{
+  "$defs": {
+    "AccountBudget": {
+      "additionalProperties": false,
+      "description": "AccountBudget configures the share of quotas the account may use.",
+      "properties": {
+        "scaleRates": {
+          "description": "ScaleRates also scales rate and concurrency limits by the share.",
+          "type": "boolean"
+        },
+        "share": {
+          "default": 1,
+          "description": "Share of every quota limit Tapyr may use, when other consumers share\nthe same credentials. In (0, 1].",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "AccountSpec": {
+      "additionalProperties": false,
+      "description": "AccountSpec is the specification of an Account.",
+      "properties": {
+        "budget": {
+          "$ref": "#/$defs/AccountBudget",
+          "description": "Budget share of this account."
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Labels added to every sample from this account.",
+          "propertyNames": {
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "params": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Params declared by the provider.",
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "provider": {
+          "$ref": "#/$defs/Name",
+          "description": "Provider instantiated by the account."
+        },
+        "secrets": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SecretRef"
+          },
+          "description": "Secrets declared by the provider, as references to environment\nvariables or files.",
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "targets": {
+          "description": "Targets of a multi-target account (for example one entry per device).\nJobs run once per target.",
+          "items": {
+            "$ref": "#/$defs/Target"
+          },
+          "type": "array"
+        },
+        "tls": {
+          "$ref": "#/$defs/TLSClient",
+          "description": "TLS settings for connections to the provider."
+        }
+      },
+      "required": [
+        "provider"
+      ],
+      "type": "object"
+    },
+    "AppliesTo": {
+      "additionalProperties": false,
+      "description": "AppliesTo restricts the requests a limit counts.",
+      "properties": {
+        "authRequests": {
+          "default": "include",
+          "description": "AuthRequests selects regular requests and token requests: include\n(both), only (token requests only) or exclude (regular requests only).",
+          "enum": [
+            "include",
+            "only",
+            "exclude"
+          ],
+          "type": "string"
+        },
+        "endpoints": {
+          "description": "Endpoints are globs on the templated path: * matches within one\nsegment, ** matches any number of segments.",
+          "items": {
+            "pattern": "^/",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "methods": {
+          "description": "Methods the limit counts.",
+          "items": {
+            "enum": [
+              "GET",
+              "HEAD",
+              "POST"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "requestsWithVar": {
+          "$ref": "#/$defs/Identifier",
+          "description": "RequestsWithVar counts only requests where this variable is set."
+        }
+      },
+      "type": "object"
+    },
+    "Auth": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "basic"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "basic"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "bearer"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "bearer"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "header"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "header"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "oauth2_client_credentials"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "oauth2ClientCredentials"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "plugin"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "plugin"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "session_login"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "sessionLogin"
+            ]
+          }
+        }
+      ],
+      "description": "Auth configures authentication.",
+      "properties": {
+        "basic": {
+          "$ref": "#/$defs/BasicAuth",
+          "description": "Basic sends HTTP basic credentials (type basic)."
+        },
+        "bearer": {
+          "$ref": "#/$defs/BearerAuth",
+          "description": "Bearer sends Authorization: Bearer <token> (type bearer)."
+        },
+        "header": {
+          "$ref": "#/$defs/HeaderAuth",
+          "description": "Header sends a static value in a header (type header)."
+        },
+        "oauth2ClientCredentials": {
+          "$ref": "#/$defs/OAuth2ClientCredentials",
+          "description": "OAuth2ClientCredentials obtains tokens with the OAuth 2.0 client\ncredentials grant (type oauth2_client_credentials)."
+        },
+        "plugin": {
+          "$ref": "#/$defs/PluginAuth",
+          "description": "Plugin delegates to a Go auth plugin (type plugin)."
+        },
+        "sessionLogin": {
+          "$ref": "#/$defs/SessionLogin",
+          "description": "SessionLogin posts credentials to obtain a session token (type session_login)."
+        },
+        "type": {
+          "description": "Type of authentication.",
+          "enum": [
+            "none",
+            "header",
+            "bearer",
+            "basic",
+            "oauth2_client_credentials",
+            "session_login",
+            "plugin"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "BasicAuth": {
+      "additionalProperties": false,
+      "description": "BasicAuth sends HTTP basic credentials.",
+      "properties": {
+        "password": {
+          "$ref": "#/$defs/Value",
+          "description": "Password, usually {secret: name}."
+        },
+        "username": {
+          "$ref": "#/$defs/Value",
+          "description": "Username, a literal or {secret: name}."
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ],
+      "type": "object"
+    },
+    "BasicAuthSecrets": {
+      "additionalProperties": false,
+      "description": "BasicAuthSecrets are HTTP basic credentials read from secrets.",
+      "properties": {
+        "password": {
+          "$ref": "#/$defs/SecretRef",
+          "description": "Password secret."
+        },
+        "username": {
+          "$ref": "#/$defs/SecretRef",
+          "description": "Username secret."
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ],
+      "type": "object"
+    },
+    "BearerAuth": {
+      "additionalProperties": false,
+      "description": "BearerAuth sends Authorization: Bearer <token>.",
+      "properties": {
+        "token": {
+          "$ref": "#/$defs/Value",
+          "description": "Token, usually {secret: name}."
+        }
+      },
+      "required": [
+        "token"
+      ],
+      "type": "object"
+    },
+    "BudgetSettings": {
+      "additionalProperties": false,
+      "description": "BudgetSettings configures the budget engine and the planner.",
+      "properties": {
+        "maxStretch": {
+          "default": 12,
+          "description": "MaxStretch caps the interval stretch factor applied to a priority\nclass before the planner moves to the next class.",
+          "minimum": 1,
+          "type": "number"
+        },
+        "replanInterval": {
+          "$ref": "#/$defs/Duration",
+          "description": "ReplanInterval is the period of mid-window replanning."
+        },
+        "retryReserve": {
+          "$ref": "#/$defs/Percent",
+          "description": "RetryReserve is the share of every quota reserved for retries, from 0% to 50%."
+        }
+      },
+      "type": "object"
+    },
+    "CircuitBreakerSettings": {
+      "additionalProperties": false,
+      "description": "CircuitBreakerSettings configures the per-account circuit breakers.",
+      "properties": {
+        "cooldown": {
+          "$ref": "#/$defs/Duration",
+          "description": "Cooldown before the half-open probe."
+        },
+        "failureThreshold": {
+          "default": 5,
+          "description": "FailureThreshold is the number of consecutive transient failures that\nopens the circuit.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "maxCooldown": {
+          "$ref": "#/$defs/Duration",
+          "description": "MaxCooldown caps the cooldown, which doubles on repeated openings."
+        }
+      },
+      "type": "object"
+    },
+    "CollectionSettings": {
+      "additionalProperties": false,
+      "description": "CollectionSettings configures request execution.",
+      "properties": {
+        "defaultTimeout": {
+          "$ref": "#/$defs/Duration",
+          "description": "DefaultTimeout of a request when the provider sets none."
+        },
+        "jitter": {
+          "$ref": "#/$defs/Percent",
+          "description": "Jitter spreads scheduled runs, from 0% to 50% of the interval."
+        },
+        "maxConcurrentRequests": {
+          "default": 32,
+          "description": "MaxConcurrentRequests bounds in-flight requests across all providers.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "CursorPagination": {
+      "additionalProperties": false,
+      "description": "CursorPagination passes a cursor extracted from each response.",
+      "properties": {
+        "cursor": {
+          "$ref": "#/$defs/Expr",
+          "description": "Cursor is a CEL expression extracting the next cursor; empty or null stops."
+        },
+        "header": {
+          "description": "Header carrying the cursor, instead of a query parameter.",
+          "type": "string"
+        },
+        "pageSize": {
+          "description": "PageSize is the number of items per page.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "pageSizeParam": {
+          "description": "PageSizeParam is the query parameter carrying the page size.",
+          "type": "string"
+        },
+        "param": {
+          "description": "Param is the query parameter carrying the cursor.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "cursor"
+      ],
+      "type": "object"
+    },
+    "DebugSettings": {
+      "additionalProperties": false,
+      "description": "DebugSettings configures the live debug endpoint.",
+      "properties": {
+        "enabled": {
+          "description": "Enabled exposes the last raw responses (redacted) in the status API.",
+          "type": "boolean"
+        },
+        "maxBodyBytes": {
+          "default": 1048576,
+          "description": "MaxBodyBytes truncates the raw responses kept for debugging.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "DocumentAccount": {
+      "additionalProperties": false,
+      "description": "An instance of a provider with credentials, params, targets and labels.",
+      "properties": {
+        "apiVersion": {
+          "const": "tapyr/v1alpha1"
+        },
+        "kind": {
+          "const": "Account"
+        },
+        "metadata": {
+          "$ref": "#/$defs/ObjectMeta"
+        },
+        "spec": {
+          "$ref": "#/$defs/AccountSpec"
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ],
+      "title": "Account",
+      "type": "object"
+    },
+    "DocumentJob": {
+      "additionalProperties": false,
+      "description": "What to collect for an account, from a template or inline.",
+      "properties": {
+        "apiVersion": {
+          "const": "tapyr/v1alpha1"
+        },
+        "kind": {
+          "const": "Job"
+        },
+        "metadata": {
+          "$ref": "#/$defs/ObjectMeta"
+        },
+        "spec": {
+          "$ref": "#/$defs/JobSpec"
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ],
+      "title": "Job",
+      "type": "object"
+    },
+    "DocumentJobTemplate": {
+      "additionalProperties": false,
+      "description": "A reusable job definition shipped by a provider package.",
+      "properties": {
+        "apiVersion": {
+          "const": "tapyr/v1alpha1"
+        },
+        "kind": {
+          "const": "JobTemplate"
+        },
+        "metadata": {
+          "$ref": "#/$defs/ObjectMeta"
+        },
+        "spec": {
+          "$ref": "#/$defs/JobTemplateSpec"
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ],
+      "title": "JobTemplate",
+      "type": "object"
+    },
+    "DocumentOutput": {
+      "additionalProperties": false,
+      "description": "Where collected samples are sent.",
+      "properties": {
+        "apiVersion": {
+          "const": "tapyr/v1alpha1"
+        },
+        "kind": {
+          "const": "Output"
+        },
+        "metadata": {
+          "$ref": "#/$defs/ObjectMeta"
+        },
+        "spec": {
+          "$ref": "#/$defs/OutputSpec"
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ],
+      "title": "Output",
+      "type": "object"
+    },
+    "DocumentProvider": {
+      "additionalProperties": false,
+      "description": "An API family: base URL, auth, pagination, error semantics and rate limits.",
+      "properties": {
+        "apiVersion": {
+          "const": "tapyr/v1alpha1"
+        },
+        "kind": {
+          "const": "Provider"
+        },
+        "metadata": {
+          "$ref": "#/$defs/ProviderMeta"
+        },
+        "spec": {
+          "$ref": "#/$defs/ProviderSpec"
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ],
+      "title": "Provider",
+      "type": "object"
+    },
+    "DocumentScenario": {
+      "additionalProperties": false,
+      "description": "A simulator scenario of a provider package (sim/scenarios/*.yaml).",
+      "properties": {
+        "apiVersion": {
+          "const": "tapyr/v1alpha1"
+        },
+        "kind": {
+          "const": "Scenario"
+        },
+        "metadata": {
+          "$ref": "#/$defs/ObjectMeta"
+        },
+        "spec": {
+          "$ref": "#/$defs/ScenarioSpec"
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ],
+      "title": "Scenario",
+      "type": "object"
+    },
+    "DocumentSettings": {
+      "additionalProperties": false,
+      "description": "Global settings (at most one document).",
+      "properties": {
+        "apiVersion": {
+          "const": "tapyr/v1alpha1"
+        },
+        "kind": {
+          "const": "Settings"
+        },
+        "metadata": {
+          "$ref": "#/$defs/ObjectMeta"
+        },
+        "spec": {
+          "$ref": "#/$defs/SettingsSpec"
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ],
+      "title": "Settings",
+      "type": "object"
+    },
+    "DocumentSimulation": {
+      "additionalProperties": false,
+      "description": "The simulator of a provider package (sim/sim.yaml).",
+      "properties": {
+        "apiVersion": {
+          "const": "tapyr/v1alpha1"
+        },
+        "kind": {
+          "const": "Simulation"
+        },
+        "metadata": {
+          "$ref": "#/$defs/ObjectMeta"
+        },
+        "spec": {
+          "$ref": "#/$defs/SimulationSpec"
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ],
+      "title": "Simulation",
+      "type": "object"
+    },
+    "Duration": {
+      "examples": [
+        "30s",
+        "5m",
+        "1h30m"
+      ],
+      "pattern": "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$",
+      "type": "string"
+    },
+    "ErrorSemantics": {
+      "additionalProperties": false,
+      "description": "ErrorSemantics declares how the provider signals errors.",
+      "properties": {
+        "authFailed": {
+          "$ref": "#/$defs/StatusMatcher",
+          "description": "AuthFailed matches authentication failures (default 401)."
+        },
+        "rateLimited": {
+          "$ref": "#/$defs/RateLimitedErrors",
+          "description": "RateLimited matches rate-limited responses."
+        },
+        "retryable": {
+          "$ref": "#/$defs/StatusMatcher",
+          "description": "Retryable matches transient errors (default 500, 502, 503, 504)."
+        }
+      },
+      "type": "object"
+    },
+    "Estimate": {
+      "additionalProperties": false,
+      "description": "Estimate gives hints to the planner.",
+      "properties": {
+        "pagesPerRun": {
+          "description": "PagesPerRun is the expected number of pages per run.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "Expr": {
+      "description": "CEL expression.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "ExpressionPagination": {
+      "additionalProperties": false,
+      "description": "ExpressionPagination computes the next request with CEL.",
+      "properties": {
+        "next": {
+          "$ref": "#/$defs/Expr",
+          "description": "Next is a CEL expression returning {query: {...}} for the next page, or null."
+        }
+      },
+      "required": [
+        "next"
+      ],
+      "type": "object"
+    },
+    "ExternalConsumption": {
+      "additionalProperties": false,
+      "description": "ExternalConsumption consumes a quota at a steady rate.",
+      "properties": {
+        "limit": {
+          "$ref": "#/$defs/Name",
+          "description": "Limit is the name of a quota limit of the provider."
+        },
+        "ratePerHour": {
+          "description": "RatePerHour is the consumption rate.",
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "limit",
+        "ratePerHour"
+      ],
+      "type": "object"
+    },
+    "Extract": {
+      "additionalProperties": false,
+      "description": "Extract maps responses to samples and inventory items.",
+      "properties": {
+        "filter": {
+          "$ref": "#/$defs/Expr",
+          "description": "Filter is a CEL expression on item; false skips the item."
+        },
+        "info": {
+          "description": "Info metrics (value 1, descriptive labels) produced per item.",
+          "items": {
+            "$ref": "#/$defs/InfoMetric"
+          },
+          "type": "array"
+        },
+        "inventory": {
+          "$ref": "#/$defs/Inventory",
+          "description": "Inventory items produced per item (role inventory or both)."
+        },
+        "items": {
+          "$ref": "#/$defs/Expr",
+          "description": "Items is a CEL expression returning the list of items of a page.\nDefault: response.body when it is a list."
+        },
+        "metrics": {
+          "description": "Metrics produced per item.",
+          "items": {
+            "$ref": "#/$defs/Metric"
+          },
+          "type": "array"
+        },
+        "partial": {
+          "description": "Partial emits the samples of a run even when a later page fails.",
+          "type": "boolean"
+        },
+        "post": {
+          "description": "Post metrics computed once per run over all pages (responses).",
+          "items": {
+            "$ref": "#/$defs/Metric"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "ForEach": {
+      "additionalProperties": false,
+      "description": "ForEach fans a job out over the inventory items of a parent job.",
+      "properties": {
+        "filter": {
+          "$ref": "#/$defs/Expr",
+          "description": "Filter is a CEL expression on parent selecting a subset of items."
+        },
+        "job": {
+          "$ref": "#/$defs/Name",
+          "description": "Job is the parent Job (same account), for inline jobs."
+        },
+        "maxInstances": {
+          "default": 10000,
+          "description": "MaxInstances caps the fan-out, against runaway discovery.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "template": {
+          "$ref": "#/$defs/Name",
+          "description": "Template is the parent JobTemplate, instantiated implicitly for the\naccount when no job references it."
+        },
+        "vars": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Expr"
+          },
+          "description": "Vars maps request variables to CEL expressions on parent.",
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "HeaderAuth": {
+      "additionalProperties": false,
+      "description": "HeaderAuth sends a static credential in a request header.",
+      "properties": {
+        "name": {
+          "description": "Name of the header, for example X-API-Key.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/Value",
+          "description": "Value of the header, usually {secret: name}."
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "type": "object"
+    },
+    "Identifier": {
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+      "type": "string"
+    },
+    "InfoMetric": {
+      "additionalProperties": false,
+      "description": "InfoMetric produces an _info metric: value 1 and descriptive labels.",
+      "properties": {
+        "help": {
+          "description": "Help text of the metric.",
+          "type": "string"
+        },
+        "labels": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Expr"
+          },
+          "description": "Labels maps label names to CEL expressions returning strings.",
+          "propertyNames": {
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the metric, ending with _info.",
+          "pattern": "^[a-zA-Z_:][a-zA-Z0-9_:]*_info$",
+          "type": "string"
+        },
+        "skipIf": {
+          "$ref": "#/$defs/Expr",
+          "description": "SkipIf is a CEL expression; true skips the sample."
+        }
+      },
+      "required": [
+        "name",
+        "labels"
+      ],
+      "type": "object"
+    },
+    "IntOrAuto": {
+      "minimum": 1,
+      "pattern": "^auto$",
+      "type": [
+        "integer",
+        "string"
+      ]
+    },
+    "Inventory": {
+      "additionalProperties": false,
+      "description": "Inventory produces inventory items for child jobs.",
+      "properties": {
+        "fields": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Expr"
+          },
+          "description": "Fields maps field names to CEL expressions, available as parent.<field>.",
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "key": {
+          "$ref": "#/$defs/Expr",
+          "description": "Key is a CEL expression returning the unique key of an item."
+        },
+        "ttl": {
+          "$ref": "#/$defs/Duration",
+          "description": "TTL of cached items. Default: 3x the job's effective interval."
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "type": "object"
+    },
+    "JobRole": {
+      "default": "metrics",
+      "enum": [
+        "inventory",
+        "metrics",
+        "both"
+      ],
+      "type": "string"
+    },
+    "JobSpec": {
+      "additionalProperties": false,
+      "description": "JobSpec is the specification of a Job.",
+      "properties": {
+        "account": {
+          "$ref": "#/$defs/Name",
+          "description": "Account the job collects for."
+        },
+        "estimate": {
+          "$ref": "#/$defs/Estimate",
+          "description": "Estimate gives hints to the planner before run history exists."
+        },
+        "extract": {
+          "$ref": "#/$defs/Extract",
+          "description": "Extract maps responses to samples and inventory items."
+        },
+        "forEach": {
+          "$ref": "#/$defs/ForEach",
+          "description": "ForEach fans the job out over the inventory items of a parent."
+        },
+        "interval": {
+          "$ref": "#/$defs/Duration",
+          "description": "Interval is the desired interval; the planner may stretch it.\nDefaults to the template's defaultInterval."
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Labels added to every sample of the job.",
+          "type": "object"
+        },
+        "outputs": {
+          "description": "Outputs receiving the job's samples. Default: all outputs.",
+          "items": {
+            "$ref": "#/$defs/Name"
+          },
+          "type": "array"
+        },
+        "pagination": {
+          "$ref": "#/$defs/Pagination",
+          "description": "Pagination overrides the provider default."
+        },
+        "priority": {
+          "$ref": "#/$defs/Priority",
+          "description": "Priority of the job. Defaults to the template's defaultPriority, else normal."
+        },
+        "request": {
+          "$ref": "#/$defs/Request",
+          "description": "Request to send."
+        },
+        "role": {
+          "$ref": "#/$defs/JobRole",
+          "description": "Role of the job: inventory items, metrics, or both."
+        },
+        "staleAfter": {
+          "$ref": "#/$defs/Duration",
+          "description": "StaleAfter removes series of failing runs after this delay. Default:\n3x the effective interval."
+        },
+        "template": {
+          "$ref": "#/$defs/Name",
+          "description": "Template the job instantiates."
+        }
+      },
+      "required": [
+        "account"
+      ],
+      "type": "object"
+    },
+    "JobTemplateSpec": {
+      "additionalProperties": false,
+      "description": "JobTemplateSpec is the specification of a JobTemplate.",
+      "properties": {
+        "defaultInterval": {
+          "$ref": "#/$defs/Duration",
+          "description": "DefaultInterval is the desired interval of jobs using the template."
+        },
+        "defaultPriority": {
+          "$ref": "#/$defs/Priority",
+          "description": "DefaultPriority of jobs using the template."
+        },
+        "estimate": {
+          "$ref": "#/$defs/Estimate",
+          "description": "Estimate gives hints to the planner before run history exists."
+        },
+        "extract": {
+          "$ref": "#/$defs/Extract",
+          "description": "Extract maps responses to samples and inventory items."
+        },
+        "forEach": {
+          "$ref": "#/$defs/ForEach",
+          "description": "ForEach fans the job out over the inventory items of a parent."
+        },
+        "pagination": {
+          "$ref": "#/$defs/Pagination",
+          "description": "Pagination overrides the provider default."
+        },
+        "provider": {
+          "$ref": "#/$defs/Name",
+          "description": "Provider the template belongs to."
+        },
+        "request": {
+          "$ref": "#/$defs/Request",
+          "description": "Request to send."
+        },
+        "role": {
+          "$ref": "#/$defs/JobRole",
+          "description": "Role of the job: inventory items, metrics, or both."
+        }
+      },
+      "required": [
+        "provider",
+        "defaultInterval",
+        "request"
+      ],
+      "type": "object"
+    },
+    "Limit": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "rate"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "rate"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "concurrency"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "max"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "quota"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "max",
+              "window"
+            ]
+          }
+        }
+      ],
+      "description": "Limit is a constraint of the provider API, enforced by the budget engine for every request (see docs/spec/04-budget-engine.md).",
+      "properties": {
+        "appliesTo": {
+          "$ref": "#/$defs/AppliesTo",
+          "description": "AppliesTo restricts the requests the limit counts."
+        },
+        "burst": {
+          "description": "Burst is the bucket capacity of a rate limit. Defaults to the rate per\nsecond, minimum 1.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "description": {
+          "description": "Description is free text for humans, ideally with the source of the limit.",
+          "type": "string"
+        },
+        "initialMax": {
+          "description": "InitialMax is the conservative quota maximum used with max: auto\nuntil the first limit header is observed.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "kind": {
+          "description": "Kind of limit: rate (token bucket), concurrency or quota (window).",
+          "enum": [
+            "rate",
+            "concurrency",
+            "quota"
+          ],
+          "type": "string"
+        },
+        "max": {
+          "$ref": "#/$defs/IntOrAuto",
+          "description": "Max is the maximum of a concurrency limit, or of a quota per window.\nA quota may use \"auto\" to learn it from response headers."
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the limit, unique within the provider."
+        },
+        "rate": {
+          "$ref": "#/$defs/Rate",
+          "description": "Rate is the refill rate of a rate limit, for example 10/s."
+        },
+        "scope": {
+          "$ref": "#/$defs/Scope",
+          "description": "Scope partitions the limit (one counter per scope key)."
+        },
+        "sync": {
+          "$ref": "#/$defs/QuotaSync",
+          "description": "Sync reads quota state from response headers."
+        },
+        "window": {
+          "$ref": "#/$defs/Window",
+          "description": "Window of a quota: a calendar period or a rolling duration."
+        }
+      },
+      "required": [
+        "name",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "LinkHeaderPagination": {
+      "additionalProperties": false,
+      "description": "LinkHeaderPagination follows RFC 8288 Link headers.",
+      "properties": {
+        "pageSize": {
+          "description": "PageSize is the number of items per page.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "pageSizeParam": {
+          "description": "PageSizeParam is the query parameter carrying the page size.",
+          "type": "string"
+        },
+        "rel": {
+          "default": "next",
+          "description": "Rel is the link relation of the next page.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "LogSettings": {
+      "additionalProperties": false,
+      "description": "LogSettings configures logging.",
+      "properties": {
+        "format": {
+          "default": "json",
+          "description": "Format: json or text.",
+          "enum": [
+            "json",
+            "text"
+          ],
+          "type": "string"
+        },
+        "level": {
+          "default": "info",
+          "description": "Level: debug, info, warn or error.",
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "LoginRequest": {
+      "additionalProperties": false,
+      "description": "LoginRequest is the request that opens a session.",
+      "properties": {
+        "body": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Value"
+          },
+          "description": "Body is a JSON object; values are literals, secrets or CEL expressions.",
+          "type": "object"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Headers added to the login request.",
+          "type": "object"
+        },
+        "method": {
+          "default": "POST",
+          "description": "Method of the login request.",
+          "enum": [
+            "POST",
+            "GET"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "description": "Path of the login endpoint, relative to the base URL.",
+          "pattern": "^/",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "LogoutRequest": {
+      "additionalProperties": false,
+      "description": "LogoutRequest is the request that closes a session, sent with the token applied.",
+      "properties": {
+        "method": {
+          "default": "POST",
+          "description": "Method of the logout request.",
+          "enum": [
+            "POST",
+            "GET",
+            "DELETE"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "description": "Path of the logout endpoint, relative to the base URL.",
+          "pattern": "^/",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "MappingSettings": {
+      "additionalProperties": false,
+      "description": "MappingSettings configures CEL evaluation limits.",
+      "properties": {
+        "labelConflict": {
+          "default": "override",
+          "description": "LabelConflict resolves labels set both by the mapping and by\naccount, target or job labels: override (job > target > account >\nmapping) or error.",
+          "enum": [
+            "override",
+            "error"
+          ],
+          "type": "string"
+        },
+        "maxCost": {
+          "default": 1000000,
+          "description": "MaxCost is the CEL cost limit per expression evaluation.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "maxItemsPerRun": {
+          "default": 100000,
+          "description": "MaxItemsPerRun caps the items extracted by a run.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "maxSamplesPerRun": {
+          "default": 200000,
+          "description": "MaxSamplesPerRun caps the samples produced by a run.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "Metric": {
+      "additionalProperties": false,
+      "description": "Metric maps items to samples of one metric.",
+      "properties": {
+        "accumulate": {
+          "description": "Accumulate sums successive window values into a persisted counter\n(type counter only).",
+          "type": "boolean"
+        },
+        "help": {
+          "description": "Help text of the metric.",
+          "type": "string"
+        },
+        "labels": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Expr"
+          },
+          "description": "Labels maps label names to CEL expressions returning strings.",
+          "propertyNames": {
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the metric (Prometheus naming rules).",
+          "pattern": "^[a-zA-Z_:][a-zA-Z0-9_:]*$",
+          "type": "string"
+        },
+        "skipIf": {
+          "$ref": "#/$defs/Expr",
+          "description": "SkipIf is a CEL expression; true skips the sample."
+        },
+        "timestamp": {
+          "$ref": "#/$defs/Expr",
+          "description": "Timestamp is a CEL expression returning the source timestamp."
+        },
+        "type": {
+          "default": "gauge",
+          "description": "Type of the metric.",
+          "enum": [
+            "gauge",
+            "counter"
+          ],
+          "type": "string"
+        },
+        "unit": {
+          "description": "Unit of the metric, preferably a Prometheus base unit.",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/Expr",
+          "description": "Value is a CEL expression returning a number or a bool."
+        },
+        "windowField": {
+          "$ref": "#/$defs/Expr",
+          "description": "WindowField is a CEL expression identifying the window of a value,\nused by accumulate to avoid counting a window twice."
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "type": "object"
+    },
+    "Name": {
+      "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$",
+      "type": "string"
+    },
+    "OAuth2ClientCredentials": {
+      "additionalProperties": false,
+      "description": "OAuth2ClientCredentials configures the OAuth 2.0 client credentials grant.",
+      "properties": {
+        "audience": {
+          "description": "Audience requested, when the server requires one.",
+          "type": "string"
+        },
+        "authStyle": {
+          "default": "header",
+          "description": "AuthStyle sends the client credentials in the Authorization header or\nin the request body.",
+          "enum": [
+            "header",
+            "body"
+          ],
+          "type": "string"
+        },
+        "clientId": {
+          "$ref": "#/$defs/Value",
+          "description": "ClientID, a literal or {secret: name}."
+        },
+        "clientSecret": {
+          "$ref": "#/$defs/Value",
+          "description": "ClientSecret, usually {secret: name}."
+        },
+        "extraParams": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "ExtraParams added to the token request.",
+          "type": "object"
+        },
+        "scopes": {
+          "description": "Scopes requested.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "tokenURL": {
+          "$ref": "#/$defs/Template",
+          "description": "TokenURL of the authorization server. Template."
+        }
+      },
+      "required": [
+        "tokenURL",
+        "clientId",
+        "clientSecret"
+      ],
+      "type": "object"
+    },
+    "OTLPOutput": {
+      "additionalProperties": false,
+      "description": "OTLPOutput configures OTLP metrics export.",
+      "properties": {
+        "endpoint": {
+          "description": "Endpoint of the OTLP receiver.",
+          "format": "uri",
+          "type": "string"
+        },
+        "headers": {
+          "additionalProperties": {
+            "$ref": "#/$defs/StringOrSecret"
+          },
+          "description": "Headers added to every request; values are literals or secrets.",
+          "type": "object"
+        },
+        "protocol": {
+          "default": "http/protobuf",
+          "description": "Protocol: http/protobuf or grpc.",
+          "enum": [
+            "http/protobuf",
+            "grpc"
+          ],
+          "type": "string"
+        },
+        "resourceAttributes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "ResourceAttributes added to the OTLP resource.",
+          "type": "object"
+        },
+        "timeout": {
+          "$ref": "#/$defs/Duration",
+          "description": "Timeout of a send request."
+        }
+      },
+      "required": [
+        "endpoint"
+      ],
+      "type": "object"
+    },
+    "ObjectMeta": {
+      "additionalProperties": false,
+      "description": "ObjectMeta identifies a document.",
+      "properties": {
+        "description": {
+          "description": "Description is free text for humans.",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the document, unique per kind."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "OffsetPagination": {
+      "additionalProperties": false,
+      "description": "OffsetPagination requests pages by item offset.",
+      "properties": {
+        "limitParam": {
+          "description": "LimitParam is the query parameter carrying the page size.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "offsetParam": {
+          "description": "OffsetParam is the query parameter carrying the offset.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "pageSize": {
+          "description": "PageSize is the number of items per page.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "start": {
+          "default": 0,
+          "description": "Start is the first offset.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stop": {
+          "$ref": "#/$defs/Expr",
+          "description": "Stop is a CEL expression; pagination stops when it returns true."
+        },
+        "total": {
+          "$ref": "#/$defs/Expr",
+          "description": "Total is a CEL expression returning the total number of items."
+        }
+      },
+      "required": [
+        "offsetParam",
+        "limitParam",
+        "pageSize"
+      ],
+      "type": "object"
+    },
+    "OutputSpec": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "remote_write"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "remoteWrite"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "otlp"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "otlp"
+            ]
+          }
+        }
+      ],
+      "description": "OutputSpec is the specification of an Output.",
+      "properties": {
+        "externalLabels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "ExternalLabels added to every sample sent through this output.",
+          "propertyNames": {
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "otlp": {
+          "$ref": "#/$defs/OTLPOutput",
+          "description": "OTLP pushes OTLP metrics (type otlp)."
+        },
+        "prometheus": {
+          "$ref": "#/$defs/PrometheusOutput",
+          "description": "Prometheus pull exposition on /metrics (type prometheus, at most one)."
+        },
+        "queue": {
+          "$ref": "#/$defs/Queue",
+          "description": "Queue of a push output (not allowed for prometheus)."
+        },
+        "remoteWrite": {
+          "$ref": "#/$defs/RemoteWriteOutput",
+          "description": "RemoteWrite pushes with Prometheus remote write 1.0 (type remote_write)."
+        },
+        "type": {
+          "description": "Type of output.",
+          "enum": [
+            "prometheus",
+            "remote_write",
+            "otlp"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "PagePagination": {
+      "additionalProperties": false,
+      "description": "PagePagination requests pages by page number.",
+      "properties": {
+        "pageParam": {
+          "description": "PageParam is the query parameter carrying the page number.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "pageSize": {
+          "description": "PageSize is the number of items per page.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "sizeParam": {
+          "description": "SizeParam is the query parameter carrying the page size.",
+          "type": "string"
+        },
+        "start": {
+          "default": 1,
+          "description": "Start is the first page number.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stop": {
+          "$ref": "#/$defs/Expr",
+          "description": "Stop is a CEL expression; pagination stops when it returns true."
+        },
+        "total": {
+          "$ref": "#/$defs/Expr",
+          "description": "Total is a CEL expression returning the total number of items."
+        }
+      },
+      "required": [
+        "pageParam"
+      ],
+      "type": "object"
+    },
+    "Pagination": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "offset"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "offset"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "page"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "page"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "cursor"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "cursor"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "expression"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "expression"
+            ]
+          }
+        }
+      ],
+      "description": "Pagination configures how successive pages are requested.",
+      "properties": {
+        "cursor": {
+          "$ref": "#/$defs/CursorPagination",
+          "description": "Cursor pagination (type cursor)."
+        },
+        "expression": {
+          "$ref": "#/$defs/ExpressionPagination",
+          "description": "Expression pagination computed by CEL (type expression)."
+        },
+        "linkHeader": {
+          "$ref": "#/$defs/LinkHeaderPagination",
+          "description": "LinkHeader pagination following RFC 8288 Link headers (type link_header)."
+        },
+        "maxPages": {
+          "default": 100,
+          "description": "MaxPages is a hard safety cap on pages per run.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "$ref": "#/$defs/OffsetPagination",
+          "description": "Offset pagination (type offset)."
+        },
+        "page": {
+          "$ref": "#/$defs/PagePagination",
+          "description": "Page pagination (type page)."
+        },
+        "type": {
+          "description": "Type of pagination.",
+          "enum": [
+            "none",
+            "offset",
+            "page",
+            "link_header",
+            "cursor",
+            "expression"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "ParamSpec": {
+      "additionalProperties": false,
+      "description": "ParamSpec declares a param or a secret that accounts provide.",
+      "properties": {
+        "description": {
+          "description": "Description is free text for humans.",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Identifier",
+          "description": "Name of the param or secret."
+        },
+        "required": {
+          "description": "Required makes the param or secret mandatory for every account (or\nevery target of a multi-target account).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "Percent": {
+      "examples": [
+        "10%"
+      ],
+      "pattern": "^[0-9]+(\\.[0-9]+)?%$",
+      "type": "string"
+    },
+    "PluginAuth": {
+      "additionalProperties": false,
+      "description": "PluginAuth selects a Go auth plugin, for flows that cannot be expressed declaratively.",
+      "properties": {
+        "config": {
+          "description": "Config is passed to the plugin, which validates it.",
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the plugin, as registered in internal/auth/plugins.",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "Priority": {
+      "enum": [
+        "critical",
+        "high",
+        "normal",
+        "low"
+      ],
+      "type": "string"
+    },
+    "PrometheusOutput": {
+      "additionalProperties": false,
+      "description": "PrometheusOutput configures the pull exposition.",
+      "properties": {
+        "exposeTimestamps": {
+          "description": "ExposeTimestamps adds sample timestamps to the exposition. Off by\ndefault, as recommended by Prometheus.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "ProviderMeta": {
+      "additionalProperties": false,
+      "description": "ProviderMeta identifies a provider package.",
+      "properties": {
+        "description": {
+          "description": "Description is free text for humans.",
+          "type": "string"
+        },
+        "docs": {
+          "description": "Docs links to the vendor API documentation.",
+          "format": "uri",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the provider, unique across built-in and user packages."
+        },
+        "version": {
+          "description": "Version of the provider package (semver). Breaking changes to metric\nnames or labels bump the major version.",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "type": "object"
+    },
+    "ProviderSpec": {
+      "additionalProperties": false,
+      "description": "ProviderSpec is the specification of a Provider.",
+      "properties": {
+        "auth": {
+          "$ref": "#/$defs/Auth",
+          "description": "Auth applied to every request. Defaults to type none."
+        },
+        "baseURL": {
+          "$ref": "#/$defs/Template",
+          "description": "BaseURL of the API. Template evaluated per account and target, for\nexample {{ .params.baseURL | default \"https://api.example.com/v1\" }}."
+        },
+        "defaults": {
+          "$ref": "#/$defs/RequestDefaults",
+          "description": "Defaults applied to every request."
+        },
+        "errors": {
+          "$ref": "#/$defs/ErrorSemantics",
+          "description": "Errors declares how the API signals rate limiting, authentication\nfailures and retryable errors."
+        },
+        "limits": {
+          "description": "Limits declares every rate limit, concurrency limit and quota of the API.",
+          "items": {
+            "$ref": "#/$defs/Limit"
+          },
+          "type": "array"
+        },
+        "pagination": {
+          "$ref": "#/$defs/Pagination",
+          "description": "Pagination used by job templates that do not override it."
+        },
+        "params": {
+          "description": "Params an Account may or must provide.",
+          "items": {
+            "$ref": "#/$defs/ParamSpec"
+          },
+          "type": "array"
+        },
+        "redirects": {
+          "$ref": "#/$defs/Redirects",
+          "description": "Redirects lists the other hosts a response may redirect requests to.\nRedirects to another host are not followed otherwise: credentials\nonly go to the base URL and to these hosts."
+        },
+        "secrets": {
+          "description": "Secrets an Account may or must provide.",
+          "items": {
+            "$ref": "#/$defs/ParamSpec"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "baseURL"
+      ],
+      "type": "object"
+    },
+    "Queue": {
+      "additionalProperties": false,
+      "description": "Queue is the bounded in-memory queue of a push output.",
+      "properties": {
+        "capacity": {
+          "default": 50000,
+          "description": "Capacity in samples; the oldest samples are dropped (with accounting)\nwhen full.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "flushInterval": {
+          "$ref": "#/$defs/Duration",
+          "description": "FlushInterval sends a partial batch after this delay."
+        },
+        "maxBatch": {
+          "default": 5000,
+          "description": "MaxBatch is the maximum number of samples per request.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "QuotaSync": {
+      "additionalProperties": false,
+      "description": "QuotaSync names the response headers carrying quota state.",
+      "properties": {
+        "limitHeader": {
+          "description": "LimitHeader carries the quota maximum.",
+          "type": "string"
+        },
+        "remainingHeader": {
+          "description": "RemainingHeader carries the remaining quota.",
+          "type": "string"
+        },
+        "resetHeader": {
+          "description": "ResetHeader carries the reset time (epoch seconds or delta seconds).",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "Rate": {
+      "examples": [
+        "10/s",
+        "600/m"
+      ],
+      "pattern": "^[0-9]+(\\.[0-9]+)?/(s|m|h)$",
+      "type": "string"
+    },
+    "RateLimitedErrors": {
+      "additionalProperties": false,
+      "description": "RateLimitedErrors matches rate-limited responses and configures penalties.",
+      "properties": {
+        "defaultPenalty": {
+          "$ref": "#/$defs/Duration",
+          "description": "DefaultPenalty applies when no Retry-After header is present. It grows\nexponentially on consecutive rate-limited responses, up to 10 minutes."
+        },
+        "penalize": {
+          "default": "narrowest",
+          "description": "Penalize the narrowest applicable scope, or all applicable scopes.",
+          "enum": [
+            "narrowest",
+            "all"
+          ],
+          "type": "string"
+        },
+        "retryAfterHeader": {
+          "default": "Retry-After",
+          "description": "RetryAfterHeader carries the penalty in seconds or as an HTTP date.",
+          "type": "string"
+        },
+        "statuses": {
+          "description": "Statuses that signal rate limiting (default 429).",
+          "items": {
+            "maximum": 599,
+            "minimum": 100,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "Redirects": {
+      "additionalProperties": false,
+      "description": "Redirects allows HTTP redirects to other hosts.",
+      "properties": {
+        "hosts": {
+          "description": "Hosts the requests may be redirected to: a host name, or \"*.\" and a\ndomain for every host under it (for example \"*.meraki.com\").",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "hosts"
+      ],
+      "type": "object"
+    },
+    "RemoteWriteOutput": {
+      "additionalProperties": false,
+      "description": "RemoteWriteOutput configures Prometheus remote write 1.0.",
+      "properties": {
+        "basicAuth": {
+          "$ref": "#/$defs/BasicAuthSecrets",
+          "description": "BasicAuth credentials."
+        },
+        "headers": {
+          "additionalProperties": {
+            "$ref": "#/$defs/StringOrSecret"
+          },
+          "description": "Headers added to every request; values are literals or secrets.",
+          "type": "object"
+        },
+        "timeout": {
+          "$ref": "#/$defs/Duration",
+          "description": "Timeout of a send request."
+        },
+        "url": {
+          "description": "URL of the remote write endpoint.",
+          "format": "uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "type": "object"
+    },
+    "Request": {
+      "additionalProperties": false,
+      "description": "Request describes the HTTP request of a job.",
+      "properties": {
+        "body": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Value"
+          },
+          "description": "Body is a JSON object for POST queries; values are literals, secrets or\nCEL expressions.",
+          "type": "object"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Headers merged over the provider defaults (the job wins).",
+          "type": "object"
+        },
+        "idempotent": {
+          "description": "Idempotent allows retrying POST requests.",
+          "type": "boolean"
+        },
+        "method": {
+          "default": "GET",
+          "description": "Method of the request. POST is allowed only for read-only queries.",
+          "enum": [
+            "GET",
+            "HEAD",
+            "POST"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "description": "Path relative to the base URL, with {var} placeholders resolved from\ndiscovery variables, target params and account params.",
+          "pattern": "^/",
+          "type": "string"
+        },
+        "query": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Value"
+          },
+          "description": "Query parameters; values are literals, secrets or CEL expressions.",
+          "type": "object"
+        },
+        "readOnly": {
+          "description": "ReadOnly must be true for POST requests: Tapyr never writes to providers.",
+          "type": "boolean"
+        },
+        "timeout": {
+          "$ref": "#/$defs/Duration",
+          "description": "Timeout of a single request. Defaults to the provider default."
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "RequestDefaults": {
+      "additionalProperties": false,
+      "description": "RequestDefaults are applied to every request of the provider.",
+      "properties": {
+        "headers": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Template"
+          },
+          "description": "Headers added to every request. Values are templates.",
+          "type": "object"
+        },
+        "timeout": {
+          "$ref": "#/$defs/Duration",
+          "description": "Timeout of a single request. Defaults to settings.collection.defaultTimeout."
+        }
+      },
+      "type": "object"
+    },
+    "RetrySettings": {
+      "additionalProperties": false,
+      "description": "RetrySettings configures retries with exponential backoff and full jitter.",
+      "properties": {
+        "initialBackoff": {
+          "$ref": "#/$defs/Duration",
+          "description": "InitialBackoff before the first retry."
+        },
+        "maxAttempts": {
+          "default": 4,
+          "description": "MaxAttempts per request, including the first attempt.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "maxBackoff": {
+          "$ref": "#/$defs/Duration",
+          "description": "MaxBackoff caps the backoff."
+        },
+        "multiplier": {
+          "default": 2,
+          "description": "Multiplier of the backoff between attempts.",
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "ScenarioErrors": {
+      "additionalProperties": false,
+      "description": "ScenarioErrors injects error responses.",
+      "properties": {
+        "ratio": {
+          "description": "Ratio of the matching requests that fail (0 to 1).",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "routes": {
+          "description": "Routes are globs on the route paths (* within a segment, ** across\nsegments). Empty means every route.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "status": {
+          "description": "Status of the injected responses.",
+          "maximum": 599,
+          "minimum": 400,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "status",
+        "ratio"
+      ],
+      "type": "object"
+    },
+    "ScenarioLatency": {
+      "additionalProperties": false,
+      "description": "ScenarioLatency is a log-normal response delay given by two quantiles.",
+      "properties": {
+        "p50": {
+          "$ref": "#/$defs/Duration",
+          "description": "P50 is the median delay."
+        },
+        "p99": {
+          "$ref": "#/$defs/Duration",
+          "description": "P99 is the 99th percentile, at least P50."
+        }
+      },
+      "required": [
+        "p50"
+      ],
+      "type": "object"
+    },
+    "ScenarioLimit": {
+      "additionalProperties": false,
+      "description": "ScenarioLimit overrides a quota limit.",
+      "properties": {
+        "max": {
+          "description": "Max of the quota per window.",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "max"
+      ],
+      "type": "object"
+    },
+    "ScenarioSpec": {
+      "additionalProperties": false,
+      "description": "ScenarioSpec is the specification of a Scenario.",
+      "properties": {
+        "steps": {
+          "description": "Steps of the timeline.",
+          "items": {
+            "$ref": "#/$defs/ScenarioStep"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "ScenarioStep": {
+      "additionalProperties": false,
+      "description": "ScenarioStep applies from at until at + for (or until the end), in simulated time since the simulator start.",
+      "properties": {
+        "at": {
+          "$ref": "#/$defs/Duration",
+          "description": "At is the start of the step."
+        },
+        "errors": {
+          "$ref": "#/$defs/ScenarioErrors",
+          "description": "Errors answers a ratio of the requests to matching routes with a status."
+        },
+        "externalConsumption": {
+          "$ref": "#/$defs/ExternalConsumption",
+          "description": "ExternalConsumption simulates another client consuming a quota."
+        },
+        "fixtures": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Fixtures replaces the fixture of routes, by route path, to simulate\ninventory changes. Files are relative to the sim/ directory and take\nthe {var} placeholders of the route.",
+          "type": "object"
+        },
+        "for": {
+          "$ref": "#/$defs/Duration",
+          "description": "For is the duration of the step; empty means until the end."
+        },
+        "latency": {
+          "$ref": "#/$defs/ScenarioLatency",
+          "description": "Latency delays the responses (log-normal, in simulated time)."
+        },
+        "limits": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ScenarioLimit"
+          },
+          "description": "Limits overrides the max of named quota limits.",
+          "type": "object"
+        },
+        "outage": {
+          "description": "Outage closes connections without a response.",
+          "type": "boolean"
+        },
+        "tokenExpiry": {
+          "description": "TokenExpiry invalidates, when the step starts, the tokens issued\nbefore it.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "Scope": {
+      "additionalProperties": false,
+      "description": "Scope partitions a limit.",
+      "properties": {
+        "by": {
+          "description": "By lists the scope dimensions: instance, provider, account, target,\ncredential, endpoint or var:<name>. Empty means instance.",
+          "items": {
+            "pattern": "^(instance|provider|account|target|credential|endpoint|var:[A-Za-z_][A-Za-z0-9_]*)$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "type": "object"
+    },
+    "SecretRef": {
+      "additionalProperties": false,
+      "description": "A secret read from an environment variable ({env: NAME}) or a file ({file: /path}).",
+      "maxProperties": 1,
+      "minProperties": 1,
+      "properties": {
+        "env": {
+          "description": "Name of an environment variable holding the secret.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "file": {
+          "description": "Path of a file holding the secret, relative to the declaring file.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "SelfMetricsSettings": {
+      "additionalProperties": false,
+      "description": "SelfMetricsSettings configures Tapyr's own metrics.",
+      "properties": {
+        "interval": {
+          "$ref": "#/$defs/Duration",
+          "description": "Interval between two pushes of the self-metrics to Outputs."
+        },
+        "outputs": {
+          "description": "Outputs that also receive the self-metrics (always served on /metrics/self).",
+          "items": {
+            "$ref": "#/$defs/Name"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "ServerBasicAuth": {
+      "additionalProperties": false,
+      "description": "ServerBasicAuth protects the server with HTTP basic authentication.",
+      "properties": {
+        "password": {
+          "$ref": "#/$defs/SecretRef",
+          "description": "Password secret."
+        },
+        "protectMetrics": {
+          "description": "ProtectMetrics also protects /metrics and /metrics/self.",
+          "type": "boolean"
+        },
+        "username": {
+          "$ref": "#/$defs/SecretRef",
+          "description": "Username secret."
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ],
+      "type": "object"
+    },
+    "ServerSettings": {
+      "additionalProperties": false,
+      "description": "ServerSettings configures the HTTP server.",
+      "properties": {
+        "basicAuth": {
+          "$ref": "#/$defs/ServerBasicAuth",
+          "description": "BasicAuth protects /api and /ui."
+        },
+        "debug": {
+          "$ref": "#/$defs/DebugSettings",
+          "description": "Debug is the live debug endpoint exposing raw responses."
+        },
+        "listen": {
+          "default": "127.0.0.1:9790",
+          "description": "Listen address.",
+          "type": "string"
+        },
+        "tls": {
+          "$ref": "#/$defs/ServerTLS",
+          "description": "TLS serves HTTPS with the given certificate. A reverse proxy is the\nrecommended way to terminate TLS."
+        },
+        "ui": {
+          "$ref": "#/$defs/UISettings",
+          "description": "UI is the embedded read-only web UI."
+        }
+      },
+      "type": "object"
+    },
+    "ServerTLS": {
+      "additionalProperties": false,
+      "description": "ServerTLS holds the server certificate files, relative to the declaring file.",
+      "properties": {
+        "certFile": {
+          "description": "CertFile is the PEM certificate chain.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "keyFile": {
+          "description": "KeyFile is the PEM private key.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "certFile",
+        "keyFile"
+      ],
+      "type": "object"
+    },
+    "SessionLogin": {
+      "additionalProperties": false,
+      "description": "SessionLogin posts credentials to a login endpoint and applies the returned token to subsequent requests.",
+      "properties": {
+        "apply": {
+          "$ref": "#/$defs/TokenApply",
+          "description": "Apply describes how the token is attached to requests."
+        },
+        "expiresIn": {
+          "$ref": "#/$defs/Expr",
+          "description": "ExpiresIn is a CEL expression returning the token lifetime as a duration."
+        },
+        "logout": {
+          "$ref": "#/$defs/LogoutRequest",
+          "description": "Logout closes a session when its token is replaced and when Tapyr\nstops, for APIs that keep sessions open until they are closed."
+        },
+        "perTarget": {
+          "description": "PerTarget keeps one session per target of a multi-target account.",
+          "type": "boolean"
+        },
+        "refreshBefore": {
+          "$ref": "#/$defs/Duration",
+          "description": "RefreshBefore renews the session this long before it expires."
+        },
+        "request": {
+          "$ref": "#/$defs/LoginRequest",
+          "description": "Request is the login request."
+        },
+        "token": {
+          "$ref": "#/$defs/Expr",
+          "description": "Token is a CEL expression extracting the token from the login response."
+        }
+      },
+      "required": [
+        "request",
+        "token",
+        "apply"
+      ],
+      "type": "object"
+    },
+    "SettingsSpec": {
+      "additionalProperties": false,
+      "description": "SettingsSpec is the specification of Settings.",
+      "properties": {
+        "budget": {
+          "$ref": "#/$defs/BudgetSettings",
+          "description": "Budget configures the budget engine and the planner."
+        },
+        "circuitBreaker": {
+          "$ref": "#/$defs/CircuitBreakerSettings",
+          "description": "CircuitBreaker configures the per-account circuit breakers."
+        },
+        "collection": {
+          "$ref": "#/$defs/CollectionSettings",
+          "description": "Collection configures request execution."
+        },
+        "log": {
+          "$ref": "#/$defs/LogSettings",
+          "description": "Log configures logging. Flags and environment variables win."
+        },
+        "mapping": {
+          "$ref": "#/$defs/MappingSettings",
+          "description": "Mapping configures CEL evaluation limits."
+        },
+        "providerPaths": {
+          "description": "ProviderPaths lists directories of user provider packages, in\naddition to the built-in packages.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "retry": {
+          "$ref": "#/$defs/RetrySettings",
+          "description": "Retry configures retries of transient errors."
+        },
+        "selfMetrics": {
+          "$ref": "#/$defs/SelfMetricsSettings",
+          "description": "SelfMetrics configures Tapyr's own metrics."
+        },
+        "server": {
+          "$ref": "#/$defs/ServerSettings",
+          "description": "Server is the HTTP server (metrics, health, status API, UI)."
+        },
+        "state": {
+          "$ref": "#/$defs/StateSettings",
+          "description": "State is the persistent state store."
+        }
+      },
+      "type": "object"
+    },
+    "SimulationAuth": {
+      "additionalProperties": false,
+      "description": "SimulationAuth configures the credentials accepted by the simulator.",
+      "properties": {
+        "accept": {
+          "$ref": "#/$defs/SimulationCredentials",
+          "description": "Accept lists the accepted credentials. They are fake values by design."
+        },
+        "loginResponse": {
+          "description": "LoginResponse is a JSON fixture answered by the login endpoint, relative\nto the sim/ directory; {token} and {expiresIn} (seconds) are replaced.\nDefault: {\"token\": \"{token}\", \"expiresIn\": {expiresIn}}.",
+          "type": "string"
+        },
+        "tokenLifetime": {
+          "$ref": "#/$defs/Duration",
+          "description": "TokenLifetime of the tokens issued by the token and login endpoints,\nin simulated time."
+        }
+      },
+      "type": "object"
+    },
+    "SimulationBasicCredential": {
+      "additionalProperties": false,
+      "description": "SimulationBasicCredential is a username and password pair.",
+      "properties": {
+        "password": {
+          "description": "Password accepted.",
+          "type": "string"
+        },
+        "username": {
+          "description": "Username accepted.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ],
+      "type": "object"
+    },
+    "SimulationClient": {
+      "additionalProperties": false,
+      "description": "SimulationClient is an OAuth 2.0 client.",
+      "properties": {
+        "clientId": {
+          "description": "ClientID accepted.",
+          "type": "string"
+        },
+        "clientSecret": {
+          "description": "ClientSecret accepted.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId",
+        "clientSecret"
+      ],
+      "type": "object"
+    },
+    "SimulationCredentials": {
+      "additionalProperties": false,
+      "description": "SimulationCredentials are accepted credentials per auth type.",
+      "properties": {
+        "basic": {
+          "description": "Basic credentials accepted with auth type basic.",
+          "items": {
+            "$ref": "#/$defs/SimulationBasicCredential"
+          },
+          "type": "array"
+        },
+        "bearer": {
+          "description": "Bearer tokens accepted with auth type bearer.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "clients": {
+          "description": "Clients accepted by the token endpoint with auth type\noauth2_client_credentials.",
+          "items": {
+            "$ref": "#/$defs/SimulationClient"
+          },
+          "type": "array"
+        },
+        "header": {
+          "description": "Header values accepted with auth type header.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "logins": {
+          "description": "Logins accepted by the login endpoint with auth type session_login:\nthe login body must carry both values.",
+          "items": {
+            "$ref": "#/$defs/SimulationBasicCredential"
+          },
+          "type": "array"
+        },
+        "plugin": {
+          "description": "Plugin holds the credentials accepted by the simulator side of an\nauth plugin (type plugin), read by the plugin.",
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "SimulationInventory": {
+      "additionalProperties": false,
+      "description": "SimulationInventory is a synthetic inventory: sets of items, each item under a parent item of another set.",
+      "properties": {
+        "seed": {
+          "default": 42,
+          "description": "Seed of the generated values. The same seed gives the same items and\nthe same dynamics.",
+          "type": "integer"
+        },
+        "sets": {
+          "description": "Sets of items, generated in order: a parent set comes first.",
+          "items": {
+            "$ref": "#/$defs/SimulationSet"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "sets"
+      ],
+      "type": "object"
+    },
+    "SimulationResponse": {
+      "additionalProperties": false,
+      "description": "SimulationResponse is the response of a route.",
+      "oneOf": [
+        {
+          "required": [
+            "file"
+          ]
+        },
+        {
+          "required": [
+            "template"
+          ]
+        }
+      ],
+      "properties": {
+        "file": {
+          "description": "File is the JSON fixture, relative to the sim/ directory. {var}\nplaceholders are replaced by the route variables. Paginated routes\nneed a JSON array, or a list at ItemsField.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Headers added to the response.",
+          "type": "object"
+        },
+        "itemsField": {
+          "description": "ItemsField is the dotted path of the list a paginated route serves\npage by page, inside an envelope; empty for a top-level array.",
+          "type": "string"
+        },
+        "status": {
+          "default": 200,
+          "description": "Status code of the response.",
+          "maximum": 599,
+          "minimum": 100,
+          "type": "integer"
+        },
+        "template": {
+          "description": "Template is a Go text/template fixture rendering JSON, relative to\nthe sim/ directory (see docs/spec/08-simulator.md for its data and\nhelpers). Exactly one of file and template is set.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "SimulationRoute": {
+      "additionalProperties": false,
+      "description": "SimulationRoute is an endpoint of the simulator.",
+      "properties": {
+        "method": {
+          "default": "GET",
+          "description": "Method of the route.",
+          "enum": [
+            "GET",
+            "HEAD",
+            "POST"
+          ],
+          "type": "string"
+        },
+        "pagination": {
+          "default": "none",
+          "description": "Pagination serves the fixture items page by page. Its parameters come\nfrom the job templates requesting this path, or from the provider.",
+          "enum": [
+            "none",
+            "offset",
+            "page",
+            "link_header",
+            "cursor",
+            "expression"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "description": "Path of the route, relative to basePath, with {var} segments.",
+          "pattern": "^/",
+          "type": "string"
+        },
+        "response": {
+          "$ref": "#/$defs/SimulationResponse",
+          "description": "Response returned by the route."
+        }
+      },
+      "required": [
+        "path",
+        "response"
+      ],
+      "type": "object"
+    },
+    "SimulationSet": {
+      "additionalProperties": false,
+      "description": "SimulationSet is a set of generated items.",
+      "properties": {
+        "count": {
+          "description": "Count of items (per parent item when Parent is set).",
+          "maximum": 100000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the set, used by the template helpers."
+        },
+        "parent": {
+          "$ref": "#/$defs/Name",
+          "description": "Parent set: count items are generated under each of its items."
+        }
+      },
+      "required": [
+        "name",
+        "count"
+      ],
+      "type": "object"
+    },
+    "SimulationSpec": {
+      "additionalProperties": false,
+      "description": "SimulationSpec is the specification of a Simulation.",
+      "properties": {
+        "auth": {
+          "$ref": "#/$defs/SimulationAuth",
+          "description": "Auth lists the credentials the simulator accepts. The way they are\nchecked follows the provider auth type."
+        },
+        "basePath": {
+          "default": "/",
+          "description": "BasePath is the path prefix of the API (the path part of the provider\nbase URL). Routes are relative to it.",
+          "pattern": "^/",
+          "type": "string"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Headers added to every response, computed from the limit state:\n\"limit:<name>.max\", \"limit:<name>.remaining\" or \"limit:<name>.reset\"\n(seconds until the window resets).",
+          "type": "object"
+        },
+        "inventory": {
+          "$ref": "#/$defs/SimulationInventory",
+          "description": "Inventory generates synthetic items for templated fixtures."
+        },
+        "portOffset": {
+          "description": "PortOffset is the port of the simulator in tapyr sim --all, as an\noffset from --listen-base, so that adding a package does not move the\nothers. Simulators without one take the ports after the largest\ndeclared offset, in provider name order.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "routes": {
+          "description": "Routes served by the simulator. Unknown routes return 404.",
+          "items": {
+            "$ref": "#/$defs/SimulationRoute"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "routes"
+      ],
+      "type": "object"
+    },
+    "StateSettings": {
+      "additionalProperties": false,
+      "description": "StateSettings configures the state store.",
+      "properties": {
+        "path": {
+          "default": "./data/tapyr.db",
+          "description": "Path of the SQLite database, relative to the declaring file. The\nbuilt-in default is relative to the working directory.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "StatusMatcher": {
+      "additionalProperties": false,
+      "description": "StatusMatcher matches responses by HTTP status code.",
+      "properties": {
+        "statuses": {
+          "description": "Statuses that match.",
+          "items": {
+            "maximum": 599,
+            "minimum": 100,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "StringOrSecret": {
+      "additionalProperties": false,
+      "description": "A literal string, {env: NAME} or {file: /path}.",
+      "maxProperties": 1,
+      "minProperties": 1,
+      "properties": {
+        "env": {
+          "description": "Name of an environment variable holding the secret.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "file": {
+          "description": "Path of a file holding the secret, relative to the declaring file.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "type": [
+        "string",
+        "object"
+      ]
+    },
+    "TLSClient": {
+      "additionalProperties": false,
+      "description": "TLSClient configures TLS towards the provider.",
+      "properties": {
+        "caFile": {
+          "description": "CAFile is a PEM bundle of trusted CAs, relative to the declaring file.",
+          "type": "string"
+        },
+        "insecureSkipVerify": {
+          "description": "InsecureSkipVerify disables certificate verification. Logged loudly.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "Target": {
+      "additionalProperties": false,
+      "description": "Target is one endpoint of a multi-target account.",
+      "properties": {
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Labels added to every sample from this target.",
+          "propertyNames": {
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the target, unique within the account."
+        },
+        "params": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Params overriding the account params.",
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "secrets": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SecretRef"
+          },
+          "description": "Secrets overriding the account secrets.",
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "Template": {
+      "description": "Go text/template evaluated per account and target.",
+      "type": "string"
+    },
+    "TokenApply": {
+      "additionalProperties": false,
+      "description": "TokenApply attaches a session token to requests, as a header or a cookie.",
+      "properties": {
+        "cookie": {
+          "description": "Cookie that carries the token.",
+          "type": "string"
+        },
+        "format": {
+          "default": "{token}",
+          "description": "Format of the header value; {token} is replaced by the token.",
+          "type": "string"
+        },
+        "header": {
+          "description": "Header that carries the token.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "UISettings": {
+      "additionalProperties": false,
+      "description": "UISettings configures the web UI.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Enabled serves the UI under /ui/.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "Value": {
+      "additionalProperties": false,
+      "description": "A literal string, {secret: name} or {expr: cel}.",
+      "maxProperties": 1,
+      "minProperties": 1,
+      "properties": {
+        "expr": {
+          "description": "CEL expression evaluated at runtime.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "secret": {
+          "description": "Name of a secret declared by the provider and supplied by the account.",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+          "type": "string"
+        }
+      },
+      "type": [
+        "string",
+        "object"
+      ]
+    },
+    "Window": {
+      "additionalProperties": false,
+      "description": "Window is the window of a quota: exactly one of period or rolling.",
+      "properties": {
+        "monthDay": {
+          "default": 1,
+          "description": "MonthDay is the day of month windows reset (1 to 31; the last day of\nshorter months).",
+          "maximum": 31,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "period": {
+          "description": "Period of a fixed calendar window.",
+          "enum": [
+            "minute",
+            "hour",
+            "day",
+            "week",
+            "month"
+          ],
+          "type": "string"
+        },
+        "resetAt": {
+          "default": "00:00",
+          "description": "ResetAt is the time of day (HH:MM, 24h) at which day, week and month\nwindows reset.",
+          "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+          "type": "string"
+        },
+        "rolling": {
+          "$ref": "#/$defs/Duration",
+          "description": "Rolling is the duration of a rolling window (1-minute precision)."
+        },
+        "timezone": {
+          "default": "UTC",
+          "description": "Timezone of the calendar (IANA name).",
+          "type": "string"
+        },
+        "weekStart": {
+          "default": "monday",
+          "description": "WeekStart is the first day of week windows.",
+          "enum": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$id": "https://raw.githubusercontent.com/kentrow/tapyr/main/schemas/v1alpha1/tapyr.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "Provider"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/DocumentProvider"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "JobTemplate"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/DocumentJobTemplate"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "Account"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/DocumentAccount"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "Job"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/DocumentJob"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "Output"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/DocumentOutput"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "Settings"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/DocumentSettings"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "Simulation"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/DocumentSimulation"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "Scenario"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/DocumentScenario"
+      }
+    }
+  ],
+  "description": "Any Tapyr tapyr/v1alpha1 configuration document, dispatched on kind.",
+  "properties": {
+    "apiVersion": {
+      "const": "tapyr/v1alpha1"
+    },
+    "kind": {
+      "enum": [
+        "Provider",
+        "JobTemplate",
+        "Account",
+        "Job",
+        "Output",
+        "Settings",
+        "Simulation",
+        "Scenario"
+      ]
+    }
+  },
+  "required": [
+    "apiVersion",
+    "kind"
+  ],
+  "title": "Tapyr configuration document",
+  "type": "object"
+}

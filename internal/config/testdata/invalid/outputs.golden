@@ -1,0 +1,3 @@
+testdata/invalid/outputs.yaml:6:3: spec.queue: queue is not allowed for prometheus outputs (pull exposition)
+testdata/invalid/outputs.yaml:12:9: spec.type: at most one prometheus output is allowed (another one is "prom" at testdata/invalid/outputs.yaml:5:9)
+testdata/invalid/outputs.yaml:20:3: spec.remoteWrite: remoteWrite is not allowed with output type otlp

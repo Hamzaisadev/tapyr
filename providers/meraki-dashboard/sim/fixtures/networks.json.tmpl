@@ -1,0 +1,8 @@
+{{- /* GET /organizations/{organizationId}/networks */ -}}
+[{{- $first := true }}
+{{- range $o := items "organizations" }}{{ if eq (printf "%d" (add 549236 (mul $o.index 1111))) $.vars.organizationId }}
+{{- range $i, $n := children "networks" $o }}{{ if $i }},{{ end }}
+  {"id": "N_{{ add 600000000000 (num $n "id" 1 99999999) }}", "organizationId": {{ json $.vars.organizationId }},
+   "name": "Site {{ add $n.index 1 }}", "productTypes": ["appliance", "switch", "wireless"],
+   "timeZone": {{ json (pick $n "tz" "Europe/Paris" "Europe/London" "America/New_York") }}, "tags": [], "isBoundToConfigTemplate": false}
+{{- end }}{{ end }}{{ end }}]

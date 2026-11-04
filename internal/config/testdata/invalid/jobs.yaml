@@ -1,0 +1,82 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata: { name: api, version: 0.1.0 }
+spec:
+  baseURL: https://api.example.invalid
+  params: [{ name: tenant }]
+  secrets: [{ name: token }]
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: sites }
+spec:
+  provider: api
+  role: inventory
+  defaultInterval: 1h
+  request: { path: /sites }
+  extract:
+    inventory: { key: item.id, fields: { siteId: item.id } }
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: site-devices }
+spec:
+  provider: api
+  defaultInterval: 5m
+  forEach: { template: sites, job: other, vars: { siteId: parent.siteId } }
+  request:
+    path: "/tenants/{tenant}/sites/{siteId}/devices/{serial}/{bad-var}"
+    query: { key: { secret: apiKey } }
+---
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: acct }
+spec: { provider: api }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: template-and-inline }
+spec:
+  account: acct
+  template: sites
+  request: { path: /override }
+  extract: { items: response.body }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: inline-incomplete }
+spec:
+  account: acct
+  forEach: { job: template-and-inline }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: inline-post }
+spec:
+  account: acct
+  interval: 1m
+  request:
+    method: POST
+    path: /graphql
+    body: { query: "{ devices { id } }" }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: inline-get-body }
+spec:
+  account: acct
+  interval: 1m
+  role: inventory
+  request:
+    path: /search
+    body: { q: x }
+    idempotent: true
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: child-of-metrics-job }
+spec:
+  account: acct
+  interval: 1m
+  forEach: { job: inline-post }
+  request: { path: /x }

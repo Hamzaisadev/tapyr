@@ -1,0 +1,20 @@
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: prom }
+spec:
+  type: prometheus
+  queue: { capacity: 10 }
+---
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: prom-again }
+spec:
+  type: prometheus
+---
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: mixed }
+spec:
+  type: otlp
+  otlp: { endpoint: "http://collector:4318" }
+  remoteWrite: { url: "http://vm:8428/api/v1/write" }

@@ -1,0 +1,65 @@
+# Runs against the built-in simulator:
+#   tapyr sim --provider example-sim
+#   TAPYR_EXAMPLE_API_KEY=sim-api-key tapyr run --config ./examples/config
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata:
+  name: demo
+spec:
+  provider: example-sim
+  params:
+    baseURL: http://127.0.0.1:8081/api/v1
+  secrets:
+    apiKey: { env: TAPYR_EXAMPLE_API_KEY }
+  labels:
+    tenant: demo
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata:
+  name: demo-devices
+spec:
+  account: demo
+  template: example-sim-devices
+  interval: 2m
+  priority: critical
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata:
+  name: demo-sites
+spec:
+  account: demo
+  template: example-sim-sites
+  interval: 5m
+---
+# Discovery: one instance per network of every site. The sites (above) are
+# the inventory of the networks, run implicitly as demo.example-sim-networks.
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata:
+  name: demo-network-devices
+spec:
+  account: demo
+  template: example-sim-network-devices
+  interval: 10m
+---
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata:
+  name: prom
+spec:
+  type: prometheus
+---
+apiVersion: tapyr/v1alpha1
+kind: Settings
+metadata:
+  name: default
+spec:
+  server:
+    listen: 127.0.0.1:9790
+  state:
+    path: ../../data/tapyr.db
+  log:
+    level: info
+    format: text

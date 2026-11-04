@@ -1,0 +1,20 @@
+# Backends of the integration test (make integration): VictoriaMetrics
+# receives remote write, the OpenTelemetry Collector receives OTLP and
+# writes what it receives to out/metrics.json.
+name: tapyr-integration
+services:
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.155.0
+    command: ["-retentionPeriod=1d", "-search.latencyOffset=0s"]
+    ports: ["127.0.0.1:8428:8428"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://127.0.0.1:8428/health"]
+      interval: 2s
+      retries: 30
+  otelcol:
+    image: otel/opentelemetry-collector-contrib:0.164.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./otelcol.yaml:/etc/otelcol/config.yaml:ro
+      - ./out:/out
+    ports: ["127.0.0.1:4317:4317", "127.0.0.1:4318:4318", "127.0.0.1:13133:13133"]

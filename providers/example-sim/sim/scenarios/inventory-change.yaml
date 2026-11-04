@@ -1,0 +1,11 @@
+apiVersion: tapyr/v1alpha1
+kind: Scenario
+metadata:
+  name: inventory-change
+  description: After 2 hours, site-c is closed, site-d opens, a network of site-a goes away and site-b gains one.
+spec:
+  steps:
+    - at: 2h
+      fixtures:
+        /sites: fixtures/sites-after.json
+        /sites/{siteId}/networks: fixtures/networks-after/{siteId}.json

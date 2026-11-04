@@ -1,0 +1,12 @@
+{{- /* GET /organizations/{organizationId}/appliance/uplink/statuses: the
+       appliance of each network, wan1 active and wan2 ready (standby). */ -}}
+[{{- $sep := "" }}
+{{- range $o := items "organizations" }}{{ if eq (printf "%d" (add 549236 (mul $o.index 1111))) $.vars.organizationId }}
+{{- range $n := children "networks" $o }}{{ range $d := children "devices" $n }}{{ if eq $d.n 0 }}{{ $sep }}{{ $sep = "," }}
+{{- $wan1 := flap $d "wan1" "10m" "active:0.95" "failed:0.05" }}
+  {"networkId": "N_{{ add 600000000000 (num $n "id" 1 99999999) }}", "serial": {{ json (printf "Q2%s" (serial $d "XX-XXXX-XXXX")) }},
+   "model": "MX68", "lastReportedAt": {{ json (ts "2006-01-02T15:04:05Z" (ago "1m")) }}, "highAvailability": {"enabled": false, "role": "primary"},
+   "uplinks": [
+     {"interface": "wan1", "status": "{{ $wan1 }}", "ip": {{ json (ipv4 $d) }}, "gateway": "10.0.0.1", "publicIp": "192.0.2.10", "primaryDns": "10.0.0.1", "secondaryDns": "", "ipAssignedBy": "dhcp"},
+     {"interface": "wan2", "status": "{{ if eq $wan1 "active" }}ready{{ else }}active{{ end }}", "ip": "10.1.0.2", "gateway": "10.1.0.1", "publicIp": "198.51.100.10", "primaryDns": "10.1.0.1", "secondaryDns": "", "ipAssignedBy": "dhcp"}]}
+{{- end }}{{ end }}{{ end }}{{ end }}{{ end }}]

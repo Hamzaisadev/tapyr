@@ -1,0 +1,143 @@
+# Configuration of the demo: one account per provider, every one against the
+# simulators of `tapyr sim --all` (service sim), with the credentials the
+# simulators accept. The collected samples go to VictoriaMetrics by remote
+# write; VictoriaMetrics scrapes the self-metrics on /metrics/self.
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: campus-aruba }
+spec:
+  provider: aruba-central-classic
+  params: { baseURL: "http://sim:8081" }
+  secrets:
+    clientId: { env: DEMO_ARUBA_CLIENT_ID }
+    clientSecret: { env: DEMO_ARUBA_CLIENT_SECRET }
+    refreshToken: { env: DEMO_ARUBA_REFRESH_TOKEN }
+---
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: campus-meraki }
+spec:
+  provider: meraki-dashboard
+  params: { baseURL: "http://sim:8083/api/v1" }
+  secrets: { apiKey: { env: DEMO_MERAKI_API_KEY } }
+---
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: fleet-rms }
+spec:
+  provider: teltonika-rms
+  params: { baseURL: "http://sim:8084" }
+  secrets: { token: { env: DEMO_RMS_TOKEN } }
+---
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: branch-routers }
+spec:
+  provider: teltonika-rutos
+  secrets: { username: { env: DEMO_RUTOS_USERNAME }, password: { env: DEMO_RUTOS_PASSWORD } }
+  targets:
+    - { name: north-01, params: { baseURL: "http://sim:8085" } }
+---
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: victoriametrics }
+spec:
+  type: remote_write
+  remoteWrite: { url: "http://victoriametrics:8428/api/v1/write" }
+  queue: { flushInterval: 5s }
+---
+apiVersion: tapyr/v1alpha1
+kind: Settings
+metadata: { name: demo }
+spec:
+  server: { listen: "0.0.0.0:9790", debug: { enabled: true } }
+  state: { path: /home/nonroot/data/tapyr.db }
+  # The first runs spread over 1% of their interval instead of 10%, so that
+  # the hourly inventory jobs (and the jobs they fan out) start within a
+  # minute.
+  collection: { jitter: 1% }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: aruba-aps }
+spec: { account: campus-aruba, template: aruba-aps }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: aruba-switches }
+spec: { account: campus-aruba, template: aruba-switches }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: aruba-gateways }
+spec: { account: campus-aruba, template: aruba-gateways }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: aruba-sites }
+spec: { account: campus-aruba, template: aruba-sites }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: meraki-organizations }
+spec: { account: campus-meraki, template: meraki-organizations }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: meraki-networks }
+spec: { account: campus-meraki, template: meraki-networks }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: meraki-devices }
+spec: { account: campus-meraki, template: meraki-devices }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: meraki-device-availabilities }
+spec: { account: campus-meraki, template: meraki-device-availabilities }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: meraki-appliance-uplink-statuses }
+spec: { account: campus-meraki, template: meraki-appliance-uplink-statuses }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: meraki-wireless-client-counts }
+spec: { account: campus-meraki, template: meraki-wireless-client-counts }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: rms-devices }
+spec: { account: fleet-rms, template: rms-devices }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: rms-device-data-usage }
+spec: { account: fleet-rms, template: rms-device-data-usage }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: rutos-system }
+spec: { account: branch-routers, template: rutos-system }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: rutos-device }
+spec: { account: branch-routers, template: rutos-device }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: rutos-modems }
+spec: { account: branch-routers, template: rutos-modems }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: rutos-interfaces }
+spec: { account: branch-routers, template: rutos-interfaces }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: rutos-failover }
+spec: { account: branch-routers, template: rutos-failover }

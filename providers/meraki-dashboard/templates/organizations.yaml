@@ -1,0 +1,33 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: meraki-organizations
+spec:
+  provider: meraki-dashboard
+  defaultInterval: 1h
+  defaultPriority: low
+  # The organizations are the inventory of the organization-wide jobs.
+  role: both
+  request:
+    path: /organizations
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: response.body
+    inventory:
+      key: item.id
+      fields:
+        organizationId: item.id
+    metrics:
+      - name: meraki_organization_api_enabled
+        help: Dashboard API access enabled for the organization
+        value: "has(item.api) && default(item.api.enabled, false)"
+        labels: { organization_id: item.id }
+    info:
+      - name: meraki_organization_info
+        help: Descriptive attributes of an organization
+        labels:
+          organization_id: item.id
+          name: "default(item.name, '')"
+          licensing_model: "has(item.licensing) ? default(item.licensing.model, '') : ''"
+          region: "has(item.cloud) && has(item.cloud.region) ? default(item.cloud.region.name, '') : ''"

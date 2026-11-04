@@ -1,0 +1,58 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata:
+  name: teltonika-rutos
+  version: 0.1.0
+  description: Local REST API of Teltonika routers running RutOS 07.06 or later
+  docs: https://developers.teltonika-networks.com/
+spec:
+  # One target per router: its baseURL is the address of the router.
+  baseURL: '{{ .params.baseURL | trimSuffix "/" }}/api'
+  params:
+    - name: baseURL
+      required: true
+      description: Address of the router, for example https://192.168.1.1
+  secrets:
+    - name: username
+      required: true
+      description: RutOS user, ideally in a group with read access only
+    - name: password
+      required: true
+      description: Password of the RutOS user
+  auth:
+    type: session_login
+    sessionLogin:
+      request:
+        method: POST
+        path: /login
+        body:
+          username: { secret: username }
+          password: { secret: password }
+      token: response.body.data.token
+      expiresIn: "has(response.body.data.expires) ? duration(string(response.body.data.expires) + 's') : duration('300s')"
+      apply:
+        header: Authorization
+        format: "Bearer {token}"
+      refreshBefore: 30s
+      perTarget: true
+      # RutOS keeps sessions open after their token expires: close them.
+      logout: { path: /logout }
+  defaults:
+    headers:
+      Accept: application/json
+    timeout: 15s
+  limits:
+    - name: rate
+      description: Requests per router per second (assumed; routers are resource-constrained, no limit is documented)
+      kind: rate
+      rate: 2/s
+      burst: 2
+      scope: { by: [target] }
+    - name: concurrency
+      description: Concurrent requests per router (assumed)
+      kind: concurrency
+      max: 2
+      scope: { by: [target] }
+  errors:
+    authFailed:
+      statuses: [401]

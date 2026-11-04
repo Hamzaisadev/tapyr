@@ -1,0 +1,41 @@
+# Minimal documents completing the examples of docs/spec/03-configuration.md,
+# which reference providers and accounts they do not define.
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata:
+  name: teltonika-rutos
+  version: 0.0.1
+spec:
+  baseURL: "{{ .params.baseURL }}"
+  params:
+    - name: baseURL
+      required: true
+  secrets:
+    - name: username
+      required: true
+    - name: password
+      required: true
+---
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata:
+  name: teltonika-rms
+  version: 0.0.1
+spec:
+  baseURL: https://rms.example.invalid/api
+  secrets:
+    - name: token
+      required: true
+  auth:
+    type: bearer
+    bearer:
+      token: { secret: token }
+---
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata:
+  name: home-rms
+spec:
+  provider: teltonika-rms
+  secrets:
+    token: { env: TAPYR_RMS_TOKEN }

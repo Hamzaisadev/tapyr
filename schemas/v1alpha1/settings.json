@@ -1,0 +1,419 @@
+{
+  "$defs": {
+    "BudgetSettings": {
+      "additionalProperties": false,
+      "description": "BudgetSettings configures the budget engine and the planner.",
+      "properties": {
+        "maxStretch": {
+          "default": 12,
+          "description": "MaxStretch caps the interval stretch factor applied to a priority\nclass before the planner moves to the next class.",
+          "minimum": 1,
+          "type": "number"
+        },
+        "replanInterval": {
+          "$ref": "#/$defs/Duration",
+          "description": "ReplanInterval is the period of mid-window replanning."
+        },
+        "retryReserve": {
+          "$ref": "#/$defs/Percent",
+          "description": "RetryReserve is the share of every quota reserved for retries, from 0% to 50%."
+        }
+      },
+      "type": "object"
+    },
+    "CircuitBreakerSettings": {
+      "additionalProperties": false,
+      "description": "CircuitBreakerSettings configures the per-account circuit breakers.",
+      "properties": {
+        "cooldown": {
+          "$ref": "#/$defs/Duration",
+          "description": "Cooldown before the half-open probe."
+        },
+        "failureThreshold": {
+          "default": 5,
+          "description": "FailureThreshold is the number of consecutive transient failures that\nopens the circuit.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "maxCooldown": {
+          "$ref": "#/$defs/Duration",
+          "description": "MaxCooldown caps the cooldown, which doubles on repeated openings."
+        }
+      },
+      "type": "object"
+    },
+    "CollectionSettings": {
+      "additionalProperties": false,
+      "description": "CollectionSettings configures request execution.",
+      "properties": {
+        "defaultTimeout": {
+          "$ref": "#/$defs/Duration",
+          "description": "DefaultTimeout of a request when the provider sets none."
+        },
+        "jitter": {
+          "$ref": "#/$defs/Percent",
+          "description": "Jitter spreads scheduled runs, from 0% to 50% of the interval."
+        },
+        "maxConcurrentRequests": {
+          "default": 32,
+          "description": "MaxConcurrentRequests bounds in-flight requests across all providers.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "DebugSettings": {
+      "additionalProperties": false,
+      "description": "DebugSettings configures the live debug endpoint.",
+      "properties": {
+        "enabled": {
+          "description": "Enabled exposes the last raw responses (redacted) in the status API.",
+          "type": "boolean"
+        },
+        "maxBodyBytes": {
+          "default": 1048576,
+          "description": "MaxBodyBytes truncates the raw responses kept for debugging.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "Duration": {
+      "examples": [
+        "30s",
+        "5m",
+        "1h30m"
+      ],
+      "pattern": "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$",
+      "type": "string"
+    },
+    "LogSettings": {
+      "additionalProperties": false,
+      "description": "LogSettings configures logging.",
+      "properties": {
+        "format": {
+          "default": "json",
+          "description": "Format: json or text.",
+          "enum": [
+            "json",
+            "text"
+          ],
+          "type": "string"
+        },
+        "level": {
+          "default": "info",
+          "description": "Level: debug, info, warn or error.",
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "MappingSettings": {
+      "additionalProperties": false,
+      "description": "MappingSettings configures CEL evaluation limits.",
+      "properties": {
+        "labelConflict": {
+          "default": "override",
+          "description": "LabelConflict resolves labels set both by the mapping and by\naccount, target or job labels: override (job > target > account >\nmapping) or error.",
+          "enum": [
+            "override",
+            "error"
+          ],
+          "type": "string"
+        },
+        "maxCost": {
+          "default": 1000000,
+          "description": "MaxCost is the CEL cost limit per expression evaluation.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "maxItemsPerRun": {
+          "default": 100000,
+          "description": "MaxItemsPerRun caps the items extracted by a run.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "maxSamplesPerRun": {
+          "default": 200000,
+          "description": "MaxSamplesPerRun caps the samples produced by a run.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "Name": {
+      "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$",
+      "type": "string"
+    },
+    "ObjectMeta": {
+      "additionalProperties": false,
+      "description": "ObjectMeta identifies a document.",
+      "properties": {
+        "description": {
+          "description": "Description is free text for humans.",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the document, unique per kind."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "Percent": {
+      "examples": [
+        "10%"
+      ],
+      "pattern": "^[0-9]+(\\.[0-9]+)?%$",
+      "type": "string"
+    },
+    "RetrySettings": {
+      "additionalProperties": false,
+      "description": "RetrySettings configures retries with exponential backoff and full jitter.",
+      "properties": {
+        "initialBackoff": {
+          "$ref": "#/$defs/Duration",
+          "description": "InitialBackoff before the first retry."
+        },
+        "maxAttempts": {
+          "default": 4,
+          "description": "MaxAttempts per request, including the first attempt.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "maxBackoff": {
+          "$ref": "#/$defs/Duration",
+          "description": "MaxBackoff caps the backoff."
+        },
+        "multiplier": {
+          "default": 2,
+          "description": "Multiplier of the backoff between attempts.",
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "SecretRef": {
+      "additionalProperties": false,
+      "description": "A secret read from an environment variable ({env: NAME}) or a file ({file: /path}).",
+      "maxProperties": 1,
+      "minProperties": 1,
+      "properties": {
+        "env": {
+          "description": "Name of an environment variable holding the secret.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "file": {
+          "description": "Path of a file holding the secret, relative to the declaring file.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "SelfMetricsSettings": {
+      "additionalProperties": false,
+      "description": "SelfMetricsSettings configures Tapyr's own metrics.",
+      "properties": {
+        "interval": {
+          "$ref": "#/$defs/Duration",
+          "description": "Interval between two pushes of the self-metrics to Outputs."
+        },
+        "outputs": {
+          "description": "Outputs that also receive the self-metrics (always served on /metrics/self).",
+          "items": {
+            "$ref": "#/$defs/Name"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "ServerBasicAuth": {
+      "additionalProperties": false,
+      "description": "ServerBasicAuth protects the server with HTTP basic authentication.",
+      "properties": {
+        "password": {
+          "$ref": "#/$defs/SecretRef",
+          "description": "Password secret."
+        },
+        "protectMetrics": {
+          "description": "ProtectMetrics also protects /metrics and /metrics/self.",
+          "type": "boolean"
+        },
+        "username": {
+          "$ref": "#/$defs/SecretRef",
+          "description": "Username secret."
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ],
+      "type": "object"
+    },
+    "ServerSettings": {
+      "additionalProperties": false,
+      "description": "ServerSettings configures the HTTP server.",
+      "properties": {
+        "basicAuth": {
+          "$ref": "#/$defs/ServerBasicAuth",
+          "description": "BasicAuth protects /api and /ui."
+        },
+        "debug": {
+          "$ref": "#/$defs/DebugSettings",
+          "description": "Debug is the live debug endpoint exposing raw responses."
+        },
+        "listen": {
+          "default": "127.0.0.1:9790",
+          "description": "Listen address.",
+          "type": "string"
+        },
+        "tls": {
+          "$ref": "#/$defs/ServerTLS",
+          "description": "TLS serves HTTPS with the given certificate. A reverse proxy is the\nrecommended way to terminate TLS."
+        },
+        "ui": {
+          "$ref": "#/$defs/UISettings",
+          "description": "UI is the embedded read-only web UI."
+        }
+      },
+      "type": "object"
+    },
+    "ServerTLS": {
+      "additionalProperties": false,
+      "description": "ServerTLS holds the server certificate files, relative to the declaring file.",
+      "properties": {
+        "certFile": {
+          "description": "CertFile is the PEM certificate chain.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "keyFile": {
+          "description": "KeyFile is the PEM private key.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "certFile",
+        "keyFile"
+      ],
+      "type": "object"
+    },
+    "SettingsSpec": {
+      "additionalProperties": false,
+      "description": "SettingsSpec is the specification of Settings.",
+      "properties": {
+        "budget": {
+          "$ref": "#/$defs/BudgetSettings",
+          "description": "Budget configures the budget engine and the planner."
+        },
+        "circuitBreaker": {
+          "$ref": "#/$defs/CircuitBreakerSettings",
+          "description": "CircuitBreaker configures the per-account circuit breakers."
+        },
+        "collection": {
+          "$ref": "#/$defs/CollectionSettings",
+          "description": "Collection configures request execution."
+        },
+        "log": {
+          "$ref": "#/$defs/LogSettings",
+          "description": "Log configures logging. Flags and environment variables win."
+        },
+        "mapping": {
+          "$ref": "#/$defs/MappingSettings",
+          "description": "Mapping configures CEL evaluation limits."
+        },
+        "providerPaths": {
+          "description": "ProviderPaths lists directories of user provider packages, in\naddition to the built-in packages.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "retry": {
+          "$ref": "#/$defs/RetrySettings",
+          "description": "Retry configures retries of transient errors."
+        },
+        "selfMetrics": {
+          "$ref": "#/$defs/SelfMetricsSettings",
+          "description": "SelfMetrics configures Tapyr's own metrics."
+        },
+        "server": {
+          "$ref": "#/$defs/ServerSettings",
+          "description": "Server is the HTTP server (metrics, health, status API, UI)."
+        },
+        "state": {
+          "$ref": "#/$defs/StateSettings",
+          "description": "State is the persistent state store."
+        }
+      },
+      "type": "object"
+    },
+    "StateSettings": {
+      "additionalProperties": false,
+      "description": "StateSettings configures the state store.",
+      "properties": {
+        "path": {
+          "default": "./data/tapyr.db",
+          "description": "Path of the SQLite database, relative to the declaring file. The\nbuilt-in default is relative to the working directory.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "UISettings": {
+      "additionalProperties": false,
+      "description": "UISettings configures the web UI.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Enabled serves the UI under /ui/.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$id": "https://raw.githubusercontent.com/kentrow/tapyr/main/schemas/v1alpha1/settings.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Global settings (at most one document).",
+  "properties": {
+    "apiVersion": {
+      "const": "tapyr/v1alpha1"
+    },
+    "kind": {
+      "const": "Settings"
+    },
+    "metadata": {
+      "$ref": "#/$defs/ObjectMeta"
+    },
+    "spec": {
+      "$ref": "#/$defs/SettingsSpec"
+    }
+  },
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "title": "Settings",
+  "type": "object"
+}

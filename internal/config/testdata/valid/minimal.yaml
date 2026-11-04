@@ -1,0 +1,49 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata: { name: minimal, version: 0.1.0 }
+spec:
+  baseURL: https://api.example.invalid
+  limits:
+    - { name: rate, kind: rate, rate: 600/m }
+    - { name: daily, kind: quota, max: 5000, window: { period: day } }
+    - { name: weekly, kind: quota, max: 50000, window: { period: week } }
+  pagination: { type: link_header }
+---
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata: { name: minimal-devices }
+spec:
+  provider: minimal
+  defaultInterval: 10m
+  request: { path: /devices }
+  extract:
+    metrics:
+      - { name: minimal_device_up, value: "1.0" }
+---
+apiVersion: tapyr/v1alpha1
+kind: Account
+metadata: { name: minimal }
+spec: { provider: minimal }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: from-template }
+spec: { account: minimal, template: minimal-devices }
+---
+apiVersion: tapyr/v1alpha1
+kind: Job
+metadata: { name: inline }
+spec:
+  account: minimal
+  interval: 1m
+  request: { path: /health }
+---
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: prom }
+spec: { type: prometheus }
+---
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: otel }
+spec: { type: otlp, otlp: { endpoint: "http://collector:4318" } }

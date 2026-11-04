@@ -1,0 +1,207 @@
+{
+  "$defs": {
+    "AccountBudget": {
+      "additionalProperties": false,
+      "description": "AccountBudget configures the share of quotas the account may use.",
+      "properties": {
+        "scaleRates": {
+          "description": "ScaleRates also scales rate and concurrency limits by the share.",
+          "type": "boolean"
+        },
+        "share": {
+          "default": 1,
+          "description": "Share of every quota limit Tapyr may use, when other consumers share\nthe same credentials. In (0, 1].",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "AccountSpec": {
+      "additionalProperties": false,
+      "description": "AccountSpec is the specification of an Account.",
+      "properties": {
+        "budget": {
+          "$ref": "#/$defs/AccountBudget",
+          "description": "Budget share of this account."
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Labels added to every sample from this account.",
+          "propertyNames": {
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "params": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Params declared by the provider.",
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "provider": {
+          "$ref": "#/$defs/Name",
+          "description": "Provider instantiated by the account."
+        },
+        "secrets": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SecretRef"
+          },
+          "description": "Secrets declared by the provider, as references to environment\nvariables or files.",
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "targets": {
+          "description": "Targets of a multi-target account (for example one entry per device).\nJobs run once per target.",
+          "items": {
+            "$ref": "#/$defs/Target"
+          },
+          "type": "array"
+        },
+        "tls": {
+          "$ref": "#/$defs/TLSClient",
+          "description": "TLS settings for connections to the provider."
+        }
+      },
+      "required": [
+        "provider"
+      ],
+      "type": "object"
+    },
+    "Name": {
+      "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$",
+      "type": "string"
+    },
+    "ObjectMeta": {
+      "additionalProperties": false,
+      "description": "ObjectMeta identifies a document.",
+      "properties": {
+        "description": {
+          "description": "Description is free text for humans.",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the document, unique per kind."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "SecretRef": {
+      "additionalProperties": false,
+      "description": "A secret read from an environment variable ({env: NAME}) or a file ({file: /path}).",
+      "maxProperties": 1,
+      "minProperties": 1,
+      "properties": {
+        "env": {
+          "description": "Name of an environment variable holding the secret.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "file": {
+          "description": "Path of a file holding the secret, relative to the declaring file.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "TLSClient": {
+      "additionalProperties": false,
+      "description": "TLSClient configures TLS towards the provider.",
+      "properties": {
+        "caFile": {
+          "description": "CAFile is a PEM bundle of trusted CAs, relative to the declaring file.",
+          "type": "string"
+        },
+        "insecureSkipVerify": {
+          "description": "InsecureSkipVerify disables certificate verification. Logged loudly.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "Target": {
+      "additionalProperties": false,
+      "description": "Target is one endpoint of a multi-target account.",
+      "properties": {
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Labels added to every sample from this target.",
+          "propertyNames": {
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the target, unique within the account."
+        },
+        "params": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Params overriding the account params.",
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "secrets": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SecretRef"
+          },
+          "description": "Secrets overriding the account secrets.",
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://raw.githubusercontent.com/kentrow/tapyr/main/schemas/v1alpha1/account.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "An instance of a provider with credentials, params, targets and labels.",
+  "properties": {
+    "apiVersion": {
+      "const": "tapyr/v1alpha1"
+    },
+    "kind": {
+      "const": "Account"
+    },
+    "metadata": {
+      "$ref": "#/$defs/ObjectMeta"
+    },
+    "spec": {
+      "$ref": "#/$defs/AccountSpec"
+    }
+  },
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "title": "Account",
+  "type": "object"
+}

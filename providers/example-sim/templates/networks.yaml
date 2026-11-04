@@ -1,0 +1,38 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: example-sim-networks
+spec:
+  provider: example-sim
+  defaultInterval: 30m
+  defaultPriority: low
+  # One instance per site; the networks are the inventory of the network
+  # devices jobs.
+  role: both
+  forEach:
+    template: example-sim-sites
+    vars:
+      siteId: parent.siteId
+  request:
+    path: /sites/{siteId}/networks
+  pagination:
+    type: page
+    page:
+      pageParam: page
+      sizeParam: size
+      pageSize: 2
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: response.body
+    inventory:
+      key: item.id
+      fields:
+        networkId: item.id
+    info:
+      - name: example_network_info
+        help: Descriptive attributes of a network
+        labels:
+          site_id: vars.siteId
+          network_id: item.id
+          name: item.name

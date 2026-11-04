@@ -1,0 +1,20 @@
+# syntax=docker/dockerfile:1
+# Image of a release: the binaries built by GoReleaser (with the UI
+# embedded), on a distroless base running as nonroot. Dockerfile builds the
+# same image from source.
+FROM --platform=$BUILDPLATFORM busybox:1.37@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec AS dirs
+RUN mkdir -p /data
+
+FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab
+ARG TARGETPLATFORM
+COPY ${TARGETPLATFORM}/tapyr /usr/local/bin/tapyr
+COPY LICENSE NOTICE THIRD_PARTY_LICENSES /usr/share/doc/tapyr/
+# The state store defaults to ./data/tapyr.db: mount a volume on
+# /home/nonroot/data to keep it. The directory belongs to nonroot, so that a
+# new named volume does too.
+COPY --from=dirs --chown=65532:65532 /data /home/nonroot/data
+WORKDIR /home/nonroot
+USER 65532:65532
+EXPOSE 9790
+ENTRYPOINT ["/usr/local/bin/tapyr"]
+CMD ["run", "--config", "/etc/tapyr"]

@@ -1,0 +1,11 @@
+{{- /* GET /api/failover/status: the wired WAN, tracked, and the mobile
+       interface as backup. */ -}}
+{{- $r := find "router" "router-0" -}}
+{{- $wan := flap $r "wan" "30m" "true:0.9" "false:0.1" -}}
+{"success": true, "data": {
+  "wan": {"enabled": true, "running": true, "up": {{ $wan }}, "status": {{ if eq $wan "true" }}"online"{{ else }}"offline"{{ end }},
+          "score": {{ if eq $wan "true" }}5{{ else }}0{{ end }}, "lost": {{ if eq $wan "true" }}0{{ else }}5{{ end }},
+          "turn": 1, "age": 3, "online": {{ mod (unix $.now) 1800 }}, "offline": 0, "uptime": {{ mod (unix $.now) 1800 }}, "track_ip": ["1.1.1.1", "8.8.8.8"]},
+  "mob1s1a1": {"enabled": true, "running": true, "up": true, "status": "online", "score": 5, "lost": 0,
+          "turn": 1, "age": 2, "online": {{ mod (unix $.now) 86400 }}, "offline": 0, "uptime": {{ mod (unix $.now) 86400 }}, "track_ip": ["1.1.1.1"]}
+}}

@@ -1,0 +1,122 @@
+# Example alert rules on the self-metrics of Tapyr (/metrics/self), for
+# Prometheus or vmalert. See docs/alerts.md for what each alert means and
+# what to do. Thresholds are starting points: tune the durations to your
+# job intervals.
+groups:
+  - name: tapyr
+    rules:
+      - alert: TapyrDown
+        expr: up{job="tapyr"} == 0
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: Tapyr is not scraped
+          description: "{{ $labels.instance }} has not answered the scrape of /metrics/self for 5 minutes."
+
+      - alert: TapyrReauthRequired
+        expr: tapyr_auth_reauth_required == 1
+        labels: { severity: critical }
+        annotations:
+          summary: "{{ $labels.provider }} account {{ $labels.account }} needs new credentials"
+          description: The credentials of the account can no longer be renewed; its jobs stopped. Generate new ones and reload the configuration.
+
+      - alert: TapyrQuotaAlmostExhausted
+        expr: tapyr_budget_remaining / tapyr_budget_limit < 0.05 and tapyr_budget_limit > 0
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "{{ $labels.provider }} {{ $labels.limit }} quota below 5% ({{ $labels.scope }})"
+          description: Less than 5% of the quota is left before its reset; low-priority jobs are paused and critical jobs may follow.
+
+      - alert: TapyrQuotaExhaustionProjected
+        expr: tapyr_budget_exhaustion_eta_seconds < 6 * 3600
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.provider }} {{ $labels.limit }} quota runs out in {{ $value | humanizeDuration }} ({{ $labels.scope }})"
+          description: At the current pace the quota runs out before its reset; another client may be consuming it (see tapyr_budget_external_usage).
+
+      - alert: TapyrPlanInfeasible
+        expr: min by (provider, limit, scope) (tapyr_plan_feasible) == 0
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "The critical jobs do not fit the {{ $labels.provider }} {{ $labels.limit }} quota"
+          description: tapyr plan shows which jobs consume the quota; raise their intervals or lower their priority.
+
+      - alert: TapyrUnexpected429
+        expr: increase(tapyr_budget_unexpected_429_total[1h]) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.provider }} returned 429 that no declared limit predicted"
+          description: The provider definition may lack a limit, or another client shares the credentials of account {{ $labels.account }}.
+
+      - alert: TapyrLimitMismatch
+        expr: tapyr_budget_limit_mismatch == 1
+        for: 30m
+        labels: { severity: info }
+        annotations:
+          summary: "{{ $labels.provider }} announces a {{ $labels.limit }} limit different from its definition"
+          description: Tapyr follows the headers; update the limit of the provider definition.
+
+      - alert: TapyrCircuitOpen
+        expr: tapyr_circuit_state == 2
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: "Calls to {{ $labels.provider }} account {{ $labels.account }} are suspended"
+          description: "Repeated failures opened the circuit{{ if $labels.target }} of target {{ $labels.target }}{{ end }}; Tapyr probes again on its own."
+
+      - alert: TapyrJobStale
+        expr: >
+          time() - tapyr_job_last_success_timestamp_seconds > 3 * tapyr_job_effective_interval_seconds
+          and tapyr_job_last_success_timestamp_seconds > 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Job {{ $labels.job }} of {{ $labels.provider }} has not succeeded for 3 intervals"
+          description: See the last runs of the job in the Tapyr UI (Jobs) or GET /api/v1/jobs/{{ $labels.job }}/runs.
+
+      - alert: TapyrJobLagging
+        expr: tapyr_job_lag_seconds > tapyr_job_effective_interval_seconds
+        for: 15m
+        labels: { severity: info }
+        annotations:
+          summary: "Job {{ $labels.job }} of {{ $labels.provider }} runs late"
+          description: The runs start more than one interval after their schedule; rate or concurrency limits may be saturated.
+
+      - alert: TapyrOutputDropping
+        expr: increase(tapyr_output_samples_dropped_total[15m]) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: "Output {{ $labels.output }} drops samples ({{ $labels.reason }})"
+          description: The backend is too slow or rejects samples; check tapyr_output_send_failures_total.
+
+      - alert: TapyrOutputFailing
+        # Not delivered for 10 minutes, or failing without having ever
+        # delivered (the last success timestamp only exists after one).
+        expr: >
+          time() - tapyr_output_last_success_timestamp_seconds > 600
+          or
+          (sum by (output) (increase(tapyr_output_send_failures_total[10m])) > 0
+            unless on (output) sum by (output) (increase(tapyr_output_samples_sent_total[10m])) > 0)
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Output {{ $labels.output }} has not delivered for 10 minutes"
+          description: The samples wait in the queue until the backend answers; the oldest are dropped when it is full.
+
+      - alert: TapyrConfigReloadFailed
+        expr: tapyr_config_last_reload_success == 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: The last configuration reload was rejected
+          description: The previous configuration keeps running; tapyr validate shows the errors.
+
+      - alert: TapyrStateFlushFailing
+        expr: increase(tapyr_state_flush_failures_total[15m]) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: Tapyr cannot write its state store
+          description: Quota consumption and tokens may be lost on restart; check the disk and the permissions of the state path.

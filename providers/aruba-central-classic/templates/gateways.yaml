@@ -1,0 +1,36 @@
+apiVersion: tapyr/v1alpha1
+kind: JobTemplate
+metadata:
+  name: aruba-gateways
+spec:
+  provider: aruba-central-classic
+  defaultInterval: 15m
+  defaultPriority: normal
+  request:
+    path: /monitoring/v1/gateways
+    query: { calculate_total: "true" }
+  estimate:
+    pagesPerRun: 1
+  extract:
+    items: response.body.gateways
+    metrics:
+      - name: aruba_gateway_up
+        help: Gateway status (1 Up, 0 Down)
+        value: "default(item.status, '') == 'Up'"
+        labels: { serial: item.serial }
+      - name: aruba_gateway_aps
+        help: Access points terminated on the gateway
+        value: toFloat(item.ap_count)
+        labels: { serial: item.serial }
+        skipIf: "!has(item.ap_count) || item.ap_count == null"
+    info:
+      - name: aruba_gateway_info
+        help: Descriptive attributes of a gateway
+        labels:
+          serial: item.serial
+          name: "default(item.name, '')"
+          model: "default(item.model, '')"
+          firmware: "default(item.firmware_version, '')"
+          group: "default(item.group_name, '')"
+          site: "default(item.site, '')"
+          role: "default(item.role, '')"

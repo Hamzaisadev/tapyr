@@ -1,0 +1,1 @@
+testdata/invalid/not-a-mapping.yaml:1:1: a document must be a mapping

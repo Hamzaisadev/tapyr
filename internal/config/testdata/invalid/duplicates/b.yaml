@@ -1,0 +1,4 @@
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: shared }
+spec: { type: otlp, otlp: { endpoint: "http://collector:4318" } }

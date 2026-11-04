@@ -1,0 +1,18 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata: { name: limits, version: 0.1.0 }
+spec:
+  baseURL: https://api.example.invalid
+  limits:
+    - { name: zero-rate, kind: rate, rate: 0/s }
+    - { name: rate-with-max, kind: rate, rate: 10/s, max: 5 }
+    - { name: auto-concurrency, kind: concurrency, max: auto }
+    - { name: auto-without-initial, kind: quota, max: auto, window: { period: day } }
+    - { name: initial-without-auto, kind: quota, max: 10, initialMax: 5, window: { period: day } }
+    - { name: both-windows, kind: quota, max: 10, window: { period: day, rolling: 24h } }
+    - { name: short-rolling, kind: quota, max: 10, window: { rolling: 30s } }
+    - name: calendar-fields
+      kind: quota
+      max: 10
+      window: { period: hour, resetAt: "01:00", weekStart: monday, monthDay: 2, timezone: Mars/Olympus }
+    - { name: zero-rate, kind: concurrency, max: 1 }

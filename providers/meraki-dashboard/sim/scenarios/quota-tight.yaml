@@ -1,0 +1,12 @@
+apiVersion: tapyr/v1alpha1
+kind: Scenario
+metadata:
+  name: quota-tight
+  description: >-
+    Meraki has no daily quota: the per-organization rate is the constraint.
+    Other applications of the organizations answer 429 to a third of the
+    requests, as when they spend most of the shared 10 requests per second.
+spec:
+  steps:
+    - at: 0s
+      errors: { routes: ["/organizations/*/**"], status: 429, ratio: 0.33 }

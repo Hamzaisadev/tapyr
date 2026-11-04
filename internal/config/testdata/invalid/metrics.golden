@@ -1,0 +1,5 @@
+testdata/invalid/metrics.yaml:17:60: spec.extract.metrics[1].accumulate: accumulate requires type counter
+testdata/invalid/metrics.yaml:18:82: spec.extract.metrics[2].windowField: windowField is only allowed with accumulate: true
+testdata/invalid/metrics.yaml:30:3: spec.extract: role both requires extract.inventory
+testdata/invalid/metrics.yaml:32:17: spec.extract.metrics[0].name: metric "device_up" is declared as counter here and as gauge at testdata/invalid/metrics.yaml:16:17
+testdata/invalid/metrics.yaml:34:17: spec.extract.post[0].name: metric "device_info" is declared as counter here and as gauge at testdata/invalid/metrics.yaml:20:17

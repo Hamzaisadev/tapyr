@@ -1,0 +1,691 @@
+{
+  "$defs": {
+    "CursorPagination": {
+      "additionalProperties": false,
+      "description": "CursorPagination passes a cursor extracted from each response.",
+      "properties": {
+        "cursor": {
+          "$ref": "#/$defs/Expr",
+          "description": "Cursor is a CEL expression extracting the next cursor; empty or null stops."
+        },
+        "header": {
+          "description": "Header carrying the cursor, instead of a query parameter.",
+          "type": "string"
+        },
+        "pageSize": {
+          "description": "PageSize is the number of items per page.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "pageSizeParam": {
+          "description": "PageSizeParam is the query parameter carrying the page size.",
+          "type": "string"
+        },
+        "param": {
+          "description": "Param is the query parameter carrying the cursor.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "cursor"
+      ],
+      "type": "object"
+    },
+    "Duration": {
+      "examples": [
+        "30s",
+        "5m",
+        "1h30m"
+      ],
+      "pattern": "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$",
+      "type": "string"
+    },
+    "Estimate": {
+      "additionalProperties": false,
+      "description": "Estimate gives hints to the planner.",
+      "properties": {
+        "pagesPerRun": {
+          "description": "PagesPerRun is the expected number of pages per run.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "Expr": {
+      "description": "CEL expression.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "ExpressionPagination": {
+      "additionalProperties": false,
+      "description": "ExpressionPagination computes the next request with CEL.",
+      "properties": {
+        "next": {
+          "$ref": "#/$defs/Expr",
+          "description": "Next is a CEL expression returning {query: {...}} for the next page, or null."
+        }
+      },
+      "required": [
+        "next"
+      ],
+      "type": "object"
+    },
+    "Extract": {
+      "additionalProperties": false,
+      "description": "Extract maps responses to samples and inventory items.",
+      "properties": {
+        "filter": {
+          "$ref": "#/$defs/Expr",
+          "description": "Filter is a CEL expression on item; false skips the item."
+        },
+        "info": {
+          "description": "Info metrics (value 1, descriptive labels) produced per item.",
+          "items": {
+            "$ref": "#/$defs/InfoMetric"
+          },
+          "type": "array"
+        },
+        "inventory": {
+          "$ref": "#/$defs/Inventory",
+          "description": "Inventory items produced per item (role inventory or both)."
+        },
+        "items": {
+          "$ref": "#/$defs/Expr",
+          "description": "Items is a CEL expression returning the list of items of a page.\nDefault: response.body when it is a list."
+        },
+        "metrics": {
+          "description": "Metrics produced per item.",
+          "items": {
+            "$ref": "#/$defs/Metric"
+          },
+          "type": "array"
+        },
+        "partial": {
+          "description": "Partial emits the samples of a run even when a later page fails.",
+          "type": "boolean"
+        },
+        "post": {
+          "description": "Post metrics computed once per run over all pages (responses).",
+          "items": {
+            "$ref": "#/$defs/Metric"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "ForEach": {
+      "additionalProperties": false,
+      "description": "ForEach fans a job out over the inventory items of a parent job.",
+      "properties": {
+        "filter": {
+          "$ref": "#/$defs/Expr",
+          "description": "Filter is a CEL expression on parent selecting a subset of items."
+        },
+        "job": {
+          "$ref": "#/$defs/Name",
+          "description": "Job is the parent Job (same account), for inline jobs."
+        },
+        "maxInstances": {
+          "default": 10000,
+          "description": "MaxInstances caps the fan-out, against runaway discovery.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "template": {
+          "$ref": "#/$defs/Name",
+          "description": "Template is the parent JobTemplate, instantiated implicitly for the\naccount when no job references it."
+        },
+        "vars": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Expr"
+          },
+          "description": "Vars maps request variables to CEL expressions on parent.",
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "InfoMetric": {
+      "additionalProperties": false,
+      "description": "InfoMetric produces an _info metric: value 1 and descriptive labels.",
+      "properties": {
+        "help": {
+          "description": "Help text of the metric.",
+          "type": "string"
+        },
+        "labels": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Expr"
+          },
+          "description": "Labels maps label names to CEL expressions returning strings.",
+          "propertyNames": {
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the metric, ending with _info.",
+          "pattern": "^[a-zA-Z_:][a-zA-Z0-9_:]*_info$",
+          "type": "string"
+        },
+        "skipIf": {
+          "$ref": "#/$defs/Expr",
+          "description": "SkipIf is a CEL expression; true skips the sample."
+        }
+      },
+      "required": [
+        "name",
+        "labels"
+      ],
+      "type": "object"
+    },
+    "Inventory": {
+      "additionalProperties": false,
+      "description": "Inventory produces inventory items for child jobs.",
+      "properties": {
+        "fields": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Expr"
+          },
+          "description": "Fields maps field names to CEL expressions, available as parent.<field>.",
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "key": {
+          "$ref": "#/$defs/Expr",
+          "description": "Key is a CEL expression returning the unique key of an item."
+        },
+        "ttl": {
+          "$ref": "#/$defs/Duration",
+          "description": "TTL of cached items. Default: 3x the job's effective interval."
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "type": "object"
+    },
+    "JobRole": {
+      "default": "metrics",
+      "enum": [
+        "inventory",
+        "metrics",
+        "both"
+      ],
+      "type": "string"
+    },
+    "JobTemplateSpec": {
+      "additionalProperties": false,
+      "description": "JobTemplateSpec is the specification of a JobTemplate.",
+      "properties": {
+        "defaultInterval": {
+          "$ref": "#/$defs/Duration",
+          "description": "DefaultInterval is the desired interval of jobs using the template."
+        },
+        "defaultPriority": {
+          "$ref": "#/$defs/Priority",
+          "description": "DefaultPriority of jobs using the template."
+        },
+        "estimate": {
+          "$ref": "#/$defs/Estimate",
+          "description": "Estimate gives hints to the planner before run history exists."
+        },
+        "extract": {
+          "$ref": "#/$defs/Extract",
+          "description": "Extract maps responses to samples and inventory items."
+        },
+        "forEach": {
+          "$ref": "#/$defs/ForEach",
+          "description": "ForEach fans the job out over the inventory items of a parent."
+        },
+        "pagination": {
+          "$ref": "#/$defs/Pagination",
+          "description": "Pagination overrides the provider default."
+        },
+        "provider": {
+          "$ref": "#/$defs/Name",
+          "description": "Provider the template belongs to."
+        },
+        "request": {
+          "$ref": "#/$defs/Request",
+          "description": "Request to send."
+        },
+        "role": {
+          "$ref": "#/$defs/JobRole",
+          "description": "Role of the job: inventory items, metrics, or both."
+        }
+      },
+      "required": [
+        "provider",
+        "defaultInterval",
+        "request"
+      ],
+      "type": "object"
+    },
+    "LinkHeaderPagination": {
+      "additionalProperties": false,
+      "description": "LinkHeaderPagination follows RFC 8288 Link headers.",
+      "properties": {
+        "pageSize": {
+          "description": "PageSize is the number of items per page.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "pageSizeParam": {
+          "description": "PageSizeParam is the query parameter carrying the page size.",
+          "type": "string"
+        },
+        "rel": {
+          "default": "next",
+          "description": "Rel is the link relation of the next page.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "Metric": {
+      "additionalProperties": false,
+      "description": "Metric maps items to samples of one metric.",
+      "properties": {
+        "accumulate": {
+          "description": "Accumulate sums successive window values into a persisted counter\n(type counter only).",
+          "type": "boolean"
+        },
+        "help": {
+          "description": "Help text of the metric.",
+          "type": "string"
+        },
+        "labels": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Expr"
+          },
+          "description": "Labels maps label names to CEL expressions returning strings.",
+          "propertyNames": {
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "type": "object"
+        },
+        "name": {
+          "description": "Name of the metric (Prometheus naming rules).",
+          "pattern": "^[a-zA-Z_:][a-zA-Z0-9_:]*$",
+          "type": "string"
+        },
+        "skipIf": {
+          "$ref": "#/$defs/Expr",
+          "description": "SkipIf is a CEL expression; true skips the sample."
+        },
+        "timestamp": {
+          "$ref": "#/$defs/Expr",
+          "description": "Timestamp is a CEL expression returning the source timestamp."
+        },
+        "type": {
+          "default": "gauge",
+          "description": "Type of the metric.",
+          "enum": [
+            "gauge",
+            "counter"
+          ],
+          "type": "string"
+        },
+        "unit": {
+          "description": "Unit of the metric, preferably a Prometheus base unit.",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/Expr",
+          "description": "Value is a CEL expression returning a number or a bool."
+        },
+        "windowField": {
+          "$ref": "#/$defs/Expr",
+          "description": "WindowField is a CEL expression identifying the window of a value,\nused by accumulate to avoid counting a window twice."
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "type": "object"
+    },
+    "Name": {
+      "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$",
+      "type": "string"
+    },
+    "ObjectMeta": {
+      "additionalProperties": false,
+      "description": "ObjectMeta identifies a document.",
+      "properties": {
+        "description": {
+          "description": "Description is free text for humans.",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Name",
+          "description": "Name of the document, unique per kind."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "OffsetPagination": {
+      "additionalProperties": false,
+      "description": "OffsetPagination requests pages by item offset.",
+      "properties": {
+        "limitParam": {
+          "description": "LimitParam is the query parameter carrying the page size.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "offsetParam": {
+          "description": "OffsetParam is the query parameter carrying the offset.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "pageSize": {
+          "description": "PageSize is the number of items per page.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "start": {
+          "default": 0,
+          "description": "Start is the first offset.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stop": {
+          "$ref": "#/$defs/Expr",
+          "description": "Stop is a CEL expression; pagination stops when it returns true."
+        },
+        "total": {
+          "$ref": "#/$defs/Expr",
+          "description": "Total is a CEL expression returning the total number of items."
+        }
+      },
+      "required": [
+        "offsetParam",
+        "limitParam",
+        "pageSize"
+      ],
+      "type": "object"
+    },
+    "PagePagination": {
+      "additionalProperties": false,
+      "description": "PagePagination requests pages by page number.",
+      "properties": {
+        "pageParam": {
+          "description": "PageParam is the query parameter carrying the page number.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "pageSize": {
+          "description": "PageSize is the number of items per page.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "sizeParam": {
+          "description": "SizeParam is the query parameter carrying the page size.",
+          "type": "string"
+        },
+        "start": {
+          "default": 1,
+          "description": "Start is the first page number.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stop": {
+          "$ref": "#/$defs/Expr",
+          "description": "Stop is a CEL expression; pagination stops when it returns true."
+        },
+        "total": {
+          "$ref": "#/$defs/Expr",
+          "description": "Total is a CEL expression returning the total number of items."
+        }
+      },
+      "required": [
+        "pageParam"
+      ],
+      "type": "object"
+    },
+    "Pagination": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "offset"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "offset"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "page"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "page"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "cursor"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "cursor"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "expression"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "expression"
+            ]
+          }
+        }
+      ],
+      "description": "Pagination configures how successive pages are requested.",
+      "properties": {
+        "cursor": {
+          "$ref": "#/$defs/CursorPagination",
+          "description": "Cursor pagination (type cursor)."
+        },
+        "expression": {
+          "$ref": "#/$defs/ExpressionPagination",
+          "description": "Expression pagination computed by CEL (type expression)."
+        },
+        "linkHeader": {
+          "$ref": "#/$defs/LinkHeaderPagination",
+          "description": "LinkHeader pagination following RFC 8288 Link headers (type link_header)."
+        },
+        "maxPages": {
+          "default": 100,
+          "description": "MaxPages is a hard safety cap on pages per run.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "$ref": "#/$defs/OffsetPagination",
+          "description": "Offset pagination (type offset)."
+        },
+        "page": {
+          "$ref": "#/$defs/PagePagination",
+          "description": "Page pagination (type page)."
+        },
+        "type": {
+          "description": "Type of pagination.",
+          "enum": [
+            "none",
+            "offset",
+            "page",
+            "link_header",
+            "cursor",
+            "expression"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "Priority": {
+      "enum": [
+        "critical",
+        "high",
+        "normal",
+        "low"
+      ],
+      "type": "string"
+    },
+    "Request": {
+      "additionalProperties": false,
+      "description": "Request describes the HTTP request of a job.",
+      "properties": {
+        "body": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Value"
+          },
+          "description": "Body is a JSON object for POST queries; values are literals, secrets or\nCEL expressions.",
+          "type": "object"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Headers merged over the provider defaults (the job wins).",
+          "type": "object"
+        },
+        "idempotent": {
+          "description": "Idempotent allows retrying POST requests.",
+          "type": "boolean"
+        },
+        "method": {
+          "default": "GET",
+          "description": "Method of the request. POST is allowed only for read-only queries.",
+          "enum": [
+            "GET",
+            "HEAD",
+            "POST"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "description": "Path relative to the base URL, with {var} placeholders resolved from\ndiscovery variables, target params and account params.",
+          "pattern": "^/",
+          "type": "string"
+        },
+        "query": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Value"
+          },
+          "description": "Query parameters; values are literals, secrets or CEL expressions.",
+          "type": "object"
+        },
+        "readOnly": {
+          "description": "ReadOnly must be true for POST requests: Tapyr never writes to providers.",
+          "type": "boolean"
+        },
+        "timeout": {
+          "$ref": "#/$defs/Duration",
+          "description": "Timeout of a single request. Defaults to the provider default."
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "Value": {
+      "additionalProperties": false,
+      "description": "A literal string, {secret: name} or {expr: cel}.",
+      "maxProperties": 1,
+      "minProperties": 1,
+      "properties": {
+        "expr": {
+          "description": "CEL expression evaluated at runtime.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "secret": {
+          "description": "Name of a secret declared by the provider and supplied by the account.",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+          "type": "string"
+        }
+      },
+      "type": [
+        "string",
+        "object"
+      ]
+    }
+  },
+  "$id": "https://raw.githubusercontent.com/kentrow/tapyr/main/schemas/v1alpha1/jobtemplate.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A reusable job definition shipped by a provider package.",
+  "properties": {
+    "apiVersion": {
+      "const": "tapyr/v1alpha1"
+    },
+    "kind": {
+      "const": "JobTemplate"
+    },
+    "metadata": {
+      "$ref": "#/$defs/ObjectMeta"
+    },
+    "spec": {
+      "$ref": "#/$defs/JobTemplateSpec"
+    }
+  },
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "title": "JobTemplate",
+  "type": "object"
+}

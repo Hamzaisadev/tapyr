@@ -1,0 +1,32 @@
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+
+- Declarative configuration `tapyr/v1alpha1` (`Provider`, `JobTemplate`, `Account`, `Job`, `Output`, `Settings`) in YAML files or directories, validated against embedded JSON Schemas with every error reported as `file:line:column`; secrets from environment variables or files.
+- Provider packages (`provider.yaml`, job templates, simulator, scenarios, contract test, Grafana dashboard, examples), built in or loaded from `providerPaths`, with CEL mappings to gauges, counters and `_info` metrics.
+- Built-in providers: Aruba Central (classic), Cisco Meraki Dashboard, Teltonika RMS and Teltonika RutOS (validated against the real platforms for both Teltonika providers).
+- Collection: auth `none`, `header`, `bearer`, `basic`, `oauth2_client_credentials`, `session_login` and Go auth plugins (Aruba Central rotating refresh tokens); pagination `offset`, `page`, `cursor`, `link_header` and `expression`; retries with backoff, circuit breakers per account and target, account TLS settings; redirects followed only to the hosts a provider allows, so that credentials never reach another host.
+- Discovery: fan-out jobs (`forEach`) with one instance per inventory item, multi-target accounts, inventories cached across restarts.
+- Budget engine: rate, concurrency and quota limits (calendar windows in any timezone, rolling windows) with scopes, budget shares, a retry reserve and sync with the quota headers of the providers (learned max, remaining, consumption of other clients, reset); every request goes through it, retries, pages, auth and discovery included.
+- Planner: effective intervals that fit every quota, stretching low priorities first and never critical jobs, replanned while running with the remaining budget and the projected consumption of other clients sharing the quota.
+- Outputs: Prometheus exposition (`/metrics`, text or OpenMetrics, gzip-compressed), Prometheus remote write and OTLP (HTTP and gRPC), with source timestamps, staleness, deduplication, bounded queues and retries; counter reconstruction from window values.
+- State store on embedded SQLite (no CGO): quota ledger, run history, inventories, series and counters; tokens encrypted at rest with `TAPYR_STATE_KEY`.
+- Self-observability: self-metrics on `/metrics/self` (calls, budgets, jobs, auth, circuits, outputs), optionally pushed through the outputs, `/healthz` and `/readyz`, JSON logs with secrets and tokens redacted.
+- Hot reload of the configuration on SIGHUP, an invalid configuration being rejected while the running one keeps going.
+- CLI: `tapyr run`, `validate`, `plan`, `sim`, `record` (anonymized recordings of real responses), `provider list`, `provider lint`, `schema` and `version`.
+- Provider simulator driven by the same definitions as the collector: auth, pagination and limits (429 with `Retry-After` and quota headers), fault scenarios (`quota-tight`, `bad-day`), synthetic inventories; `tapyr sim --all` serves every provider at a stable port (`--listen-base` plus the `portOffset` of its package).
+- Read-only status API under `/api/v1` with its OpenAPI description, a Server-Sent Events stream and a live debug endpoint, errors redacted like the logs; optional basic auth and HTTPS.
+- Read-only web UI embedded in the binary under `/ui/`: overview, graph, jobs, budgets, plan, outputs and live debug, updated live, light and dark themes, keyboard accessible, no external network call.
+- Grafana dashboards for every provider and `tapyr-overview` for Tapyr itself, example alert rules (`examples/alerts`) and `docs/alerts.md`.
+- Demo compose (`examples/compose`): the simulators, Tapyr, VictoriaMetrics and Grafana, without any vendor account.
+- Deployment examples: a hardened systemd unit (`examples/systemd`) and Kustomize manifests for Kubernetes (`examples/kubernetes`).
+- Releases: static binaries for Linux, macOS and Windows (amd64, arm64) with SBOMs and checksums, and the multi-arch image `ghcr.io/kentrow/tapyr` (distroless, non-root), signed with cosign; the archives and the image carry the licenses and notices of the third-party software they include.
+
+[Unreleased]: https://github.com/kentrow/tapyr/commits/main

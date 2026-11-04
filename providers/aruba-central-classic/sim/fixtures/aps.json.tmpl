@@ -1,0 +1,18 @@
+{{- /* GET /monitoring/v2/aps?calculate_client_count=true */ -}}
+{{- $aps := items "aps" -}}
+{"count": {{ len $aps }}, "total": {{ len $aps }}, "aps": [
+{{- range $i, $a := $aps }}{{ if $i }},{{ end }}
+{{- $status := flap $a "status" "15m" "Up:0.96" "Down:0.04" }}
+  {"serial": {{ json (serial $a "XX99999999") }}, "name": "AP-{{ add $a.parent.index 1 }}-{{ add $a.n 1 }}", "macaddr": {{ json (mac $a) }},
+   "swarm_id": "", "group_name": "Campus", "site": "Site {{ add $a.parent.index 1 }}", "status": "{{ $status }}",
+   "model": {{ json (pick $a "model" "AP-515" "AP-535" "AP-635") }}, "firmware_version": "10.6.0.2_90581",
+   "ip_address": {{ json (ipv4 $a) }}, "cluster_id": "", "labels": [],
+   {{- if eq $status "Up" }}
+   "client_count": {{ printf "%.0f" (walk $a "clients" 0 60 "5m") }}, "uptime": {{ mod (unix $.now) 1209600 }},
+   {{- else }}
+   "client_count": 0, "uptime": 0, "down_reason": "Heartbeat lost",
+   {{- end }}
+   "radios": [{"band": 0, "channel": "36E", "status": "Up", "tx_power": 18, "utilization": {{ printf "%.0f" (walk $a "util5" 2 70 "5m") }}, "index": 0},
+              {"band": 1, "channel": "6", "status": "Up", "tx_power": 12, "utilization": {{ printf "%.0f" (walk $a "util24" 5 90 "5m") }}, "index": 1}]}
+{{- end }}
+]}

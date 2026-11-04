@@ -1,0 +1,7 @@
+{{- /* GET /organizations */ -}}
+[{{ range $i, $o := items "organizations" }}{{ if $i }},{{ end }}
+  {"id": "{{ add 549236 (mul $o.index 1111) }}", "name": "Organization {{ add $o.index 1 }}",
+   "url": "https://n1.meraki.com/o/sim/manage/organization/overview",
+   "api": {"enabled": true}, "licensing": {"model": "co-term"},
+   "cloud": {"region": {"name": "Europe", "host": {"name": "Europe"}}}, "management": {"details": []}}
+{{- end }}]

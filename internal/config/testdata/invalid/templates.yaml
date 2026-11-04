@@ -1,0 +1,23 @@
+apiVersion: tapyr/v1alpha1
+kind: Provider
+metadata: { name: templated, version: 0.1.0 }
+spec:
+  baseURL: "{{ .params.baseURL | default \"https://api.example.invalid\" | sprig }}"
+  params: [{ name: baseURL }, { name: baseURL }]
+  defaults:
+    headers:
+      X-Region: "{{ .params.region"
+  auth:
+    type: session_login
+    sessionLogin:
+      request:
+        path: /login
+        body:
+          user: { secret: username }
+      token: response.body.token
+      apply: { cookie: session, format: "Bearer {token}" }
+    bearer: { token: { secret: username } }
+  pagination:
+    type: cursor
+    cursor: { cursor: response.body.next }
+    page: { pageParam: p }

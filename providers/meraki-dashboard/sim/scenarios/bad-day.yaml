@@ -1,0 +1,18 @@
+apiVersion: tapyr/v1alpha1
+kind: Scenario
+metadata:
+  name: bad-day
+  description: >-
+    Slow Dashboard, then intermittent 502 on the organization-wide endpoints,
+    then a short outage.
+spec:
+  steps:
+    - at: 1h
+      for: 1h
+      latency: { p50: 600ms, p99: 4s }
+    - at: 2h
+      for: 30m
+      errors: { routes: ["/organizations/*/**"], status: 502, ratio: 0.25 }
+    - at: 4h
+      for: 10m
+      outage: true

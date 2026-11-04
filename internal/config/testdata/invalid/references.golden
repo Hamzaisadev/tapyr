@@ -1,0 +1,7 @@
+testdata/invalid/references.yaml:25:13: spec.provider: unknown provider "gamma"
+testdata/invalid/references.yaml:37:19: spec.provider: unknown provider "ghost"
+testdata/invalid/references.yaml:42:43: spec.template: template "beta-devices" belongs to provider "beta", but account "alpha-account" uses provider "alpha"
+testdata/invalid/references.yaml:42:67: spec.outputs[0]: unknown output "missing-output"
+testdata/invalid/references.yaml:47:18: spec.account: unknown account "nobody"
+testdata/invalid/references.yaml:47:36: spec.template: unknown job template "nothing"
+testdata/invalid/references.yaml:53:28: spec.selfMetrics.outputs[0]: unknown output "missing-output"
