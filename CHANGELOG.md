@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-04
+
 ### Added
 
 - Declarative configuration `tapyr/v1alpha1` (`Provider`, `JobTemplate`, `Account`, `Job`, `Output`, `Settings`) in YAML files or directories, validated against embedded JSON Schemas with every error reported as `file:line:column`; secrets from environment variables or files.
@@ -29,4 +31,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deployment examples: a hardened systemd unit (`examples/systemd`) and Kustomize manifests for Kubernetes (`examples/kubernetes`).
 - Releases: static binaries for Linux, macOS and Windows (amd64, arm64) with SBOMs and checksums, and the multi-arch image `ghcr.io/kentrow/tapyr` (distroless, non-root), signed with cosign; the archives and the image carry the licenses and notices of the third-party software they include.
 
-[Unreleased]: https://github.com/kentrow/tapyr/commits/main
+[Unreleased]: https://github.com/kentrow/tapyr/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/kentrow/tapyr/releases/tag/v0.1.0
