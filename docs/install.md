@@ -68,6 +68,24 @@ The SBOM of the image is attached to it as an attestation:
 docker buildx imagetools inspect ghcr.io/kentrow/tapyr:$VERSION --format '{{ json .SBOM }}'
 ```
 
+## Verify the provenance
+
+From v0.1.1, every archive and the image carry their [SLSA](https://slsa.dev) build provenance, as GitHub artifact attestations: the workflow that built them, from which commit and tag, on which runner. The [GitHub CLI](https://cli.github.com) verifies them, and the options below make it refuse anything not built by the release workflow from the tag of the version:
+
+```sh
+# An archive.
+gh attestation verify "tapyr_${VERSION}_linux_amd64.tar.gz" --repo Kentrow/tapyr \
+  --signer-workflow Kentrow/tapyr/.github/workflows/release.yml \
+  --source-ref "refs/tags/v$VERSION" --deny-self-hosted-runners
+
+# The image.
+gh attestation verify "oci://ghcr.io/kentrow/tapyr:$VERSION" --repo Kentrow/tapyr \
+  --signer-workflow Kentrow/tapyr/.github/workflows/release.yml \
+  --source-ref "refs/tags/v$VERSION" --deny-self-hosted-runners
+```
+
+The attestations of the archives are also a release asset, `tapyr_${VERSION}_provenance.intoto.jsonl`, to verify without the attestations API of GitHub: add `--bundle tapyr_${VERSION}_provenance.intoto.jsonl` to the command of an archive. For the image, `--bundle-from-oci` reads the attestation stored next to it in the registry.
+
 ## From source
 
 Go 1.27 and Node.js 22 or later:
