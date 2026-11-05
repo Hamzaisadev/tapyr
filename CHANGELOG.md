@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The JSON Schemas carry the defaults of the duration and percentage settings (`collection.defaultTimeout`, `collection.jitter`, `budget.retryReserve`, `retry.initialBackoff`, `circuitBreaker.cooldown`, output timeouts and others), which editors did not show.
+- A YAML anchor containing its own alias (`&a [*a]`), or a document nested thousands of levels deep, made `tapyr validate`, `tapyr run` and configuration reloads hang until the stack overflowed; such documents are now rejected with their position.
+- `tapyr record` kept the letters and digits outside ASCII of serials and identifiers (`Сер-123` became `Сер-706`); every letter and digit is now replaced.
 
 ## [0.1.0] - 2026-11-04
 

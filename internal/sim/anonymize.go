@@ -13,6 +13,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 // Rule is a kind of pseudonym of the anonymizer.
@@ -334,14 +335,13 @@ func (a *Anonymizer) str(rule Rule, v string) string {
 }
 
 // classes keeps the length and the character classes of a value: digits,
-// upper and lower case letters are replaced, other characters kept. A
+// upper and lower case letters (ASCII or not) are replaced by ASCII ones,
+// other characters kept. A
 // leading digit stays non-zero, so that numbers keep their length. The
 // pseudonym never equals the value: a 3-digit serial would otherwise come
 // out unchanged once in 900 recordings.
 func (a *Anonymizer) classes(v string, h []byte) string {
-	if !strings.ContainsFunc(v, func(c rune) bool {
-		return c >= '0' && c <= '9' || c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z'
-	}) {
+	if !strings.ContainsFunc(v, func(c rune) bool { return unicode.IsLetter(c) || unicode.IsDigit(c) }) {
 		return v
 	}
 	out := a.substitute(v, h)
@@ -353,28 +353,29 @@ func (a *Anonymizer) classes(v string, h []byte) string {
 }
 
 // substitute replaces the digits and letters of a value from the stream
-// of h.
+// of h, character by character: letters and digits outside ASCII become
+// ASCII ones of the same class, so that no character of the value is kept.
 func (a *Anonymizer) substitute(v string, h []byte) string {
 	const digits, upper, lower = "0123456789", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"
 	stream := h
-	b := []byte(v)
-	for i, c := range b {
+	runes := []rune(v)
+	for i, c := range runes {
 		if i%len(h) == 0 && i > 0 {
 			stream = a.sum(string(stream))
 		}
 		r := int(stream[i%len(stream)])
 		switch {
-		case c >= '0' && c <= '9':
+		case unicode.IsDigit(c):
 			if i == 0 && c != '0' {
-				b[i] = digits[1+r%9]
+				runes[i] = rune(digits[1+r%9])
 			} else {
-				b[i] = digits[r%10]
+				runes[i] = rune(digits[r%10])
 			}
-		case c >= 'A' && c <= 'Z':
-			b[i] = upper[r%26]
-		case c >= 'a' && c <= 'z':
-			b[i] = lower[r%26]
+		case unicode.IsUpper(c):
+			runes[i] = rune(upper[r%26])
+		case unicode.IsLetter(c):
+			runes[i] = rune(lower[r%26])
 		}
 	}
-	return string(b)
+	return string(runes)
 }

@@ -326,6 +326,33 @@ func TestAliasExpansionLimit(t *testing.T) {
 	}
 }
 
+func TestAliasCyclesAndDepth(t *testing.T) {
+	// Found by FuzzParseDocuments: an alias inside the node of its own anchor
+	// recursed until the stack overflowed (tapyr validate hung, then
+	// crashed), and so did a document nested deeply enough.
+	tests := []struct{ name, doc, want string }{
+		{"self", "&a [*a, *a]\n", "alias *a is inside the node it refers to"},
+		{"mapping", "a: &a\n  b: *a\n", "alias *a is inside the node it refers to"},
+		{"merge", "a: &a\n  <<: *a\n", "alias *a is inside the node it refers to"},
+		{"nested", "x: &x {y: &y [*x]}\n", "alias *x is inside the node it refers to"},
+		{"depth", strings.Repeat("[", 5000) + strings.Repeat("]", 5000) + "\n", "nested more than"},
+	}
+	l := newTestLoader(t)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, diags := l.parseDocuments("cycle.yaml", []byte(tt.doc), userKinds)
+			if len(diags) != 1 || !strings.Contains(diags[0].Message, tt.want) {
+				t.Fatalf("diagnostics %v, want %q", diags, tt.want)
+			}
+		})
+	}
+	// Aliases used side by side are no cycle.
+	if _, diags := l.parseDocuments("ok.yaml", []byte("a: &a [1]\nb: [*a, *a]\nc: {<<: {x: *a}}\n"), userKinds); len(diags) != 1 ||
+		strings.Contains(diags[0].Message, "inside the node") {
+		t.Fatalf("diagnostics %v, want only the missing kind", diags)
+	}
+}
+
 func TestPathFormatting(t *testing.T) {
 	idx := &positionIndex{nodes: map[string]*nodeInfo{
 		"/spec":                   {},

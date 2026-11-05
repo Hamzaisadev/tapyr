@@ -53,6 +53,18 @@ lint: ## Run golangci-lint and repository checks
 docs-check: ## Check the documentation site manifest and the links of the Markdown files (part of make lint)
 	$(GO) run ./internal/tools/docsite check
 
+# Fuzz targets, as package:function.
+FUZZ_TARGETS := config:FuzzParseDocuments collect:FuzzPagination mapping:FuzzExtract sim:FuzzAnonymizer
+FUZZTIME ?= 30s
+
+.PHONY: fuzz
+fuzz: ## Run every fuzz target for FUZZTIME (default 30s); a failing input lands in testdata/fuzz of its package
+	@for t in $(FUZZ_TARGETS); do \
+		pkg=$${t%%:*}; fn=$${t#*:}; \
+		echo "== $$fn ($$pkg, $(FUZZTIME))"; \
+		$(GO) test -run '^$$' -fuzz "^$$fn\$$" -fuzztime $(FUZZTIME) ./internal/$$pkg/ || exit 1; \
+	done
+
 .PHONY: providers-update
 providers-update: ## Rewrite the expected samples of the built-in provider contract tests
 	$(GO) run ./cmd/tapyr provider lint --update providers

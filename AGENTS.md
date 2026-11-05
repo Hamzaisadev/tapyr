@@ -65,6 +65,7 @@ Your training data does not know this project, and may be out of date about its 
 | `make schema` / `make schema-check` | Regenerate / check the JSON Schemas in `./schemas` and the configuration reference in `./docs/reference` from the Go types |
 | `make tidy-check` | `go.mod` and `go.sum` are tidy |
 | `make ui-check` | Type-check, lint and test the web UI (`make ui`: build it, `make ui-dev`: hot reload) |
+| `make fuzz` | Every fuzz target for `FUZZTIME` (default 30s): configuration parsing, pagination, mappings, anonymizer |
 | `make providers-update` | Rewrite `tests/expected.prom` of the built-in packages after a reviewed change |
 | `make sim PROVIDER=name` | Run the simulator of a provider |
 | `make smoke` | The built binary against the simulator |

@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/kentrow/tapyr/internal/mapping"
 )
@@ -151,6 +153,31 @@ func TestPseudonymNeverEqualsValue(t *testing.T) {
 	a, _ := NewAnonymizer(AnonymizeRules{})
 	if out := a.str(RuleDigits, "-.:"); out != "-.:" {
 		t.Errorf("a value without digits or letters changed: %q", out)
+	}
+}
+
+// TestPseudonymReplacesNonASCII checks that letters and digits outside ASCII
+// are replaced too: found by FuzzAnonymizer, a serial "덻" was kept.
+func TestPseudonymReplacesNonASCII(t *testing.T) {
+	a, err := NewAnonymizer(AnonymizeRules{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range []string{"덻", "Сер-123", "Ünïcode-9", "١٢٣", "ab-ÉÀ"} {
+		for _, rule := range []Rule{RuleSerial, RuleID} {
+			out := a.str(rule, v)
+			if out == v || utf8.RuneCountInString(out) != utf8.RuneCountInString(v) {
+				t.Errorf("%s %q -> %q", rule, v, out)
+			}
+			for _, r := range out {
+				if r > unicode.MaxASCII {
+					t.Errorf("%s %q -> %q keeps %q", rule, v, out, r)
+				}
+			}
+			if strings.Contains(v, "-") != strings.Contains(out, "-") {
+				t.Errorf("%s %q -> %q lost the punctuation", rule, v, out)
+			}
+		}
 	}
 }
 

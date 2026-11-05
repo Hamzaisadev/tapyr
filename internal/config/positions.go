@@ -18,6 +18,10 @@ import (
 // smaller.
 const maxTreeNodes = 200_000
 
+// maxTreeDepth bounds the nesting of a document, so that converting it never
+// exhausts the stack. Real configurations nest a few dozen levels.
+const maxTreeDepth = 1000
+
 // positionIndex maps JSON pointers of a document to YAML source positions.
 type positionIndex struct {
 	file  string
@@ -127,17 +131,22 @@ func (p *positionIndex) path(tokens []string) string {
 // treeBuilder converts a YAML AST into a JSON-compatible tree (maps, slices,
 // strings, json.Number, bools and nil) while recording positions.
 type treeBuilder struct {
-	index    *positionIndex
-	anchors  map[string]ast.Node
-	nodes    int
-	maxNodes int
+	index   *positionIndex
+	anchors map[string]ast.Node
+	// expanding holds the anchors whose node is being converted: an alias
+	// to one of them is a cycle.
+	expanding map[string]bool
+	nodes     int
+	maxNodes  int
+	depth     int
 }
 
 func newTreeBuilder(file string) *treeBuilder {
 	return &treeBuilder{
-		index:    &positionIndex{file: file, nodes: make(map[string]*nodeInfo)},
-		anchors:  make(map[string]ast.Node),
-		maxNodes: maxTreeNodes,
+		index:     &positionIndex{file: file, nodes: make(map[string]*nodeInfo)},
+		anchors:   make(map[string]ast.Node),
+		expanding: make(map[string]bool),
+		maxNodes:  maxTreeNodes,
 	}
 }
 
@@ -167,16 +176,30 @@ func (b *treeBuilder) convert(n ast.Node, tokens []string, key *token.Position, 
 	if b.nodes > b.maxNodes {
 		return nil, errAt(n, "document too large (more than %d nodes after alias expansion)", b.maxNodes)
 	}
+	b.depth++
+	defer func() { b.depth-- }()
+	if b.depth > maxTreeDepth {
+		return nil, errAt(n, "document nested more than %d levels deep", maxTreeDepth)
+	}
 	switch n := n.(type) {
 	case *ast.AnchorNode:
-		b.anchors[n.Name.String()] = n.Value
+		name := n.Name.String()
+		b.anchors[name] = n.Value
+		b.expanding[name] = true
+		defer delete(b.expanding, name)
 		return b.convert(n.Value, tokens, key, inSeq)
 	case *ast.AliasNode:
-		target, ok := b.anchors[n.Value.String()]
+		name := n.Value.String()
+		target, ok := b.anchors[name]
 		if !ok {
-			return nil, errAt(n, "unknown alias %q", n.Value.String())
+			return nil, errAt(n, "unknown alias %q", name)
 		}
+		if b.expanding[name] {
+			return nil, errAt(n, "alias *%s is inside the node it refers to", name)
+		}
+		b.expanding[name] = true
 		v, err := b.convert(target, tokens, key, inSeq)
+		delete(b.expanding, name)
 		if err != nil {
 			return nil, err
 		}
@@ -295,10 +318,12 @@ func (b *treeBuilder) mergeSources(n ast.Node, tokens []string) ([]map[string]an
 		// overwrite positions of explicit keys; lookups fall back to the
 		// enclosing mapping.
 		scratch := &treeBuilder{
-			index:    &positionIndex{file: b.index.file, nodes: map[string]*nodeInfo{}},
-			anchors:  b.anchors,
-			nodes:    b.nodes,
-			maxNodes: b.maxNodes,
+			index:     &positionIndex{file: b.index.file, nodes: map[string]*nodeInfo{}},
+			anchors:   b.anchors,
+			expanding: b.expanding,
+			nodes:     b.nodes,
+			maxNodes:  b.maxNodes,
+			depth:     b.depth,
 		}
 		v, err := scratch.convert(item, tokens, nil, false)
 		b.nodes = scratch.nodes
