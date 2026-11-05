@@ -41,7 +41,7 @@ TAPYR_EXAMPLE_API_KEY=sim-api-key ./bin/tapyr run --config ./examples/config
 
 - **Tests.** New behavior comes with tests; every bug fix with a regression test that fails without the fix. Tests never touch the network: they use `httptest` servers or the simulator, and an injected fake clock for anything time-dependent (`clock.Fake`). Tests against real platforms are opt-in (`make e2e`, behind the `e2e` build tag and environment variables).
 - **Configuration types** changed: regenerate the JSON Schemas with `make schema` and commit them.
-- **Docs.** A user-visible change updates the spec, the examples or the provider README concerned.
+- **Docs.** A user-visible change updates the spec, the examples or the provider README concerned. The documentation site docs.tapyr.eu is built from these files: use relative links between them, and add a new page to [`docs/site.yml`](docs/site.yml) (`make lint` checks both).
 - **Changelog.** A user-visible change adds an entry under `## [Unreleased]` of [`CHANGELOG.md`](CHANGELOG.md), in the same commit, following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Write it for users.
 - **Style.** English everywhere in the repository; no em dash character in docs or comments (`make lint` checks it); Go formatted with `make fmt`.
 - **Dependencies** are added deliberately: say in the pull request why the standard library or an existing dependency is not enough. The binary stays static (no CGO).
