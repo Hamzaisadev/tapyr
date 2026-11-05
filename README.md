@@ -162,6 +162,7 @@ The binaries are on the [releases page](https://github.com/kentrow/tapyr/release
 | [Outputs](docs/outputs.md) | Prometheus exposition, remote write, OTLP |
 | [Provider packages](docs/providers.md) | Writing, recording, linting and testing a package |
 | [Alerts](docs/alerts.md) | Alert rules on the self-metrics, and what to do |
+| [Configuration reference](docs/reference/README.md) | Every field of every kind, generated from the JSON Schemas |
 | [Releasing](docs/releasing.md) | How a version is published |
 
 The design lives in the [specification](docs/spec/) (vision, architecture, configuration, budget engine, collection, mapping, self-observability, simulator, CLI and UI, providers) and the [architecture decisions](docs/adr/). The [roadmap](docs/roadmap.md) lists what comes next, and the [changelog](CHANGELOG.md) what changed.

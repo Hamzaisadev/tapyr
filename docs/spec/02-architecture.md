@@ -208,6 +208,7 @@ tapyr/
 ├── docs/
 │   ├── spec/
 │   ├── adr/
+│   ├── reference/             # configuration reference, generated from the schemas (make schema)
 │   ├── alerts.md              # the example alerts and what to do when they fire
 │   ├── install.md
 │   ├── outputs.md             # Prometheus, remote write, OTLP

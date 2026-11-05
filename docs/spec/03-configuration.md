@@ -5,7 +5,7 @@
 - YAML, multi-document, Kubernetes-like envelope: `apiVersion`, `kind`, `metadata`, `spec`.
 - `apiVersion: tapyr/v1alpha1` for every document.
 - Documents can be spread across any number of files and directories. Tapyr loads all of them and resolves references by name.
-- Every `kind` has a JSON Schema generated from Go types, published in `schemas/v1alpha1/` and printable with `tapyr schema`. `schemas/v1alpha1/tapyr.json` accepts any kind (dispatched on `kind`) and is meant for editors, for example with the YAML language server: `# yaml-language-server: $schema=https://raw.githubusercontent.com/kentrow/tapyr/main/schemas/v1alpha1/tapyr.json`.
+- Every `kind` has a JSON Schema generated from Go types, published in `schemas/v1alpha1/` and printable with `tapyr schema`; the [configuration reference](../reference/README.md) lists every field, generated from the same types. `schemas/v1alpha1/tapyr.json` accepts any kind (dispatched on `kind`) and is meant for editors, for example with the YAML language server: `# yaml-language-server: $schema=https://raw.githubusercontent.com/kentrow/tapyr/main/schemas/v1alpha1/tapyr.json`.
 - Secrets are never inline. They are references to environment variables or files.
 - Durations use Go syntax (`30s`, `5m`, `1h`). Rates use `<n>/<unit>` with unit `s`, `m` or `h` (`10/s`, `600/m`). Percentages are strings `"<n>%"` (`10%`, `2.5%`). Ratios such as `budget.share` are plain numbers.
 - Names are DNS-label-like: lowercase, digits, hyphens, max 63 characters. `metadata.name` is unique per `kind` across the whole configuration (provider packages conventionally prefix their template names with the package name). Limit names are unique per provider, target names per account; both follow the same DNS-label rule.

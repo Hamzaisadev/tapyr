@@ -22,7 +22,7 @@ Then, depending on the diff:
 
 | The diff touches | Also run |
 |---|---|
-| configuration types (`internal/config`) | `make schema` and commit the regenerated `schemas/`; `make schema-check` must pass |
+| configuration types (`internal/config`) | `make schema` and commit the regenerated `schemas/` and `docs/reference/`; `make schema-check` must pass |
 | `go.mod` | `make tidy-check`; say why the dependency is needed in the pull request |
 | `internal/budget`, the planner, pacing | `go test -cover ./internal/budget/...` (90% or more) and `go test -run TwentyFourHours ./cmd/tapyr` |
 | a provider package, the mapping, the executor | `go run ./cmd/tapyr provider lint providers`; if samples changed, `make providers-update` and read the `expected.prom` diff |
