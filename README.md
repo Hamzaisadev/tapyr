@@ -22,7 +22,7 @@
   <a href="https://tapyr.eu">Website</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="docs/install.md">Install</a> ·
-  <a href="#documentation">Documentation</a> ·
+  <a href="https://docs.tapyr.eu">Documentation</a> ·
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
 
@@ -60,9 +60,15 @@ Vendor APIs ration their calls: per second, per day, per month, per organization
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-it-works-dark.svg">
-    <img src="docs/assets/how-it-works-light.svg" width="900" alt="A provider definition feeds the budget engine, which plans every call of the collector. The collector calls the vendor API or the built-in simulator, the CEL mapping turns the answers into metrics, and the outputs deliver them as Prometheus or OTLP. tapyr plan projects the calls per quota before you deploy, and Tapyr exposes its own metrics and a read-only web UI.">
+    <img src="docs/assets/how-it-works-light.svg" width="900" alt="A provider definition feeds the budget engine, which plans every call of the collector; tapyr plan projects those calls before you deploy. The collector calls the vendor API or the built-in simulator, the mapping turns the answers into metrics, and the outputs deliver them, with Tapyr's own metrics and a read-only web UI.">
   </picture>
 </p>
+
+1. **Describe the API once.** A provider definition says where the endpoints are, how to page through them, how the JSON becomes metrics, and every limit the vendor enforces. YAML and CEL, no Go.
+2. **The budget engine plans every call.** Rates, quotas and concurrency are tracked per scope, with a reserve kept for retries. Low-priority jobs stretch before anything gets refused, and `tapyr plan` shows the cost before you deploy.
+3. **The collector fetches.** It follows the pagination, retries what fails, and honors `Retry-After` when the vendor pushes back. Point it at the built-in simulator to try everything without an account.
+4. **The mapping turns JSON into metrics.** CEL expressions pick the items, compute the values and set the labels, so every vendor comes out as clean, consistent series.
+5. **The outputs deliver.** Prometheus exposition and remote write, OTLP over HTTP and gRPC. Tapyr exports its own metrics too, so you see the quota run down before it bites.
 
 The planner computes an effective interval for every job so that the configuration fits each quota, and replans while running with what is left in the window and what other clients consume. The scheduler runs the jobs, discovery jobs fan out one instance per inventory item, and no request leaves without a reservation from the budget engine. The specification in [`docs/spec/`](docs/spec/) describes every part.
 
@@ -155,6 +161,8 @@ The binaries are on the [releases page](https://github.com/kentrow/tapyr/release
 | `tapyr schema` | Print the JSON Schemas of the configuration, for editors |
 
 ## Documentation
+
+The documentation is published on [docs.tapyr.eu](https://docs.tapyr.eu): the development version, and from v0.1.1 one version per minor release. Its sources live in this repository:
 
 | Guide | |
 |---|---|

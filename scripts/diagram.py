@@ -255,44 +255,55 @@ for theme, c in themes.items():
 
 # ------------------------------------------------------------ how it works
 
-boxes = [  # x, y, w, h, kind, title, subtitle
-    (0, 160, 192, 84, "", "Definition", "YAML + CEL per API"),
-    (227, 160, 192, 84, "key", "Budget engine", "plans every call"),
-    (454, 160, 192, 84, "", "Collector", "poll, paginate, retry"),
-    (681, 160, 192, 84, "", "Mapping", "CEL to metrics"),
-    (908, 160, 192, 84, "", "Outputs", "Prometheus, OTLP"),
-    (454, 20, 192, 76, "side", "Vendor API", "or built-in simulator"),
-    (0, 300, 419, 76, "side", "tapyr plan", "projects calls per quota, before you deploy"),
-    (454, 300, 419, 76, "side", "Self-metrics and web UI", "calls, 429s, quota left, job freshness"),
+# The diagram of the How it works section of tapyr.eu (viewBox 640 x 200),
+# frozen at its second step: the budget engine and tapyr plan lit, the
+# definition done.
+HOW_SCALE = 1100 / 640
+how_boxes = [  # x, y, w, h, state, title, subtitle, title font
+    (8, 78, 112, 44, "done", "Definition", "", "sans"),
+    (136, 78, 112, 44, "on", "Budget", "", "sans"),
+    (264, 78, 112, 44, "", "Collector", "", "sans"),
+    (392, 78, 112, 44, "", "Mapping", "", "sans"),
+    (520, 78, 112, 44, "", "Outputs", "", "sans"),
+    (250, 6, 140, 44, "side", "Vendor API", "or simulator", "sans"),
+    (122, 150, 140, 44, "side on", "tapyr plan", "", "mono"),
+    (498, 150, 134, 44, "side", "Self-metrics", "and web UI", "sans"),
 ]
-arrows = [  # d, soft
-    ("M196 202 H221", False), ("M423 202 H448", False), ("M650 202 H675", False), ("M877 202 H902", False),
-    ("M536 100 V154", True), ("M564 156 V102", True), ("M323 248 V294", True), ("M550 248 V294", True),
-    ("M877 338 H1004 V250", True),
-]
-how_title = ("A provider definition feeds the budget engine, which plans every call of the collector. "
-             "The collector calls the vendor API or the built-in simulator, the CEL mapping turns the answers "
-             "into metrics, and the outputs deliver them as Prometheus or OTLP. tapyr plan projects the calls "
-             "per quota before you deploy, and Tapyr exposes its own metrics and a read-only web UI.")
+how_links = ["M120 100 H134", "M248 100 H262", "M376 100 H390", "M504 100 H518"]
+how_soft = ["M310 52 V76", "M330 76 V52", "M192 124 V150", "M576 150 V124"]
+how_dots = [(128, 100, 3.5, "cyan2"), (256, 100, 3.5, "cyan2"), (310, 62, 3, "sun"), (330, 68, 3, "sun")]
+how_title = ("A provider definition feeds the budget engine, which plans every call of the collector; tapyr plan "
+             "projects those calls before you deploy. The collector calls the vendor API or the built-in "
+             "simulator, the mapping turns the answers into metrics, and the outputs deliver them, with Tapyr's "
+             "own metrics and a read-only web UI.")
+sun_ink = {"light": "#6b4a00", "dark": "#ffd166"}
 
 for theme, c in themes.items():
-    body = [f'<defs><marker id="head" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">'
-            f'<path d="M0 0 L10 5 L0 10 Z" fill="{c["ink"]}"/></marker></defs>']
-    for x, y, w, h, kind, t, s in boxes:
-        if kind == "key":
-            box = f'fill="{c["ink"]}" stroke="{c["ink"]}" stroke-width="2"'
-            tc = sc = c["bg"]
-        elif kind == "side":
-            box = f'fill="none" stroke="{c["ink2"]}" stroke-width="1.5" stroke-dasharray="6 6"'
-            tc, sc = c["ink"], c["ink2"]
+    body = [f'<g transform="scale({HOW_SCALE:.5f})">']
+    body += [f'<path d="{d}" stroke="{c["ink"]}" stroke-width="2" fill="none"/>' for d in how_links]
+    body += [f'<path d="{d}" stroke="{c["ink2"]}" stroke-width="2" stroke-dasharray="3 4" fill="none"/>' for d in how_soft]
+    body += [f'<circle cx="{x}" cy="{y}" r="{r}" fill="{c[col]}"/>' for x, y, r, col in how_dots]
+    for x, y, w, h, state, t, sub, face in how_boxes:
+        tc = c["ink"]
+        if state == "on":
+            box = f'fill="{c["ink"]}" stroke="{c["ink"]}"'
+            tc = c["bg"]
+        elif state == "side on":
+            box = f'fill="{mix(c["sun"], c["surface"], .22)}" stroke="{sun_ink[theme]}"'
+        elif state == "side":
+            box = f'fill="none" stroke="{c["ink2"]}" stroke-dasharray="5 5"'
+        elif state == "done":
+            box = f'fill="{c["bg"]}" stroke="{c["cyan2"]}"'
         else:
-            box = f'fill="{c["bg"]}" stroke="{c["line"]}" stroke-width="2"'
-            tc, sc = c["ink"], c["ink2"]
-        ty, sy = y + (36 if h == 84 else 32), y + (60 if h == 84 else 56)
-        body.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="18" {box}/>')
-        body.append(text(SANS, 700, 17, x + 20, ty, t, tc))
-        body.append(text(MONO, 500, 12, x + 20, sy, s, sc))
-    for d, soft in arrows:
-        stroke = f'stroke="{c["ink2"]}" stroke-dasharray="4 5"' if soft else f'stroke="{c["ink"]}"'
-        body.append(f'<path d="{d}" {stroke} stroke-width="2" fill="none" marker-end="url(#head)"/>')
-    write("how-it-works", theme, 1100, 380, how_title, body)
+            box = f'fill="{c["bg"]}" stroke="{c["line"]}"'
+        body.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="12" {box} stroke-width="1.5"/>')
+        cx = x + w / 2
+        if sub:
+            body.append(text(SANS, 650, 13, cx, y + 19, t, tc, anchor="middle"))
+            body.append(text(MONO, 500, 10.5, cx, y + 34, sub, c["ink2"], anchor="middle"))
+        elif face == "mono":
+            body.append(text(MONO, 600, 12, cx, y + 26, t, tc, anchor="middle"))
+        else:
+            body.append(text(SANS, 650, 13, cx, y + 26, t, tc, anchor="middle"))
+    body.append("</g>")
+    write("how-it-works", theme, round(640 * HOW_SCALE), round(200 * HOW_SCALE), how_title, body)
