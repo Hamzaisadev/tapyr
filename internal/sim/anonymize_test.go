@@ -39,12 +39,19 @@ func TestAnonymizer(t *testing.T) {
 	out := a.Document(doc)
 	data, _ := json.Marshal(out)
 	text := string(data)
+	leaves := scalarLeaves(out)
 	for _, original := range []string{
 		"70810", "7034", "Acme Networks", "North router", "1118789105", "0A:1B:2C:3D:4E:5F", "356000000000001",
 		"100.64.12.34", "noc@acme.example.org", "12.3456", "65.4321", "fd12:3456:789a::8888", "N_24329156", "RUT950",
 	} {
-		if strings.Contains(text, original) {
-			t.Errorf("%s is still in the document: %s", original, text)
+		// Text can hide inside free text (notes); a number can show up by
+		// chance among the digits of a pseudonym, so it must only not be
+		// a value of its own.
+		_, numeric := strconv.ParseFloat(original, 64)
+		for _, leaf := range leaves {
+			if leaf == original || numeric != nil && strings.Contains(leaf, original) {
+				t.Errorf("%s is still in the document: %s", original, text)
+			}
 		}
 	}
 	d := out.(map[string]any)["data"].([]any)[0].(map[string]any)
@@ -150,4 +157,30 @@ func TestPseudonymNeverEqualsValue(t *testing.T) {
 func formatInt(v any) string {
 	data, _ := json.Marshal(v)
 	return string(data)
+}
+
+// scalarLeaves returns the strings and numbers of a decoded document, as
+// written in JSON.
+func scalarLeaves(v any) []string {
+	switch v := v.(type) {
+	case map[string]any:
+		var out []string
+		for _, e := range v {
+			out = append(out, scalarLeaves(e)...)
+		}
+		return out
+	case []any:
+		var out []string
+		for _, e := range v {
+			out = append(out, scalarLeaves(e)...)
+		}
+		return out
+	case string:
+		return []string{v}
+	case int64:
+		return []string{strconv.FormatInt(v, 10)}
+	case float64:
+		return []string{strconv.FormatFloat(v, 'f', -1, 64)}
+	}
+	return nil
 }
