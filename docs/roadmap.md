@@ -8,7 +8,7 @@ Candidates, not committed. Each one starts with an issue and an agreement on its
 
 - Validation of `meraki-dashboard` and `aruba-central-classic` against real platforms (reports welcome).
 - Move the collector orchestration out of `cmd/tapyr` into an internal package (see [`02-architecture.md`](spec/02-architecture.md#repository-layout)).
-- Static documentation site generated from `docs/` and the JSON Schemas.
+- Documentation site docs.tapyr.eu built from `docs/` and the JSON Schemas ([ADR 0010](adr/0010-documentation-site.md), [#7](https://github.com/Kentrow/tapyr/issues/7)).
 - Aruba Central "new" (GreenLake) provider.
 - UI: budget impact simulation, mapping authoring assistant.
 - Webhook and streaming sources.

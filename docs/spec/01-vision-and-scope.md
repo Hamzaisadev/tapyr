@@ -65,7 +65,7 @@ Delivery:
 - Single static binary (Linux, macOS, Windows; amd64 and arm64), Docker image.
 - Demo `docker compose`: Tapyr + simulators + VictoriaMetrics + Grafana with provider dashboards and a "monitoring of monitoring" dashboard.
 - Generated JSON Schemas for editor autocompletion.
-- Documentation sources in `docs/` (a static documentation site will be built later from them).
+- Documentation sources in `docs/` (the documentation site docs.tapyr.eu is built from them after v0.1.0, [ADR 0010](../adr/0010-documentation-site.md)).
 
 ## Out of scope (keep in mind, do not build)
 
@@ -80,7 +80,7 @@ Delivery:
 - Aruba Central "new" (HPE GreenLake-based) provider.
 - Prometheus remote write 2.0.
 - Tracing of Tapyr runs (OpenTelemetry traces).
-- Static documentation website.
+- Static documentation website (agreed after v0.1.0: [ADR 0010](../adr/0010-documentation-site.md)).
 
 These items need an issue and an agreement before any code, but the design must not prevent them. In particular: the status API is the only interface the UI uses; state access goes through an interface so another backend can be added; outputs are pluggable; the provider package format is versioned.
 
