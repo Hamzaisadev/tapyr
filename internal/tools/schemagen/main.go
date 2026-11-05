@@ -1,5 +1,6 @@
 // Command schemagen writes the JSON Schemas generated from the configuration
-// Go types into a directory. Run it from the repository root: make schema.
+// Go types into a directory, and the configuration reference generated from
+// them. Run it from the repository root: make schema.
 package main
 
 import (
@@ -14,14 +15,15 @@ import (
 
 func main() {
 	out := flag.String("out", "schemas/v1alpha1", "output directory")
+	docs := flag.String("docs", "", "directory of the generated configuration reference, none if empty")
 	flag.Parse()
-	if err := generate(*out); err != nil {
+	if err := generate(*out, *docs); err != nil {
 		fmt.Fprintln(os.Stderr, "schemagen:", err)
 		os.Exit(1)
 	}
 }
 
-func generate(out string) error {
+func generate(out, docs string) error {
 	files, err := config.GenerateSchemas("github.com/kentrow/tapyr", "internal/config")
 	if err != nil {
 		return err
@@ -40,5 +42,8 @@ func generate(out string) error {
 		}
 		fmt.Println("wrote", filepath.Join(out, name))
 	}
-	return nil
+	if docs == "" {
+		return nil
+	}
+	return writeReference(files, docs)
 }

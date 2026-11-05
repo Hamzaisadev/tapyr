@@ -26,6 +26,18 @@ nav:
       - providers/meraki-dashboard/README.md
       - providers/aruba-central-classic/README.md
       - providers/example-sim/README.md
+  - Reference:
+      - docs/reference/README.md
+      - Configuration:
+          - docs/reference/account.md
+          - docs/reference/job.md
+          - docs/reference/output.md
+          - docs/reference/settings.md
+      - Provider packages:
+          - docs/reference/provider.md
+          - docs/reference/jobtemplate.md
+          - docs/reference/simulation.md
+          - docs/reference/scenario.md
   - Design:
       - docs/spec/01-vision-and-scope.md
       - docs/spec/02-architecture.md

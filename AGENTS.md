@@ -62,7 +62,7 @@ Your training data does not know this project, and may be out of date about its 
 | `make build` | The web UI, then the static binary in `./bin/tapyr` (`make build-go`: the binary alone) |
 | `make test` | Unit tests with the race detector |
 | `make lint` | golangci-lint, the em dash check, the documentation links (`make docs-check`) and `tapyr provider lint` of the built-in packages |
-| `make schema` / `make schema-check` | Regenerate / check the JSON Schemas in `./schemas` from the Go types |
+| `make schema` / `make schema-check` | Regenerate / check the JSON Schemas in `./schemas` and the configuration reference in `./docs/reference` from the Go types |
 | `make tidy-check` | `go.mod` and `go.sum` are tidy |
 | `make ui-check` | Type-check, lint and test the web UI (`make ui`: build it, `make ui-dev`: hot reload) |
 | `make providers-update` | Rewrite `tests/expected.prom` of the built-in packages after a reviewed change |
@@ -81,7 +81,7 @@ Never `go build ./cmd/tapyr` at the root of the repository without `-o`: it writ
 
 - The code compiles; `make lint` and `make test` pass (`make ui-check` for UI changes).
 - New behavior is covered by tests, with the fake clock and the simulator where relevant.
-- JSON Schemas regenerated (`make schema`) when configuration types changed.
+- JSON Schemas and configuration reference regenerated (`make schema`) when configuration types changed.
 - Docs updated when user-visible behavior changed: the spec, the examples, the provider README. A new Markdown file in `docs/`, `examples/` or `providers/` is added to [`docs/site.yml`](docs/site.yml), published or not.
 - A `CHANGELOG.md` entry under `## [Unreleased]` for every user-visible change, in the same commit ([Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/); released sections are never edited).
 - No secret, serial, MAC, IP or other identifier from a real environment anywhere in the diff.
@@ -105,7 +105,7 @@ The `check-change` skill walks through this list.
 - **Recordings** (`tapyr record`) are anonymized before they enter the repository, and reviewed: free-text fields can still hold identifying data. The `record-fixtures` skill has the procedure.
 - **Real platforms** are touched only when the person asks for it: e2e tests spend real quota and can lock accounts (rejected logins). Prefer the simulator.
 - **Expected samples** (`tests/expected.prom`) are a contract: rewrite them with `--update` only after reading the diff and understanding why every value changed, and say why in the commit.
-- **Generated files** are regenerated, never edited by hand: `schemas/` (`make schema`), `ui/dist/app/` (`make ui`), the README diagrams `docs/assets/overview-*.svg` and `docs/assets/how-it-works-*.svg` (`scripts/diagram.py`). `ui/dist/app/` is never committed; `ui/dist/README.md` is the placeholder `go:embed` needs.
+- **Generated files** are regenerated, never edited by hand: `schemas/` and `docs/reference/` (`make schema`, from the doc comments of the configuration types), `ui/dist/app/` (`make ui`), the README diagrams `docs/assets/overview-*.svg` and `docs/assets/how-it-works-*.svg` (`scripts/diagram.py`). `ui/dist/app/` is never committed; `ui/dist/README.md` is the placeholder `go:embed` needs.
 - **Irreversible or shared actions** (pushing to `main`, force-pushing, tagging, publishing images, changing repository settings) are never done by an agent on its own initiative.
 
 ## Skills

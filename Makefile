@@ -66,14 +66,14 @@ fmt: ## Format Go code
 	$(GOLANGCI_LINT) fmt
 
 .PHONY: schema
-schema: ## Regenerate the JSON Schemas in ./schemas from the Go types
-	$(GO) run ./internal/tools/schemagen -out schemas/v1alpha1
+schema: ## Regenerate the JSON Schemas in ./schemas and the configuration reference in ./docs/reference from the Go types
+	$(GO) run ./internal/tools/schemagen -out schemas/v1alpha1 -docs docs/reference
 
 .PHONY: schema-check
-schema-check: schema ## Fail if the committed JSON Schemas are out of date
-	@if [ -n "$$(git status --porcelain -- schemas)" ]; then \
-		git status --short -- schemas; \
-		echo "schemas are out of date: run make schema and commit the result" >&2; exit 1; \
+schema-check: schema ## Fail if the committed JSON Schemas or the configuration reference are out of date
+	@if [ -n "$$(git status --porcelain -- schemas docs/reference)" ]; then \
+		git status --short -- schemas docs/reference; \
+		echo "schemas or configuration reference out of date: run make schema and commit the result" >&2; exit 1; \
 	fi
 
 .PHONY: tidy-check
