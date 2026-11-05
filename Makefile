@@ -46,7 +46,12 @@ lint: ## Run golangci-lint and repository checks
 		{ echo "golangci-lint $(GOLANGCI_LINT_VERSION) is required (found $${v:-none}): https://golangci-lint.run/welcome/install/" >&2; exit 1; }
 	$(GOLANGCI_LINT) run
 	./scripts/check-emdash.sh
+	$(GO) run ./internal/tools/docsite check
 	$(GO) run ./cmd/tapyr provider lint providers
+
+.PHONY: docs-check
+docs-check: ## Check the documentation site manifest and the links of the Markdown files (part of make lint)
+	$(GO) run ./internal/tools/docsite check
 
 .PHONY: providers-update
 providers-update: ## Rewrite the expected samples of the built-in provider contract tests

@@ -188,6 +188,7 @@ tapyr/
 │   ├── series/                # series registry, staleness, dedup
 │   ├── sim/                   # simulator server, scenarios, record mode
 │   ├── state/                 # Store interface, SQLite implementation
+│   ├── tools/docsite/         # documentation checks and export to the site (make docs-check)
 │   ├── tools/schemagen/       # JSON Schema generator (make schema)
 │   └── ui/                    # HTTP handler of the web UI (assets embedded by ui/embed.go)
 ├── providers/                 # built-in provider packages
@@ -211,6 +212,7 @@ tapyr/
 │   ├── install.md
 │   ├── outputs.md             # Prometheus, remote write, OTLP
 │   ├── providers.md           # writing a provider package
+│   ├── site.yml               # pages of the documentation site (ADR 0010)
 │   └── roadmap.md
 ├── scripts/                   # repository checks and release helpers
 ├── test/

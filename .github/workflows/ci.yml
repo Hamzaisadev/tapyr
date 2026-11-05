@@ -51,6 +51,8 @@ jobs:
           version: ${{ steps.golangci.outputs.version }}
       - name: Check for em dash characters
         run: ./scripts/check-emdash.sh
+      - name: Check the documentation links and the site manifest
+        run: make docs-check
       - name: Lint the built-in provider packages
         run: go run ./cmd/tapyr provider lint providers
 

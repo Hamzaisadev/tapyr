@@ -61,7 +61,7 @@ Your training data does not know this project, and may be out of date about its 
 |---|---|
 | `make build` | The web UI, then the static binary in `./bin/tapyr` (`make build-go`: the binary alone) |
 | `make test` | Unit tests with the race detector |
-| `make lint` | golangci-lint, the em dash check and `tapyr provider lint` of the built-in packages |
+| `make lint` | golangci-lint, the em dash check, the documentation links (`make docs-check`) and `tapyr provider lint` of the built-in packages |
 | `make schema` / `make schema-check` | Regenerate / check the JSON Schemas in `./schemas` from the Go types |
 | `make tidy-check` | `go.mod` and `go.sum` are tidy |
 | `make ui-check` | Type-check, lint and test the web UI (`make ui`: build it, `make ui-dev`: hot reload) |
@@ -82,7 +82,7 @@ Never `go build ./cmd/tapyr` at the root of the repository without `-o`: it writ
 - The code compiles; `make lint` and `make test` pass (`make ui-check` for UI changes).
 - New behavior is covered by tests, with the fake clock and the simulator where relevant.
 - JSON Schemas regenerated (`make schema`) when configuration types changed.
-- Docs updated when user-visible behavior changed: the spec, the examples, the provider README.
+- Docs updated when user-visible behavior changed: the spec, the examples, the provider README. A new Markdown file in `docs/`, `examples/` or `providers/` is added to [`docs/site.yml`](docs/site.yml), published or not.
 - A `CHANGELOG.md` entry under `## [Unreleased]` for every user-visible change, in the same commit ([Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/); released sections are never edited).
 - No secret, serial, MAC, IP or other identifier from a real environment anywhere in the diff.
 
@@ -92,6 +92,7 @@ The `check-change` skill walks through this list.
 
 - English for code, comments, docs, commit messages and provider definitions.
 - Do not use the em dash character in docs or comments: use a hyphen `-` or rephrase (`make lint` checks it).
+- Documentation is written in this repository and published on docs.tapyr.eu ([ADR 0010](docs/adr/0010-documentation-site.md)). Links between files are relative (never `/path` or a GitHub URL to a file of the repository), so they work on GitHub and on the site; `make docs-check` checks them, anchors included.
 - Go module path: `github.com/kentrow/tapyr`. Config API version: `tapyr/v1alpha1`; a breaking change of the format bumps it.
 - Self-metric prefix `tapyr_`; environment variable prefix `TAPYR_`.
 - Commits: [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/), with the types listed in [`CONTRIBUTING.md`](CONTRIBUTING.md#commits), optional scope (`feat(config): ...`), `!` or a `BREAKING CHANGE:` footer for breaking changes. Small commits, one concern each. CI checks the messages.

@@ -1,0 +1,56 @@
+# Pages of the documentation site docs.tapyr.eu, in navigation order (ADR 0010).
+# A page is a path from the repository root; its title is its first heading.
+# Every Markdown file of the source directories is in nav or in unpublished:
+# go run ./internal/tools/docsite check (part of make lint) enforces it.
+repository: https://github.com/Kentrow/tapyr
+
+sources:
+  - docs
+  - examples
+  - providers
+
+nav:
+  - Guides:
+      - docs/install.md
+      - docs/outputs.md
+      - docs/alerts.md
+  - Deployment:
+      - examples/compose/README.md
+      - examples/config/README.md
+      - examples/systemd/README.md
+      - examples/kubernetes/README.md
+  - Providers:
+      - docs/providers.md
+      - providers/teltonika-rms/README.md
+      - providers/teltonika-rutos/README.md
+      - providers/meraki-dashboard/README.md
+      - providers/aruba-central-classic/README.md
+      - providers/example-sim/README.md
+  - Design:
+      - docs/spec/01-vision-and-scope.md
+      - docs/spec/02-architecture.md
+      - docs/spec/03-configuration.md
+      - docs/spec/04-budget-engine.md
+      - docs/spec/05-collection.md
+      - docs/spec/06-mapping-and-outputs.md
+      - docs/spec/07-self-observability.md
+      - docs/spec/08-simulator.md
+      - docs/spec/09-cli-api-ui.md
+      - docs/spec/10-providers.md
+      - Architecture decisions:
+          - docs/adr/0001-go.md
+          - docs/adr/0002-cel-mapping.md
+          - docs/adr/0003-yaml-config-json-schema.md
+          - docs/adr/0004-declarative-provider-packages.md
+          - docs/adr/0005-sqlite-state.md
+          - docs/adr/0006-read-only-embedded-ui.md
+          - docs/adr/0007-apache-2-license.md
+          - docs/adr/0008-otlp-via-pdata.md
+          - docs/adr/0009-window-values-as-gauges.md
+          - docs/adr/0010-documentation-site.md
+
+# Pages for contributors and maintainers, read on GitHub.
+unpublished:
+  - docs/adr/0000-template.md
+  - docs/releasing.md
+  - docs/roadmap.md
