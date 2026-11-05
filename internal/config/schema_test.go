@@ -2,9 +2,12 @@ package config
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"reflect"
 	"slices"
 	"testing"
 
@@ -47,6 +50,54 @@ func TestSchemasUpToDate(t *testing.T) {
 
 // TestCombinedSchema checks that the editor schema accepts the specification
 // examples and rejects a broken document, like the per-kind schemas.
+// TestSchemaDefaults checks that every default= of a jsonschema tag reaches
+// the generated schema, on fields of a basic type and on fields referencing
+// a definition alike.
+func TestSchemaDefaults(t *testing.T) {
+	generated, err := GenerateSchemas("github.com/kentrow/tapyr/internal/config", ".")
+	if err != nil {
+		t.Fatal(err)
+	}
+	checked := 0
+	for _, k := range allKinds {
+		var root map[string]any
+		dec := json.NewDecoder(bytes.NewReader(generated[SchemaFile(k)]))
+		dec.UseNumber()
+		if err := dec.Decode(&root); err != nil {
+			t.Fatal(err)
+		}
+		defs, _ := root["$defs"].(map[string]any)
+		seen := map[reflect.Type]bool{}
+		var walk func(s map[string]any, typ reflect.Type)
+		walk = func(s map[string]any, typ reflect.Type) {
+			for f := range typ.Fields() {
+				ft := fieldType(f.Type)
+				if f.Anonymous {
+					walk(s, ft)
+					continue
+				}
+				if want, ok := tagDefault(f); ok {
+					props, _ := s["properties"].(map[string]any)
+					p, _ := props[jsonName(f)].(map[string]any)
+					if got, ok := p["default"]; !ok || fmt.Sprint(got) != want {
+						t.Errorf("%s: %s.%s: default %v, want %s", SchemaFile(k), typ.Name(), f.Name, got, want)
+					}
+					checked++
+				}
+				if ft.Kind() == reflect.Struct && !seen[ft] {
+					seen[ft] = true
+					def, _ := defs[ft.Name()].(map[string]any)
+					walk(def, ft)
+				}
+			}
+		}
+		walk(root, documentTypes[k])
+	}
+	if checked < 50 {
+		t.Errorf("checked %d defaults, the walk misses fields", checked)
+	}
+}
+
 func TestCombinedSchema(t *testing.T) {
 	b, err := fs.ReadFile(schemas.V1alpha1, "v1alpha1/"+CombinedSchemaFile)
 	if err != nil {

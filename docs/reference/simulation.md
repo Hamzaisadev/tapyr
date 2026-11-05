@@ -47,7 +47,7 @@ SimulationAuth configures the credentials accepted by the simulator.
 |---|---|---|---|
 | `accept` | [SimulationCredentials](#simulationcredentials) |  | Accept lists the accepted credentials. They are fake values by design. |
 | `loginResponse` | string |  | `loginResponse` is a JSON fixture answered by the login endpoint, relative to the sim/ directory; {token} and {expiresIn} (seconds) are replaced. Default: {"token": "{token}", "expiresIn": {expiresIn}}. |
-| `tokenLifetime` | [Duration](#duration) |  | `tokenLifetime` of the tokens issued by the token and login endpoints, in simulated time. |
+| `tokenLifetime` | [Duration](#duration) |  | `tokenLifetime` of the tokens issued by the token and login endpoints, in simulated time. Default `10m`. |
 
 ## SimulationInventory
 

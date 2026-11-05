@@ -50,8 +50,8 @@ BudgetSettings configures the budget engine and the planner.
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `maxStretch` | number |  | `maxStretch` caps the interval stretch factor applied to a priority class before the planner moves to the next class. Default `12`. Minimum 1. |
-| `replanInterval` | [Duration](#duration) |  | `replanInterval` is the period of mid-window replanning. |
-| `retryReserve` | [Percent](#percent) |  | `retryReserve` is the share of every quota reserved for retries, from 0% to 50%. |
+| `replanInterval` | [Duration](#duration) |  | `replanInterval` is the period of mid-window replanning. Default `15m`. |
+| `retryReserve` | [Percent](#percent) |  | `retryReserve` is the share of every quota reserved for retries, from 0% to 50%. Default `10%`. |
 
 ## CircuitBreakerSettings
 
@@ -59,9 +59,9 @@ CircuitBreakerSettings configures the per-account circuit breakers.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `cooldown` | [Duration](#duration) |  | Cooldown before the half-open probe. |
+| `cooldown` | [Duration](#duration) |  | Cooldown before the half-open probe. Default `2m`. |
 | `failureThreshold` | integer |  | `failureThreshold` is the number of consecutive transient failures that opens the circuit. Default `5`. Minimum 1. |
-| `maxCooldown` | [Duration](#duration) |  | `maxCooldown` caps the cooldown, which doubles on repeated openings. |
+| `maxCooldown` | [Duration](#duration) |  | `maxCooldown` caps the cooldown, which doubles on repeated openings. Default `30m`. |
 
 ## CollectionSettings
 
@@ -69,8 +69,8 @@ CollectionSettings configures request execution.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `defaultTimeout` | [Duration](#duration) |  | `defaultTimeout` of a request when the provider sets none. |
-| `jitter` | [Percent](#percent) |  | Jitter spreads scheduled runs, from 0% to 50% of the interval. |
+| `defaultTimeout` | [Duration](#duration) |  | `defaultTimeout` of a request when the provider sets none. Default `30s`. |
+| `jitter` | [Percent](#percent) |  | Jitter spreads scheduled runs, from 0% to 50% of the interval. Default `10%`. |
 | `maxConcurrentRequests` | integer |  | `maxConcurrentRequests` bounds in-flight requests across all providers. Default `32`. Minimum 1. |
 
 ## LogSettings
@@ -99,9 +99,9 @@ RetrySettings configures retries with exponential backoff and full jitter.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `initialBackoff` | [Duration](#duration) |  | `initialBackoff` before the first retry. |
+| `initialBackoff` | [Duration](#duration) |  | `initialBackoff` before the first retry. Default `1s`. |
 | `maxAttempts` | integer |  | `maxAttempts` per request, including the first attempt. Default `4`. Minimum 1. |
-| `maxBackoff` | [Duration](#duration) |  | `maxBackoff` caps the backoff. |
+| `maxBackoff` | [Duration](#duration) |  | `maxBackoff` caps the backoff. Default `60s`. |
 | `multiplier` | number |  | Multiplier of the backoff between attempts. Default `2`. Minimum 1. |
 
 ## SelfMetricsSettings
@@ -110,7 +110,7 @@ SelfMetricsSettings configures Tapyr's own metrics.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `interval` | [Duration](#duration) |  | Interval between two pushes of the self-metrics to Outputs. |
+| `interval` | [Duration](#duration) |  | Interval between two pushes of the self-metrics to Outputs. Default `30s`. |
 | `outputs` | list of [Name](#name) |  | Outputs that also receive the self-metrics (always served on /metrics/self). |
 
 ## ServerSettings

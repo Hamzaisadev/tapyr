@@ -125,7 +125,7 @@ func TestObject(t *testing.T) {
 }
 
 func TestReference(t *testing.T) {
-	files, err := config.GenerateSchemas("github.com/kentrow/tapyr", "../../config")
+	files, err := config.GenerateSchemas("github.com/kentrow/tapyr/internal/tools/schemagen", "../../config")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,7 +143,7 @@ func TestReference(t *testing.T) {
 		}
 	}
 	b, _ := os.ReadFile(filepath.Join(dir, "account.md"))
-	for _, want := range []string{"# Account\n", "## AccountSpec\n", "| `provider` | [Name](#name) | yes |", "- Exactly one field is set.\n"} {
+	for _, want := range []string{"# Account\n", "## AccountSpec\n", "AccountSpec is the specification of an Account.", "| `provider` | [Name](#name) | yes |", "- Exactly one field is set.\n"} {
 		if !strings.Contains(string(b), want) {
 			t.Errorf("account.md lacks %q", want)
 		}

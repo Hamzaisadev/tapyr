@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Configuration reference: every field of every kind, with its type, default and constraints, generated from the JSON Schemas ([`docs/reference/`](docs/reference/README.md)).
 
+### Fixed
+
+- The JSON Schemas carry the defaults of the duration and percentage settings (`collection.defaultTimeout`, `collection.jitter`, `budget.retryReserve`, `retry.initialBackoff`, `circuitBreaker.cooldown`, output timeouts and others), which editors did not show.
+
 ## [0.1.0] - 2026-11-04
 
 ### Added

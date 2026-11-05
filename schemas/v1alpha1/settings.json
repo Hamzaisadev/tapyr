@@ -12,10 +12,12 @@
         },
         "replanInterval": {
           "$ref": "#/$defs/Duration",
+          "default": "15m",
           "description": "ReplanInterval is the period of mid-window replanning."
         },
         "retryReserve": {
           "$ref": "#/$defs/Percent",
+          "default": "10%",
           "description": "RetryReserve is the share of every quota reserved for retries, from 0% to 50%."
         }
       },
@@ -27,6 +29,7 @@
       "properties": {
         "cooldown": {
           "$ref": "#/$defs/Duration",
+          "default": "2m",
           "description": "Cooldown before the half-open probe."
         },
         "failureThreshold": {
@@ -37,6 +40,7 @@
         },
         "maxCooldown": {
           "$ref": "#/$defs/Duration",
+          "default": "30m",
           "description": "MaxCooldown caps the cooldown, which doubles on repeated openings."
         }
       },
@@ -48,10 +52,12 @@
       "properties": {
         "defaultTimeout": {
           "$ref": "#/$defs/Duration",
+          "default": "30s",
           "description": "DefaultTimeout of a request when the provider sets none."
         },
         "jitter": {
           "$ref": "#/$defs/Percent",
+          "default": "10%",
           "description": "Jitter spreads scheduled runs, from 0% to 50% of the interval."
         },
         "maxConcurrentRequests": {
@@ -185,6 +191,7 @@
       "properties": {
         "initialBackoff": {
           "$ref": "#/$defs/Duration",
+          "default": "1s",
           "description": "InitialBackoff before the first retry."
         },
         "maxAttempts": {
@@ -195,6 +202,7 @@
         },
         "maxBackoff": {
           "$ref": "#/$defs/Duration",
+          "default": "60s",
           "description": "MaxBackoff caps the backoff."
         },
         "multiplier": {
@@ -231,6 +239,7 @@
       "properties": {
         "interval": {
           "$ref": "#/$defs/Duration",
+          "default": "30s",
           "description": "Interval between two pushes of the self-metrics to Outputs."
         },
         "outputs": {

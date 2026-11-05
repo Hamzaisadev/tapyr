@@ -64,6 +64,7 @@ func GenerateSchemas(commentBase, commentDir string) (map[string][]byte, error) 
 	defs := make(map[string]any)
 	for _, k := range allKinds {
 		s := r.ReflectFromType(documentTypes[k])
+		refDefaults(s, documentTypes[k])
 		s.ID = jsonschema.ID(SchemaBaseURL + SchemaFile(k))
 		s.Title = string(k)
 		s.Description = kindDescriptions[k]
@@ -97,6 +98,59 @@ func GenerateSchemas(commentBase, commentDir string) (map[string][]byte, error) 
 	}
 	files[CombinedSchemaFile] = combined
 	return files, nil
+}
+
+// refDefaults copies the default= keyword of the jsonschema tags to the
+// properties that reference a definition (Duration, Percent): the reflector
+// applies it to fields of a basic type only, and drops it silently otherwise.
+func refDefaults(root *jsonschema.Schema, t reflect.Type) {
+	seen := map[reflect.Type]bool{}
+	var walk func(s *jsonschema.Schema, t reflect.Type)
+	walk = func(s *jsonschema.Schema, t reflect.Type) {
+		for f := range t.Fields() {
+			ft := fieldType(f.Type)
+			if f.Anonymous {
+				walk(s, ft)
+				continue
+			}
+			if s != nil && s.Properties != nil {
+				if p, ok := s.Properties.Get(jsonName(f)); ok && p.Ref != "" && p.Default == nil {
+					if d, ok := tagDefault(f); ok {
+						p.Default = d
+					}
+				}
+			}
+			if ft.Kind() == reflect.Struct && !seen[ft] {
+				seen[ft] = true
+				walk(root.Definitions[ft.Name()], ft)
+			}
+		}
+	}
+	walk(root, t)
+}
+
+// fieldType is the struct, or the element of the pointer, slice or map, a
+// field holds.
+func fieldType(t reflect.Type) reflect.Type {
+	for t.Kind() == reflect.Pointer || t.Kind() == reflect.Slice || t.Kind() == reflect.Map {
+		t = t.Elem()
+	}
+	return t
+}
+
+func jsonName(f reflect.StructField) string {
+	name, _, _ := strings.Cut(f.Tag.Get("json"), ",")
+	return name
+}
+
+// tagDefault is the value of the default= keyword of a jsonschema tag.
+func tagDefault(f reflect.StructField) (string, bool) {
+	for kw := range strings.SplitSeq(f.Tag.Get("jsonschema"), ",") {
+		if v, ok := strings.CutPrefix(kw, "default="); ok {
+			return v, true
+		}
+	}
+	return "", false
 }
 
 // combinedSchema dispatches on kind to the per-kind root schemas, all

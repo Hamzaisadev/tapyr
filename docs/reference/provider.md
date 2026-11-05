@@ -208,7 +208,7 @@ SessionLogin posts credentials to a login endpoint and applies the returned toke
 | `expiresIn` | [Expr](#expr) |  | `expiresIn` is a CEL expression returning the token lifetime as a duration. |
 | `logout` | [LogoutRequest](#logoutrequest) |  | Logout closes a session when its token is replaced and when Tapyr stops, for APIs that keep sessions open until they are closed. |
 | `perTarget` | boolean |  | `perTarget` keeps one session per target of a multi-target account. |
-| `refreshBefore` | [Duration](#duration) |  | `refreshBefore` renews the session this long before it expires. |
+| `refreshBefore` | [Duration](#duration) |  | `refreshBefore` renews the session this long before it expires. Default `30s`. |
 | `request` | [LoginRequest](#loginrequest) | yes | Request is the login request. |
 | `token` | [Expr](#expr) | yes | Token is a CEL expression extracting the token from the login response. |
 
@@ -230,7 +230,7 @@ RateLimitedErrors matches rate-limited responses and configures penalties.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `defaultPenalty` | [Duration](#duration) |  | `defaultPenalty` applies when no Retry-After header is present. It grows exponentially on consecutive rate-limited responses, up to 10 minutes. |
+| `defaultPenalty` | [Duration](#duration) |  | `defaultPenalty` applies when no Retry-After header is present. It grows exponentially on consecutive rate-limited responses, up to 10 minutes. Default `2s`. |
 | `penalize` | string |  | Penalize the narrowest applicable scope, or all applicable scopes. Default `narrowest`. One of `narrowest`, `all`. |
 | `retryAfterHeader` | string |  | `retryAfterHeader` carries the penalty in seconds or as an HTTP date. Default `Retry-After`. |
 | `statuses` | list of integer |  | Statuses that signal rate limiting (default 429). Minimum items 1. Each item: minimum 100, maximum 599. |

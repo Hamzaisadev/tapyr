@@ -45,6 +45,7 @@
         },
         "tokenLifetime": {
           "$ref": "#/$defs/Duration",
+          "default": "10m",
           "description": "TokenLifetime of the tokens issued by the token and login endpoints,\nin simulated time."
         }
       },
