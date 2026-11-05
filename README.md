@@ -93,7 +93,7 @@ Then open:
 - the Tapyr UI: <http://127.0.0.1:9790/ui/>;
 - VictoriaMetrics: <http://127.0.0.1:8428/vmui/>.
 
-The first samples arrive within a minute. [`examples/compose/README.md`](examples/compose/README.md) explains what runs and how to switch the simulators to their fault scenarios (`quota-tight`, `bad-day`).
+The first samples arrive within a minute. [`examples/compose/README.md`](examples/compose/README.md) explains what runs and how to switch the simulators to their fault scenarios (`quota-tight`, `bad-day`). Without Docker, [Getting started](docs/getting-started.md) walks through a first configuration of your own with the binary alone: its plan, its run, and a quota that shrinks.
 
 <p align="center">
   <picture>
@@ -158,8 +158,12 @@ The binaries are on the [releases page](https://github.com/kentrow/tapyr/release
 
 | Guide | |
 |---|---|
+| [Getting started](docs/getting-started.md) | A first configuration against a simulator, its plan, its run, a shrinking quota |
+| [Concepts](docs/concepts.md) | Providers, accounts, jobs, discovery, the budget engine and the planner |
 | [Install](docs/install.md) | Binaries, image, systemd, Kubernetes, signature verification, build from source |
 | [Outputs](docs/outputs.md) | Prometheus exposition, remote write, OTLP |
+| [Operations](docs/operations.md) | State store, reloads, secrets, monitoring Tapyr, exposing the server, upgrades |
+| [Troubleshooting](docs/troubleshooting.md) | From the symptom to the cause: configuration, auth, quotas, mappings, outputs |
 | [Provider packages](docs/providers.md) | Writing, recording, linting and testing a package |
 | [Alerts](docs/alerts.md) | Alert rules on the self-metrics, and what to do |
 | [Configuration reference](docs/reference/README.md) | Every field of every kind, generated from the JSON Schemas |
