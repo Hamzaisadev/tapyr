@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"strings"
 	"testing"
 	"unicode"
@@ -103,8 +104,10 @@ func compareAnonymized(t *testing.T, in, out any, key string) {
 	}
 	// Every address of the input is replaced, except the ones already made
 	// up (documentation ranges, example.com, locally administered MACs),
-	// which say nothing. A pseudonym may still look like an address with
-	// its neighbors: only what survives of the input matters.
+	// which say nothing. Addresses are compared whole: a pseudonym may look
+	// like an address with its neighbors, or contain the characters of the
+	// original (203.0.113.249 for 3.0.113.2); only an address of the input
+	// left in the output is a leak.
 	text, _ := out.(string)
 	var found []string
 	for _, m := range ipv4Pattern.FindAllString(s, -1) {
@@ -122,8 +125,14 @@ func compareAnonymized(t *testing.T, in, out any, key string) {
 			found = append(found, m)
 		}
 	}
+	left := map[string]bool{}
+	for _, p := range []*regexp.Regexp{ipv4Pattern, emailPattern, macPattern} {
+		for _, m := range p.FindAllString(text, -1) {
+			left[m] = true
+		}
+	}
 	for _, m := range found {
-		if strings.Contains(text, m) {
+		if left[m] {
 			t.Errorf("%q: %s of %q is left in %q", key, m, s, text)
 		}
 	}
