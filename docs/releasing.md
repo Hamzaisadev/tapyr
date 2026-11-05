@@ -34,6 +34,6 @@ How a maintainer publishes a version. The release workflow ([`.github/workflows/
    ```
 
 4. The workflow checks that the commit is on `main`, runs the tests, builds the UI without permissions, then waits for the approval of the `release` environment. Approve it.
-5. Check the release: the archives, `checksums.txt` and its `.sigstore.json` bundle, the image tags, and the signatures with the commands of [`docs/install.md`](install.md#verify-the-signatures). The certificate identity holds the repository name as GitHub spells it (`Kentrow/tapyr`): if the repository moves or is renamed, update those commands.
+5. Check the release: the archives, `checksums.txt` and its `.sigstore.json` bundle, `tapyr_X.Y.Z_provenance.intoto.jsonl`, the image tags, the signatures and the provenance with the commands of [`docs/install.md`](install.md#verify-the-signatures) and [the next section](install.md#verify-the-provenance). The certificate identity holds the repository name as GitHub spells it (`Kentrow/tapyr`): if the repository moves or is renamed, update those commands.
 
 Versions follow [Semantic Versioning](https://semver.org/); before 1.0, a breaking change bumps the minor version. A release candidate (`vX.Y.Z-rc.N`) goes through the same workflow, is published as a prerelease, and takes the `[Unreleased]` section of the changelog as its notes: use one to test the pipeline before a version.

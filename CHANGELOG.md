@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configuration reference: every field of every kind, with its type, default and constraints, generated from the JSON Schemas ([`docs/reference/`](docs/reference/README.md)).
 - Command line reference: every command and flag, generated from the commands ([`docs/reference/cli.md`](docs/reference/cli.md)).
 - Guides: getting started with the binary and a built-in simulator, concepts, operations and troubleshooting.
+- SLSA build provenance for the release archives and the image, as GitHub artifact attestations, verifiable with `gh attestation verify`; the attestations of the archives are also a release asset (`tapyr_X.Y.Z_provenance.intoto.jsonl`).
 
 ### Fixed
 
