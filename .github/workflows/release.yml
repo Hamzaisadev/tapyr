@@ -137,4 +137,4 @@ jobs:
         run: |
           asset="$RUNNER_TEMP/tapyr_${TAG#v}_provenance.intoto.jsonl"
           jq -c . "$BUNDLE" > "$asset"
-          gh release upload "$TAG" "$asset" --repo "$GITHUB_REPOSITORY"
+          gh release upload "$TAG" "$asset" --repo "$GITHUB_REPOSITORY" --clobber

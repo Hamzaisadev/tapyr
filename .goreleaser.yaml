@@ -105,6 +105,12 @@ release:
     name: tapyr
   prerelease: auto
   name_template: "v{{ .Version }}"
+  # GitHub sometimes answers an upload with a 500 although the file arrived;
+  # the retry then gets 422 already_exists (v0.1.1). Replace the asset
+  # instead of failing, and when the release job is rerun after a failure,
+  # reuse the draft it left instead of creating a second one.
+  replace_existing_artifacts: true
+  use_existing_draft: true
 
 snapshot:
   version_template: "{{ incpatch .Version }}-next"
