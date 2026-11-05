@@ -25,7 +25,7 @@ How a maintainer publishes a version. The release workflow ([`.github/workflows/
    [X.Y.Z]: https://github.com/kentrow/tapyr/compare/vPREVIOUS...vX.Y.Z
    ```
 
-   (for the first release: `[0.1.0]: https://github.com/kentrow/tapyr/releases/tag/v0.1.0`). Commit it as `chore(release): vX.Y.Z` through a pull request.
+   (for the first release: `[0.1.0]: https://github.com/kentrow/tapyr/releases/tag/v0.1.0`). In the same commit, update the version the docs and examples pin (`git grep -n "tapyr:PREVIOUS\|VERSION=PREVIOUS\|newTag"`: the README, `docs/install.md`, `docs/operations.md`, the demo compose and the Kustomize example). Commit it as `chore(release): vX.Y.Z` through a pull request.
 3. Tag the merge commit on `main` and push the tag:
 
    ```sh
