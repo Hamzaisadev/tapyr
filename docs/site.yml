@@ -28,6 +28,7 @@ nav:
       - providers/example-sim/README.md
   - Reference:
       - docs/reference/README.md
+      - docs/reference/cli.md
       - Configuration:
           - docs/reference/account.md
           - docs/reference/job.md

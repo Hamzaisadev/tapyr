@@ -29,3 +29,7 @@ The documents of a provider package (`providers/<name>/`).
 | [JobTemplate](jobtemplate.md) | A reusable job definition shipped by a provider package. |
 | [Simulation](simulation.md) | The simulator of a provider package (sim/sim.yaml). |
 | [Scenario](scenario.md) | A simulator scenario of a provider package (sim/scenarios/\*.yaml). |
+
+## Command line
+
+Every command and flag of `tapyr`: [command line reference](cli.md).

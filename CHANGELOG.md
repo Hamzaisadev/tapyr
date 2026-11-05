@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Configuration reference: every field of every kind, with its type, default and constraints, generated from the JSON Schemas ([`docs/reference/`](docs/reference/README.md)).
+- Command line reference: every command and flag, generated from the commands ([`docs/reference/cli.md`](docs/reference/cli.md)).
 
 ### Fixed
 
