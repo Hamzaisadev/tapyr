@@ -52,7 +52,7 @@ OTLPOutput configures OTLP metrics export.
 | `headers` | map of string to [StringOrSecret](#stringorsecret) |  | Headers added to every request; values are literals or secrets. |
 | `protocol` | string |  | Protocol: http/protobuf or grpc. Default `http/protobuf`. One of `http/protobuf`, `grpc`. |
 | `resourceAttributes` | map of string to string |  | `resourceAttributes` added to the OTLP resource. |
-| `timeout` | [Duration](#duration) |  | Timeout of a send request. |
+| `timeout` | [Duration](#duration) |  | Timeout of a send request. Default `10s`. |
 
 ## PrometheusOutput
 
@@ -69,7 +69,7 @@ Queue is the bounded in-memory queue of a push output.
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `capacity` | integer |  | Capacity in samples; the oldest samples are dropped (with accounting) when full. Default `50000`. Minimum 1. |
-| `flushInterval` | [Duration](#duration) |  | `flushInterval` sends a partial batch after this delay. |
+| `flushInterval` | [Duration](#duration) |  | `flushInterval` sends a partial batch after this delay. Default `5s`. |
 | `maxBatch` | integer |  | `maxBatch` is the maximum number of samples per request. Default `5000`. Minimum 1. |
 
 ## RemoteWriteOutput
@@ -80,7 +80,7 @@ RemoteWriteOutput configures Prometheus remote write 1.0.
 |---|---|---|---|
 | `basicAuth` | [BasicAuthSecrets](#basicauthsecrets) |  | `basicAuth` credentials. |
 | `headers` | map of string to [StringOrSecret](#stringorsecret) |  | Headers added to every request; values are literals or secrets. |
-| `timeout` | [Duration](#duration) |  | Timeout of a send request. |
+| `timeout` | [Duration](#duration) |  | Timeout of a send request. Default `10s`. |
 | `url` | string | yes | `url` of the remote write endpoint. Format uri. |
 
 ## StringOrSecret

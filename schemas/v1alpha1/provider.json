@@ -945,6 +945,7 @@
       "properties": {
         "defaultPenalty": {
           "$ref": "#/$defs/Duration",
+          "default": "2s",
           "description": "DefaultPenalty applies when no Retry-After header is present. It grows\nexponentially on consecutive rate-limited responses, up to 10 minutes."
         },
         "penalize": {
@@ -1048,6 +1049,7 @@
         },
         "refreshBefore": {
           "$ref": "#/$defs/Duration",
+          "default": "30s",
           "description": "RefreshBefore renews the session this long before it expires."
         },
         "request": {

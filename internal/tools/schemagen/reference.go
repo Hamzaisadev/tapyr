@@ -92,6 +92,7 @@ func writeReference(files map[string][]byte, dir string) error {
 			return fmt.Errorf("schema %s is in no group of the reference", file)
 		}
 	}
+	index.WriteString("\n## Command line\n\nEvery command and flag of `tapyr`: [command line reference](cli.md).\n")
 	pages["README.md"] = index.String()
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return err

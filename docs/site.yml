@@ -10,10 +10,14 @@ sources:
   - providers
 
 nav:
+  - docs/getting-started.md
+  - docs/concepts.md
   - Guides:
       - docs/install.md
       - docs/outputs.md
+      - docs/operations.md
       - docs/alerts.md
+      - docs/troubleshooting.md
   - Deployment:
       - examples/compose/README.md
       - examples/config/README.md
@@ -28,6 +32,7 @@ nav:
       - providers/example-sim/README.md
   - Reference:
       - docs/reference/README.md
+      - docs/reference/cli.md
       - Configuration:
           - docs/reference/account.md
           - docs/reference/job.md
