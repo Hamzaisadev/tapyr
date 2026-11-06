@@ -1,9 +1,7 @@
 <p align="center">
   <a href="https://tapyr.eu">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
-      <img src="docs/assets/logo-light.svg" alt="tapyr" width="360">
-    </picture>
+    <img src="docs/assets/logo-light.svg#gh-light-mode-only" alt="tapyr" width="360">
+    <img src="docs/assets/logo-dark.svg#gh-dark-mode-only" alt="tapyr" width="360">
   </a>
 </p>
 
@@ -31,10 +29,8 @@ Tapyr is an open source, self-hosted **API-to-metrics gateway**. It collects dat
 Vendor APIs ration their calls: per second, per day, per month, per organization. Tapyr treats that quota as a budget it plans and spends deliberately, retries included, so that your monitoring never runs the quota of your account dry.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/overview-dark.svg">
-    <img src="docs/assets/overview-light.svg" width="900" alt="Cloud APIs of SD-WAN, SD-LAN, Wi-Fi, 4G and 5G routers and any other platform feed Tapyr, which polls, paginates and retries, normalizes labels and units, and spends the API quota on a budget, then exposes or pushes the metrics as Prometheus and OTLP.">
-  </picture>
+  <img src="docs/assets/overview-light.svg#gh-light-mode-only" width="900" alt="Cloud APIs of SD-WAN, SD-LAN, Wi-Fi, 4G and 5G routers and any other platform feed Tapyr, which polls, paginates and retries, normalizes labels and units, and spends the API quota on a budget, then exposes or pushes the metrics as Prometheus and OTLP.">
+  <img src="docs/assets/overview-dark.svg#gh-dark-mode-only" width="900" alt="Cloud APIs of SD-WAN, SD-LAN, Wi-Fi, 4G and 5G routers and any other platform feed Tapyr, which polls, paginates and retries, normalizes labels and units, and spends the API quota on a budget, then exposes or pushes the metrics as Prometheus and OTLP.">
 </p>
 <p align="center"><sub>Prometheus and OpenTelemetry logos are trademarks of their respective owners.</sub></p>
 
@@ -49,19 +45,15 @@ Vendor APIs ration their calls: per second, per day, per month, per organization
 - **A read-only web UI** to see what runs: providers and quotas, the graph of accounts and jobs, the plan, outputs, and the live debug of a mapping.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/screenshot-overview-dark.png">
-    <img src="docs/assets/screenshot-overview-light.png" width="900" alt="The overview of the Tapyr web UI: providers healthy, jobs succeeding, the tightest quota, the plan, the jobs of every provider and the live activity">
-  </picture>
+  <img src="docs/assets/screenshot-overview-light.png#gh-light-mode-only" width="900" alt="The overview of the Tapyr web UI: providers healthy, jobs succeeding, the tightest quota, the plan, the jobs of every provider and the live activity">
+  <img src="docs/assets/screenshot-overview-dark.png#gh-dark-mode-only" width="900" alt="The overview of the Tapyr web UI: providers healthy, jobs succeeding, the tightest quota, the plan, the jobs of every provider and the live activity">
 </p>
 
 ## How it works
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-it-works-dark.svg">
-    <img src="docs/assets/how-it-works-light.svg" width="900" alt="A provider definition feeds the budget engine, which plans every call of the collector; tapyr plan projects those calls before you deploy. The collector calls the vendor API or the built-in simulator, the mapping turns the answers into metrics, and the outputs deliver them, with Tapyr's own metrics and a read-only web UI.">
-  </picture>
+  <img src="docs/assets/how-it-works-light.svg#gh-light-mode-only" width="900" alt="A provider definition feeds the budget engine, which plans every call of the collector; tapyr plan projects those calls before you deploy. The collector calls the vendor API or the built-in simulator, the mapping turns the answers into metrics, and the outputs deliver them, with Tapyr's own metrics and a read-only web UI.">
+  <img src="docs/assets/how-it-works-dark.svg#gh-dark-mode-only" width="900" alt="A provider definition feeds the budget engine, which plans every call of the collector; tapyr plan projects those calls before you deploy. The collector calls the vendor API or the built-in simulator, the mapping turns the answers into metrics, and the outputs deliver them, with Tapyr's own metrics and a read-only web UI.">
 </p>
 
 1. **Describe the API once.** A provider definition says where the endpoints are, how to page through them, how the JSON becomes metrics, and every limit the vendor enforces. YAML and CEL, no Go.
@@ -102,10 +94,8 @@ Then open:
 The first samples arrive within a minute. [`examples/compose/README.md`](examples/compose/README.md) explains what runs and how to switch the simulators to their fault scenarios (`quota-tight`, `bad-day`). Without Docker, [Getting started](docs/getting-started.md) walks through a first configuration of your own with the binary alone: its plan, its run, and a quota that shrinks.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/screenshot-graph-dark.png">
-    <img src="docs/assets/screenshot-graph-light.png" width="900" alt="The graph of the Tapyr web UI: providers, accounts, targets and the job groups of each account, wired to the outputs">
-  </picture>
+  <img src="docs/assets/screenshot-graph-light.png#gh-light-mode-only" width="900" alt="The graph of the Tapyr web UI: providers, accounts, targets and the job groups of each account, wired to the outputs">
+  <img src="docs/assets/screenshot-graph-dark.png#gh-dark-mode-only" width="900" alt="The graph of the Tapyr web UI: providers, accounts, targets and the job groups of each account, wired to the outputs">
 </p>
 
 ## Install
