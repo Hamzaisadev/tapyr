@@ -69,7 +69,7 @@ Your training data does not know this project, and may be out of date about its 
 | `make providers-update` | Rewrite `tests/expected.prom` of the built-in packages after a reviewed change |
 | `make sim PROVIDER=name` | Run the simulator of a provider |
 | `make smoke` | The built binary against the simulator |
-| `make integration` | The push outputs against VictoriaMetrics and the OpenTelemetry Collector (Docker) |
+| `make integration` | The outputs against VictoriaMetrics, the OpenTelemetry Collector and Prometheus (Docker) |
 | `make alerts-check` | promtool checks and unit tests of the example alert rules (Docker) |
 | `make e2e` | Opt-in tests against real platforms (credentials in environment variables) |
 | `make docker` | The image `tapyr:dev` from source |

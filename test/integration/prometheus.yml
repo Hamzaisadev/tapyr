@@ -1,0 +1,24 @@
+# Prometheus of the integration test (make integration): it scrapes the
+# /metrics and /metrics/self of the tapyr under test, on the host, and
+# receives its remote write and OTLP pushes.
+global:
+  scrape_interval: 2s
+storage:
+  tsdb:
+    # The simulator fixtures carry fixed source timestamps, days or months
+    # old: without an out-of-order window, Prometheus rejects them (see
+    # docs/outputs.md, "Out-of-order samples").
+    out_of_order_time_window: 400d
+otlp:
+  # The resource attributes the test filters on become labels.
+  promote_resource_attributes: [tapyr.run, tapyr.protocol]
+scrape_configs:
+  - job_name: tapyr-metrics
+    static_configs:
+      - targets: ["host.docker.internal:19790"]
+  - job_name: tapyr-self
+    metrics_path: /metrics/self
+    # The self-metrics carry the job label of the Tapyr job.
+    honor_labels: true
+    static_configs:
+      - targets: ["host.docker.internal:19790"]

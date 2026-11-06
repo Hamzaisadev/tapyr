@@ -1,10 +1,11 @@
 //go:build integration
 
-// Package integration checks the push outputs against real backends: the
-// samples of tapyr run land in VictoriaMetrics (remote write) and in an
-// OpenTelemetry Collector (OTLP over HTTP and gRPC), and series that go
-// away are marked stale in both. Run it with make integration, which starts
-// the backends of compose.yaml.
+// Package integration checks the outputs against real backends: the samples
+// of tapyr run land in VictoriaMetrics (remote write), in an OpenTelemetry
+// Collector (OTLP over HTTP and gRPC) and in Prometheus (a scrape of
+// /metrics and /metrics/self, remote write and OTLP), and series that go
+// away are marked stale in all of them. Run it with make integration, which
+// starts the backends of compose.yaml.
 package integration
 
 import (
@@ -36,10 +37,14 @@ func env(name, def string) string {
 }
 
 var (
-	vmURL     = env("TAPYR_IT_VM_URL", "http://127.0.0.1:8428")
-	otlpHTTP  = env("TAPYR_IT_OTLP_HTTP", "http://127.0.0.1:4318")
-	otlpGRPC  = env("TAPYR_IT_OTLP_GRPC", "http://127.0.0.1:4317")
-	otelOut   = env("TAPYR_IT_OTEL_OUT", "out/metrics.json")
+	vmURL    = env("TAPYR_IT_VM_URL", "http://127.0.0.1:8428")
+	otlpHTTP = env("TAPYR_IT_OTLP_HTTP", "http://127.0.0.1:4318")
+	otlpGRPC = env("TAPYR_IT_OTLP_GRPC", "http://127.0.0.1:4317")
+	otelOut  = env("TAPYR_IT_OTEL_OUT", "out/metrics.json")
+	promURL  = env("TAPYR_IT_PROM_URL", "http://127.0.0.1:9090")
+	// listen is where the tapyr under test serves /metrics: on every
+	// interface, at the port Prometheus scrapes (prometheus.yml).
+	listen    = env("TAPYR_IT_LISTEN", "0.0.0.0:19790")
 	binary    string
 	runMarker = fmt.Sprintf("it-%d", time.Now().UnixNano()) // isolates the samples of this run
 )
@@ -91,7 +96,7 @@ func start(t *testing.T, logs *bytes.Buffer, env []string, args ...string) *exec
 	return cmd
 }
 
-func config(simAddr, listen, state string, withSites bool) string {
+func config(simAddr, state string, withSites bool) string {
 	cfg := fmt.Sprintf(`apiVersion: tapyr/v1alpha1
 kind: Account
 metadata: { name: it }
@@ -131,6 +136,28 @@ spec:
   queue: { flushInterval: 1s }
 ---
 apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: prometheus }
+spec: { type: prometheus }
+---
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: prom-rw }
+spec:
+  type: remote_write
+  remoteWrite: { url: %q }
+  queue: { flushInterval: 1s }
+  externalLabels: { tapyr_run: %s }
+---
+apiVersion: tapyr/v1alpha1
+kind: Output
+metadata: { name: prom-otlp }
+spec:
+  type: otlp
+  otlp: { endpoint: %q, resourceAttributes: { tapyr.run: %s, tapyr.protocol: prom-otlp } }
+  queue: { flushInterval: 1s }
+---
+apiVersion: tapyr/v1alpha1
 kind: Settings
 metadata: { name: it }
 spec:
@@ -138,7 +165,8 @@ spec:
   state: { path: %q }
   collection: { jitter: 0%% }
   log: { format: text }
-`, simAddr, vmURL+"/api/v1/write", runMarker, otlpHTTP, runMarker, otlpGRPC, runMarker, listen, state)
+`, simAddr, vmURL+"/api/v1/write", runMarker, otlpHTTP, runMarker, otlpGRPC, runMarker,
+		promURL+"/api/v1/write", runMarker, promURL+"/api/v1/otlp/v1/metrics", runMarker, listen, state)
 	if withSites {
 		cfg += `---
 apiVersion: tapyr/v1alpha1
@@ -150,10 +178,23 @@ spec: { account: it, template: example-sim-sites, interval: 10s }
 	return cfg
 }
 
-// vmSeries returns the number of series of a PromQL instant query.
+// vmSeries returns the number of series of a PromQL instant query to
+// VictoriaMetrics.
 func vmSeries(t *testing.T, query string) int {
 	t.Helper()
-	resp, err := httpGet(vmURL + "/api/v1/query?query=" + url.QueryEscape(query))
+	return series(t, vmURL, query)
+}
+
+// promSeries returns the number of series of a PromQL instant query to
+// Prometheus.
+func promSeries(t *testing.T, query string) int {
+	t.Helper()
+	return series(t, promURL, query)
+}
+
+func series(t *testing.T, base, query string) int {
+	t.Helper()
+	resp, err := httpGet(base + "/api/v1/query?query=" + url.QueryEscape(query))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -237,9 +278,8 @@ func TestPushOutputs(t *testing.T) {
 	simAddr := freePort(t)
 	var simLogs, runLogs bytes.Buffer
 	start(t, &simLogs, nil, "sim", "--provider", "example-sim", "--listen", simAddr)
-	listen := freePort(t)
 	path := filepath.Join(dir, "config.yaml")
-	if err := os.WriteFile(path, []byte(config(simAddr, listen, filepath.Join(dir, "tapyr.db"), true)), 0o600); err != nil {
+	if err := os.WriteFile(path, []byte(config(simAddr, filepath.Join(dir, "tapyr.db"), true)), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	run := start(t, &runLogs, []string{"TAPYR_IT_API_KEY=sim-api-key"}, "run", "--config", path)
@@ -255,11 +295,31 @@ func TestPushOutputs(t *testing.T) {
 		p := otelPoints(t)
 		return p["http example_device_up"] > 0 && p["grpc example_device_up"] > 0 && p["http example_site_info"] > 0
 	})
+	// Prometheus gets them three ways: its scrape of /metrics, remote write
+	// (the external label) and OTLP (the promoted resource attributes).
+	scraped := `example_%s{job="tapyr-metrics"}`
+	pushed := `example_%s{tapyr_run="` + runMarker + `",tapyr_protocol=""}`
+	otlp := `example_%s{tapyr_run="` + runMarker + `",tapyr_protocol="prom-otlp"}`
+	eventually(t, "the devices and sites in Prometheus", 60*time.Second, func() bool {
+		for _, q := range []string{scraped, pushed, otlp} {
+			if promSeries(t, fmt.Sprintf(q, "device_up")) == 0 || promSeries(t, fmt.Sprintf(q, "site_info")) == 0 {
+				return false
+			}
+		}
+		return true
+	})
+	// The scrape of /metrics/self keeps the job label of the Tapyr job.
+	eventually(t, "the self-metrics in Prometheus", 30*time.Second, func() bool {
+		return promSeries(t, `tapyr_job_runs_total{job="devices"}`) > 0
+	})
+	if n := promSeries(t, `{__name__=~"tapyr_.+", exported_job!=""}`); n > 0 {
+		t.Errorf("%d self-metric series renamed the job label to exported_job", n)
+	}
 
 	// Without the sites job, its series are marked stale: they leave the
 	// instant queries of VictoriaMetrics, and the collector receives points
 	// without a recorded value.
-	if err := os.WriteFile(path, []byte(config(simAddr, listen, filepath.Join(dir, "tapyr.db"), false)), 0o600); err != nil {
+	if err := os.WriteFile(path, []byte(config(simAddr, filepath.Join(dir, "tapyr.db"), false)), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	if err := run.Process.Signal(syscall.SIGHUP); err != nil {
@@ -273,15 +333,29 @@ func TestPushOutputs(t *testing.T) {
 	if vmSeries(t, devices) == 0 {
 		t.Error("the devices left VictoriaMetrics")
 	}
+	eventually(t, "the sites marked stale in Prometheus", 60*time.Second, func() bool {
+		for _, q := range []string{scraped, pushed, otlp} {
+			if promSeries(t, fmt.Sprintf(q, "site_info")) > 0 {
+				return false
+			}
+		}
+		return true
+	})
+	for _, q := range []string{scraped, pushed, otlp} {
+		if promSeries(t, fmt.Sprintf(q, "device_up")) == 0 {
+			t.Errorf("%s left Prometheus", fmt.Sprintf(q, "device_up"))
+		}
+	}
 
 	// The self-metrics count what the outputs sent and dropped.
-	resp, err := httpGet("http://" + listen + "/metrics/self")
+	_, port, _ := net.SplitHostPort(listen)
+	resp, err := httpGet("http://127.0.0.1:" + port + "/metrics/self")
 	if err != nil {
 		t.Fatal(err)
 	}
 	self, _ := io.ReadAll(resp.Body)
 	resp.Body.Close()
-	for _, output := range []string{"vm", "otel-http", "otel-grpc"} {
+	for _, output := range []string{"vm", "otel-http", "otel-grpc", "prom-rw", "prom-otlp"} {
 		if !strings.Contains(string(self), fmt.Sprintf(`tapyr_output_samples_sent_total{output=%q}`, output)) {
 			t.Errorf("no samples sent by %s", output)
 		}
