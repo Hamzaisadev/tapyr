@@ -1,6 +1,6 @@
-"""Draws the diagrams of the README in the style of tapyr.eu, each in a light
-and a dark version: the overview (provider APIs, Tapyr, outputs) and How it
-works. The text is converted to paths with the fonts of the web UI, so that
+"""Draws the logo and the diagrams of the README in the style of tapyr.eu,
+each in a light and a dark version: the brand of the site header (mascot and
+wordmark), the overview (provider APIs, Tapyr, outputs) and How it works. The text is converted to paths with the fonts of the web UI, so that
 no font is embedded or loaded.
 
     python3 -m venv .venv && .venv/bin/pip install fonttools brotli
@@ -80,7 +80,14 @@ def rounded(d):
 
 def text(path, wght, size, x, y, s, fill, anchor="start", spacing=0.0):
     """A text as a path; spacing is the letter spacing in em."""
+    return text_runs(path, wght, size, x, y, [(s, fill)], anchor, spacing)
+
+
+def text_runs(path, wght, size, x, y, runs, anchor="start", spacing=0.0):
+    """A text of several colored runs, laid out (kerning included) as one
+    word: a path per run."""
     f, kd = font(path, wght)
+    s = "".join(r for r, _ in runs)
     cmap, gs = f.getBestCmap(), f.getGlyphSet()
     scale = size / f["head"].unitsPerEm
     glyphs = [cmap[ord(ch)] for ch in s]
@@ -93,10 +100,36 @@ def text(path, wght, size, x, y, s, fill, anchor="start", spacing=0.0):
         prev = g
     if anchor == "middle":
         x -= cursor * scale / 2
-    pen = SVGPathPen(gs)
-    for g, at in zip(glyphs, advances):
-        gs[g].draw(TransformPen(pen, (scale, 0, 0, -scale, x + at * scale, y)))
-    return f'<path fill="{fill}" d="{rounded(pen.getCommands())}"/>'
+    out, i = [], 0
+    for r, fill in runs:
+        pen = SVGPathPen(gs)
+        for g, at in zip(glyphs[i:i + len(r)], advances[i:i + len(r)]):
+            gs[g].draw(TransformPen(pen, (scale, 0, 0, -scale, x + at * scale, y)))
+        out.append(f'<path fill="{fill}" d="{rounded(pen.getCommands())}"/>')
+        i += len(r)
+    return "".join(out)
+
+
+def measure(path, wght, size, s, spacing=0.0):
+    """The advance width of a text, kerning and letter spacing included."""
+    f, kd = font(path, wght)
+    cmap = f.getBestCmap()
+    glyphs = [cmap[ord(ch)] for ch in s]
+    width, prev = 0.0, None
+    for g in glyphs:
+        if prev:
+            width += kern(kd, prev, g) + spacing * f["head"].unitsPerEm
+        width += f["hmtx"][g][0]
+        prev = g
+    return width * size / f["head"].unitsPerEm
+
+
+def baseline(path, wght, size, middle):
+    """The baseline that centers a line of text on middle, as a flex row with
+    align-items: center does in the browser."""
+    f, _ = font(path, wght)
+    scale = size / f["head"].unitsPerEm
+    return middle + (f["hhea"].ascent + f["hhea"].descent) / 2 * scale
 
 
 def mix(a, b, t):
@@ -307,3 +340,26 @@ for theme, c in themes.items():
             body.append(text(SANS, 650, 13, cx, y + 26, t, tc, anchor="middle"))
     body.append("</g>")
     write("how-it-works", theme, round(640 * HOW_SCALE), round(200 * HOW_SCALE), how_title, body)
+
+# -------------------------------------------------------------------- logo
+
+# The brand of the header of tapyr.eu: the mascot 64px wide, a gap of 10px,
+# the wordmark in Bricolage Grotesque 750, 24px, letter spacing -0.02em, the
+# "y" in the accent color (--cyan-2 in light, --cyan in dark). Drawn at that
+# size, then scaled for the README.
+LOGO_SCALE = 3
+accent = {"light": "cyan2", "dark": "cyan"}
+for theme, c in themes.items():
+    mascot = 64 / 186
+    word_x = 64 + 10
+    y = baseline(SANS, 750, 24, 100 * mascot / 2)
+    body = [f'<g transform="scale({LOGO_SCALE})">',
+            f'<g transform="scale({mascot:.5f})">{tapir(c)}</g>',
+            text_runs(SANS, 750, 24, word_x, y, [("tap", c["ink"]), ("y", c[accent[theme]]), ("r", c["ink"])], spacing=-0.02),
+            "</g>"]
+    width = round((word_x + measure(SANS, 750, 24, "tapyr", -0.02)) * LOGO_SCALE + 2)
+    height = round(100 * mascot * LOGO_SCALE)
+    svg = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}" '
+           f'role="img" aria-labelledby="title">', '<title id="title">tapyr</title>', *body, "</svg>"]
+    with open(f"{out}/logo-{theme}.svg", "w") as fh:
+        fh.write("\n".join(svg) + "\n")

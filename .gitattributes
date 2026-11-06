@@ -14,3 +14,4 @@ docs/reference/** linguist-generated=true
 ui/package-lock.json linguist-generated=true
 docs/assets/how-it-works-*.svg linguist-generated=true
 docs/assets/overview-*.svg linguist-generated=true
+docs/assets/logo-*.svg linguist-generated=true

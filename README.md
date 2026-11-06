@@ -1,8 +1,8 @@
 <p align="center">
   <a href="https://tapyr.eu">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.png">
-      <img src="docs/assets/logo-light.png" alt="tapyr" width="360">
+      <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
+      <img src="docs/assets/logo-light.svg" alt="tapyr" width="360">
     </picture>
   </a>
 </p>
