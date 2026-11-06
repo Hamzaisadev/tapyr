@@ -1,8 +1,6 @@
 <p align="center">
-  <a href="https://tapyr.eu">
-    <img src="docs/assets/logo-light.svg#gh-light-mode-only" alt="tapyr" width="360">
-    <img src="docs/assets/logo-dark.svg#gh-dark-mode-only" alt="tapyr" width="360">
-  </a>
+  <img src="docs/assets/logo-light.svg#gh-light-mode-only" alt="tapyr" width="360">
+  <img src="docs/assets/logo-dark.svg#gh-dark-mode-only" alt="tapyr" width="360">
 </p>
 
 <p align="center"><strong>Sniff out metrics from any API, without ever blowing your rate limits.</strong></p>
