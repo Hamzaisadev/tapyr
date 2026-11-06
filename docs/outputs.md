@@ -51,7 +51,18 @@ spec:
 
 ### Out-of-order samples
 
-Source timestamps can be older than samples already ingested for a series, for example after a restart, when a job interval changes or when an API reports late data. Prometheus rejects such samples unless out-of-order ingestion is enabled (`storage.tsdb.out_of_order_time_window`); Mimir and Thanos have equivalent settings; VictoriaMetrics accepts them. Rejected batches are counted in `tapyr_output_samples_dropped_total{reason="out_of_order"}`.
+Source timestamps can be older than samples already ingested for a series, for example after a restart, when a job interval changes or when an API reports late data. They can also be older than what the backend still accepts at all: Prometheus refuses samples older than its in-memory head (about an hour) as "out of bounds", even on a fresh server, so any API reporting a timestamp of the day before hits it.
+
+Prometheus rejects such samples unless out-of-order ingestion is enabled, with a window longer than the age of the oldest source timestamp:
+
+```yaml
+# prometheus.yml
+storage:
+  tsdb:
+    out_of_order_time_window: 7d
+```
+
+Without it, **one** sample out of bounds makes Prometheus refuse the whole request (`400`), over remote write and OTLP alike, and the whole batch is dropped: the fresh samples of the other jobs sent with it are lost too. Mimir and Thanos have equivalent settings; VictoriaMetrics accepts such samples. Rejected batches are counted in `tapyr_output_samples_dropped_total{reason="out_of_order"}`, and logged as `samples dropped: the backend rejected the batch` with `class=out_of_order`.
 
 ## `otlp`
 
@@ -95,4 +106,4 @@ The queue holds `capacity` samples per output. While a backend is down, the batc
 
 ## Testing against real backends
 
-`make integration` starts VictoriaMetrics and an OpenTelemetry Collector with Docker Compose (`test/integration/compose.yaml`) and checks that samples and staleness markers land in both, over remote write, OTLP/HTTP and OTLP/gRPC.
+`make integration` starts VictoriaMetrics, an OpenTelemetry Collector and Prometheus with Docker Compose (`test/integration/compose.yaml`) and checks that samples and staleness markers land in all of them: remote write to VictoriaMetrics and Prometheus, OTLP/HTTP and OTLP/gRPC to the collector, OTLP to Prometheus, and the scrape of `/metrics` and `/metrics/self` (with `honor_labels: true`) by Prometheus. The Prometheus of the test enables out-of-order ingestion, since the simulator fixtures carry fixed source timestamps.

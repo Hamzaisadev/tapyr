@@ -111,7 +111,7 @@ e2e: ## Run opt-in end-to-end tests against real providers
 INTEGRATION_COMPOSE := docker compose -f test/integration/compose.yaml
 
 .PHONY: integration
-integration: ## Run the output integration tests against VictoriaMetrics and the OpenTelemetry Collector (Docker)
+integration: ## Run the output integration tests against VictoriaMetrics, the OpenTelemetry Collector and Prometheus (Docker)
 	mkdir -p test/integration/out && chmod 0777 test/integration/out && rm -f test/integration/out/metrics.json
 	$(INTEGRATION_COMPOSE) up -d --wait && \
 		$(GO) test -count=1 -tags integration -v ./test/integration/ ; status=$$?; \
